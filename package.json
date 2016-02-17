@@ -1,4 +1,7 @@
 {
+  "engines": {
+    "node": "5.5.0"
+  },
   "name": "code-pad",
   "version": "1.0.0",
   "description": "HTML5, CSS3 and JS editor with collaboration",
