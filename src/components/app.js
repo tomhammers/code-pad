@@ -1,39 +1,49 @@
-var React = require('react');
-var io = require('socket.io-client');
-var Header = require('./parts/header');
+import React, { Component } from 'react';
+import io from 'socket.io-client';
 
-var App = React.createClass({
+import Header from './../containers/header';
+import LeftSidebar from './../containers/left-sidebar';
+import Pad from './../containers/pad';
+import Preview from './../containers/preview';
 
-    getInitialState() {
-        return {
+let socket = io('http://localhost:3000');
+
+export default class App extends Component {
+    constructor(props) {
+        super(props);
+
+        this.state = {
             title: 'Code-Pad'
-        }
-    },
+        };
+    }
 
     componentWillMount() {
-        this.socket = io('http://localhost:3000');
-        this.socket.on('connect', this.connect);
-        this.socket.on('disconnect', this.disconnect);
-        this.socket.on('welcome', this.welcome);
-    },
+        socket.on('connect', this.connect);
+        socket.on('disconnect', this.disconnect);
+        socket.on('welcome', this.welcome);
+    }
 
     connect() {
-        console.log('Connected! ' + this.socket.id);
-    },
+        console.log('Connected! ' + socket.id);
+    }
 
     disconnect() {
-    },
+    }
 
     welcome(serverState) {
-    },
+    }
 
     render() {
         return (
             <div>
                 <Header title={this.state.title}/>
+                <div className="row">
+                    <LeftSidebar />
+                    <Pad />
+                    <Preview />
+                </div>
             </div>
         );
     }
-});
 
-module.exports = App;
+}
