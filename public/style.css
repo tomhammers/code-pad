@@ -1,0 +1,53 @@
+html, body {
+    height: 100%;
+}
+
+iframe {
+    width: 100%;
+    height: 90vh;
+}
+
+header {
+    border-bottom: 4px solid grey;
+}
+
+#logo {
+    padding: 10px;
+    padding-top: 0;
+    margin: 0px;
+}
+
+body {
+    padding-top:5px;
+    -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+    -moz-box-sizing: border-box;    /* Firefox, other Gecko */
+    box-sizing: border-box;         /* Opera/IE 8+ */
+}
+
+#pad-row {
+    height: 100%;
+}
+
+#editor {
+    height: 90vh;
+    padding-top: 5px;
+    border-left: 2px solid grey;
+}
+
+#left-sidebar {
+
+}
+
+
+
+.ace_editor .ace_tooltip {
+    font-size: 14px;
+    box-shadow: none;
+    border: 1px solid #e2e2e2;
+    background: #f1f1f1;
+    border-radius: 2px;
+    color: #c7254e;
+    padding: 3px 6px;
+}
+
+

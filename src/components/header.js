@@ -6,7 +6,7 @@ export default class Header extends Component {
         return (
             <header className="row">
                 <div className="col-sm-9">
-                    <h3>{this.props.title}</h3>
+                    <h3 id="logo">{this.props.title}</h3>
                 </div>
                 <div className="col-sm-3">
                     Settings | Sign-In

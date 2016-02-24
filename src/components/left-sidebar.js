@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
 
-export default class Preview extends Component {
+export default class LeftSidebar extends Component {
 
     render() {
         return (
             <div>
-                <div className="col-sm-5">
-                    Preview
+                <div id="left-sidebar" className="col-md-1 full-height">
+                    Files
                 </div>
             </div>
         );
