@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
-import _ from 'lodash';
 
 export default class Preview extends Component {
     constructor(props) {
@@ -25,7 +24,7 @@ export default class Preview extends Component {
 
     render() {
         return (
-                <iframe ref="iframe"className="col-md-6 full-height">
+                <iframe ref="iframe"className="col-md-6">
                 </iframe>
         );
     }

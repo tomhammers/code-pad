@@ -1,0 +1,24 @@
+{
+  "id": "2",
+  "projectName": "My Project",
+  "files":
+  [
+    {
+      "filename": "index.html",
+      "content": "<p>Hello World</p>"
+    },
+    {
+      "filename": "style.css",
+      "content": "p {font-size: 16;}"
+    }
+  ],
+  "public": false,
+  "users":
+  [
+    {
+      "user": "username"
+    }
+  ]
+
+
+}

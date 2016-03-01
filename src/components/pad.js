@@ -5,9 +5,7 @@ import AceEditor from 'react-ace';
 import 'brace/mode/javascript';
 import 'brace/mode/html';
 import 'brace/mode/css';
-import 'brace/theme/dawn';
-
-
+import 'brace/theme/dreamweaver';
 
 function onChange(newValue) {
     console.log('change', newValue);
@@ -18,32 +16,48 @@ export default class Pad extends Component {
     constructor(props) {
         super(props);
         // set initial state here, so code from database?
-        //this.state = { term: '' };
+        this.state = {padContent: this.props.code};
 
         this.whenChanged = this.whenChanged.bind(this);
+        this.whenCleared = this.whenCleared.bind(this);
     }
+
     // calls parent method
     whenChanged(value) {
-        this.props.onChange(value);
+        this.props.onChange('code', value);
     }
 
-    componentDidMount() {
-        var editor = ace.edit('editor');
-        editor.getSession().setMode('ace/mode/html');
-        editor.setTheme('ace/theme/dawn');
-        editor.getSession().doc.on('change', () => {
-            let content = editor.getSession().getValue();
-            this.whenChanged(content);
-        });
-        editor.getSession().setValue(this.props.initialCode);
-        editor.$blockScrolling = Infinity;
+    //componentDidMount() {
+    //    this.editor = Ace.edit('editor');
+    //    this.editor.getSession().setMode('ace/mode/html');
+    //    this.editor.setTheme('ace/theme/dawn');
+    //    this.editor.getSession().doc.on('change', () => {
+    //        let content = this.editor.getSession().getValue();
+    //        this.whenChanged(content);
+    //    });
+    //    this.editor.getSession().setValue(this.props.code);
+    //    this.editor.$blockScrolling = Infinity;
+    //}
 
+
+    whenCleared() {
+        this.editor.getSession().setValue(this.props.code);
     }
 
 
     render() {
         return (
-            <div onChange={this.whenChanged} id="editor" className="col-md-5 full-height">
+            <div className="col-md-5">
+                <AceEditor
+                    mode="html"
+                    theme="dreamweaver"
+                    onChange={this.whenChanged}
+                    name="htmlPad"
+                    editorProps={{$blockScrolling: true}}
+                    value={this.props.code}
+                    height="90vh"
+                    fontSize={16}
+                />
             </div>
         );
     }
