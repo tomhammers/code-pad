@@ -8,6 +8,7 @@ export default class PouchDB {
 
     constructor() {
         this.projectData = {};
+        this.selectedProject = {};
     }
 
     createDB(dbName) {
@@ -41,14 +42,25 @@ export default class PouchDB {
         });
     }
 
-    getDocs() {
+    getDocs(callback) {
         this.db.allDocs({
            include_docs: true
         }).then((result) => {
             this.dbContents = result;
-            return result;
+            callback();
+            //return;
         }).catch((error) => {
             console.log(error);
+        });
+    }
+
+    findSingleDoc(id, callback) {
+        this.db.get(id).then(function (doc) {
+            //console.log(doc);
+            //this.selectedProject = doc;
+            callback(doc);
+        }).catch(function (err) {
+            console.log(err);
         });
     }
 

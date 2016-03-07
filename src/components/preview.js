@@ -7,8 +7,7 @@ export default class Preview extends Component {
     }
 
     componentDidMount() {
-        this.populateSandbox();
-
+         this.sandbox = this.refs.iframe;
     }
 
     componentDidUpdate() {
@@ -16,10 +15,9 @@ export default class Preview extends Component {
     }
 
     populateSandbox() {
-        var sandbox = this.refs.iframe;
-        sandbox.contentWindow.document.open();
-        sandbox.contentWindow.document.write(this.props.code);
-        sandbox.contentWindow.document.close();
+        this.sandbox.contentWindow.document.open();
+        this.sandbox.contentWindow.document.write(this.props.code);
+        this.sandbox.contentWindow.document.close();
     }
 
     render() {

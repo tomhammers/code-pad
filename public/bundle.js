@@ -24734,9 +24734,13 @@
 
 	var _preview2 = _interopRequireDefault(_preview);
 
-	var _modal = __webpack_require__(346);
+	var _saveModal = __webpack_require__(346);
 
-	var _modal2 = _interopRequireDefault(_modal);
+	var _saveModal2 = _interopRequireDefault(_saveModal);
+
+	var _openModal = __webpack_require__(589);
+
+	var _openModal2 = _interopRequireDefault(_openModal);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -24762,14 +24766,15 @@
 	        // will be used for DB and socket.io and for unique URL for project
 	        _this.uniqueID = _this.generateUniqueID(10);
 	        _this.initialCode = "<html>\n    <body>\n        \n    </body>\n</html>";
-	        _this.projectNames = [];
+	        _this.projects = [];
 
 	        _this.state = {
 	            title: 'Code-Pad',
 	            projectName: '',
 	            code: _this.initialCode,
 	            showSaveModal: false,
-	            showOpenModal: false
+	            showOpenModal: false,
+	            projectsFromDB: []
 	        };
 
 	        _this.handleChange = _this.handleChange.bind(_this);
@@ -24777,7 +24782,10 @@
 	        _this.createNewDoc = _this.createNewDoc.bind(_this);
 	        _this.newProject = _this.newProject.bind(_this);
 	        _this.openProject = _this.openProject.bind(_this);
-	        //this.open = this.open.bind(this);
+	        _this.viewProjects = _this.viewProjects.bind(_this);
+	        _this.storeProjects = _this.storeProjects.bind(_this);
+	        _this.closeModal = _this.closeModal.bind(_this);
+	        _this.loadProject = _this.loadProject.bind(_this);
 	        return _this;
 	    }
 
@@ -24812,6 +24820,11 @@
 	        key: 'welcome',
 	        value: function welcome(serverState) {}
 	    }, {
+	        key: 'closeModal',
+	        value: function closeModal() {
+	            this.setState({ showOpenModal: false });
+	        }
+	    }, {
 	        key: 'handleChange',
 	        value: function handleChange(stateToChange, value) {
 	            switch (stateToChange) {
@@ -24823,6 +24836,19 @@
 	                    break;
 	            }
 	        }
+
+	        // this is 'Save As', or what happens when user first saves the project
+
+	    }, {
+	        key: 'createNewDoc',
+	        value: function createNewDoc() {
+	            this.pdb.setProjectDoc(this.uniqueID, 'index.html', this.state.code, this.state.projectName);
+	            this.pdb.upsertDoc();
+	            this.setState({ showSaveModal: false });
+	        }
+
+	        // normal save, if project is not defined then it shows the user a 'Save As' Modal
+
 	    }, {
 	        key: 'handleSave',
 	        value: function handleSave() {
@@ -24837,58 +24863,76 @@
 	                this.setState({ showSaveModal: true });
 	            }
 	        }
+
+	        // reset everything
+
 	    }, {
 	        key: 'newProject',
 	        value: function newProject() {
 	            this.setState({ projectName: '', code: this.initialCode });
+	            // need a new ID now
+	            this.uniqueID = this.generateUniqueID(10);
+	        }
+
+	        // note callback is passed which is called once the operation has finished
+
+	    }, {
+	        key: 'viewProjects',
+	        value: function viewProjects() {
+	            this.pdb.getDocs(this.storeProjects);
+	        }
+
+	        // this is called once pouch has retrieved docs from the DB, store all project names locally
+
+	    }, {
+	        key: 'storeProjects',
+	        value: function storeProjects() {
+	            var _iteratorNormalCompletion = true;
+	            var _didIteratorError = false;
+	            var _iteratorError = undefined;
+
+	            try {
+	                for (var _iterator = this.pdb.dbContents.rows[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+	                    var row = _step.value;
+
+	                    this.projects.push(row.doc);
+	                }
+	            } catch (err) {
+	                _didIteratorError = true;
+	                _iteratorError = err;
+	            } finally {
+	                try {
+	                    if (!_iteratorNormalCompletion && _iterator.return) {
+	                        _iterator.return();
+	                    }
+	                } finally {
+	                    if (_didIteratorError) {
+	                        throw _iteratorError;
+	                    }
+	                }
+	            }
+
+	            this.setState({
+	                projectsFromDB: this.projects,
+	                showOpenModal: true });
 	        }
 	    }, {
 	        key: 'openProject',
-	        value: function openProject() {
-	            var _this2 = this;
-
-	            this.pdb.getDocs();
-	            this.setState({ showOpenModal: true });
-	            setTimeout(function () {
-	                var _iteratorNormalCompletion = true;
-	                var _didIteratorError = false;
-	                var _iteratorError = undefined;
-
-	                try {
-	                    for (var _iterator = _this2.pdb.dbContents.rows[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-	                        var row = _step.value;
-
-	                        //console.log(row.doc.projectName);
-	                        _this2.projectNames.push(row.doc.projectName);
-	                        console.log(_this2.projectNames);
-	                    }
-	                } catch (err) {
-	                    _didIteratorError = true;
-	                    _iteratorError = err;
-	                } finally {
-	                    try {
-	                        if (!_iteratorNormalCompletion && _iterator.return) {
-	                            _iterator.return();
-	                        }
-	                    } finally {
-	                        if (_didIteratorError) {
-	                            throw _iteratorError;
-	                        }
-	                    }
-	                }
-	            }, 100);
+	        value: function openProject(projectID) {
+	            console.log(projectID);
+	            // lets restore the project along with the ID
+	            this.pdb.findSingleDoc(projectID, this.loadProject);
 	        }
 	    }, {
-	        key: 'createNewDoc',
-	        value: function createNewDoc() {
-	            this.pdb.setProjectDoc(this.uniqueID, 'index.html', this.state.code, this.state.projectName);
-	            this.pdb.upsertDoc();
-	            this.setState({ showSaveModal: false });
-	        }
-	    }, {
-	        key: 'open',
-	        value: function open() {
-	            console.log('open project called');
+	        key: 'loadProject',
+	        value: function loadProject(proj) {
+	            console.log(proj);
+	            this.uniqueID = proj._id;
+	            this.setState({
+	                projectName: proj.projectName,
+	                code: proj.files[0].content,
+	                showOpenModal: false
+	            });
 	        }
 	    }, {
 	        key: 'render',
@@ -24901,21 +24945,23 @@
 	                    title: this.state.title,
 	                    onSave: this.handleSave,
 	                    onNew: this.newProject,
-	                    onOpen: this.openProject
+	                    onOpen: this.viewProjects
 	                }),
-	                _react2.default.createElement(_modal2.default, {
+	                _react2.default.createElement(_saveModal2.default, {
+	                    modalTitle: 'Save',
 	                    onChange: this.handleChange,
 	                    show: this.state.showSaveModal,
 	                    inputValue: this.state.projectName,
-	                    modalTitle: 'Save',
 	                    buttonTitle: 'Save',
 	                    buttonClick: this.createNewDoc
 	                }),
-	                _react2.default.createElement(_modal2.default, {
-	                    show: this.state.showOpenModal,
+	                _react2.default.createElement(_openModal2.default, {
 	                    modalTitle: 'Open Project',
+	                    show: this.state.showOpenModal,
 	                    buttonTitle: 'Close',
-	                    projects: this.projectNames
+	                    projects: this.state.projectsFromDB,
+	                    buttonClick: this.closeModal,
+	                    selectProject: this.openProject
 	                }),
 	                _react2.default.createElement(
 	                    'div',
@@ -32393,6 +32439,7 @@
 	        _classCallCheck(this, PouchDB);
 
 	        this.projectData = {};
+	        this.selectedProject = {};
 	    }
 
 	    _createClass(PouchDB, [{
@@ -32429,16 +32476,28 @@
 	        }
 	    }, {
 	        key: 'getDocs',
-	        value: function getDocs() {
+	        value: function getDocs(callback) {
 	            var _this2 = this;
 
 	            this.db.allDocs({
 	                include_docs: true
 	            }).then(function (result) {
 	                _this2.dbContents = result;
-	                return result;
+	                callback();
+	                //return;
 	            }).catch(function (error) {
 	                console.log(error);
+	            });
+	        }
+	    }, {
+	        key: 'findSingleDoc',
+	        value: function findSingleDoc(id, callback) {
+	            this.db.get(id).then(function (doc) {
+	                //console.log(doc);
+	                //this.selectedProject = doc;
+	                callback(doc);
+	            }).catch(function (err) {
+	                console.log(err);
 	            });
 	        }
 	    }]);
@@ -74399,7 +74458,7 @@
 	    _createClass(Preview, [{
 	        key: 'componentDidMount',
 	        value: function componentDidMount() {
-	            this.populateSandbox();
+	            this.sandbox = this.refs.iframe;
 	        }
 	    }, {
 	        key: 'componentDidUpdate',
@@ -74409,10 +74468,9 @@
 	    }, {
 	        key: 'populateSandbox',
 	        value: function populateSandbox() {
-	            var sandbox = this.refs.iframe;
-	            sandbox.contentWindow.document.open();
-	            sandbox.contentWindow.document.write(this.props.code);
-	            sandbox.contentWindow.document.close();
+	            this.sandbox.contentWindow.document.open();
+	            this.sandbox.contentWindow.document.write(this.props.code);
+	            this.sandbox.contentWindow.document.close();
 	        }
 	    }, {
 	        key: 'render',
@@ -74458,20 +74516,20 @@
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-	var ModalComponent = function (_Component) {
-	    _inherits(ModalComponent, _Component);
+	var SaveModal = function (_Component) {
+	    _inherits(SaveModal, _Component);
 
-	    function ModalComponent(props) {
-	        _classCallCheck(this, ModalComponent);
+	    function SaveModal(props) {
+	        _classCallCheck(this, SaveModal);
 
-	        var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(ModalComponent).call(this, props));
+	        var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(SaveModal).call(this, props));
 
 	        _this.handleClick = _this.handleClick.bind(_this);
 	        _this.whenChanged = _this.whenChanged.bind(_this);
 	        return _this;
 	    }
 
-	    _createClass(ModalComponent, [{
+	    _createClass(SaveModal, [{
 	        key: 'handleClick',
 	        value: function handleClick() {
 	            this.props.buttonClick();
@@ -74484,8 +74542,6 @@
 	    }, {
 	        key: 'render',
 	        value: function render() {
-	            var _this2 = this;
-
 	            return _react2.default.createElement(
 	                _reactBootstrap.Modal,
 	                { show: this.props.show },
@@ -74501,48 +74557,17 @@
 	                _react2.default.createElement(
 	                    _reactBootstrap.Modal.Body,
 	                    null,
-	                    function () {
-	                        switch (_this2.props.modalTitle) {
-	                            case 'Save':
-	                                return [_react2.default.createElement(
-	                                    'h6',
-	                                    {
-	                                        key: _this2.props.modalTitle },
-	                                    'Save As:'
-	                                ), _react2.default.createElement(_reactBootstrap.Input, { key: '133445323',
-	                                    type: 'text',
-	                                    value: _this2.props.inputValue,
-	                                    onChange: _this2.whenChanged
-	                                })];
-	                            case 'Open Project':
-	                                console.log(_this2.props.projects);
-	                                var _iteratorNormalCompletion = true;
-	                                var _didIteratorError = false;
-	                                var _iteratorError = undefined;
-
-	                                try {
-	                                    for (var _iterator = _this2.props.projects[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-	                                        var project = _step.value;
-
-	                                        console.log(gg);
-	                                    }
-	                                } catch (err) {
-	                                    _didIteratorError = true;
-	                                    _iteratorError = err;
-	                                } finally {
-	                                    try {
-	                                        if (!_iteratorNormalCompletion && _iterator.return) {
-	                                            _iterator.return();
-	                                        }
-	                                    } finally {
-	                                        if (_didIteratorError) {
-	                                            throw _iteratorError;
-	                                        }
-	                                    }
-	                                }
-
-	                        }
-	                    }()
+	                    _react2.default.createElement(
+	                        'h6',
+	                        {
+	                            key: this.props.modalTitle },
+	                        'Save As:'
+	                    ),
+	                    _react2.default.createElement(_reactBootstrap.Input, { key: '133445323',
+	                        type: 'text',
+	                        value: this.props.inputValue,
+	                        onChange: this.whenChanged
+	                    })
 	                ),
 	                _react2.default.createElement(
 	                    _reactBootstrap.Modal.Footer,
@@ -74553,10 +74578,10 @@
 	        }
 	    }]);
 
-	    return ModalComponent;
+	    return SaveModal;
 	}(_react.Component);
 
-	exports.default = ModalComponent;
+	exports.default = SaveModal;
 
 /***/ },
 /* 347 */
@@ -91507,6 +91532,123 @@
 
 	exports['default'] = Well;
 	module.exports = exports['default'];
+
+/***/ },
+/* 589 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _reactBootstrap = __webpack_require__(347);
+
+	var _reactBootstrap2 = _interopRequireDefault(_reactBootstrap);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var OpenModal = function (_Component) {
+	    _inherits(OpenModal, _Component);
+
+	    function OpenModal(props) {
+	        _classCallCheck(this, OpenModal);
+
+	        var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(OpenModal).call(this, props));
+
+	        _this.state = {
+	            projectItems: ''
+	        };
+
+	        _this.whenClicked = _this.whenClicked.bind(_this);
+	        _this.setProjectItems = _this.setProjectItems.bind(_this);
+	        return _this;
+	    }
+
+	    _createClass(OpenModal, [{
+	        key: 'whenClicked',
+	        value: function whenClicked(projectID) {
+	            this.props.selectProject(projectID);
+	        }
+	    }, {
+	        key: 'setProjectItems',
+	        value: function setProjectItems() {
+	            var _this2 = this;
+
+	            this.props.projects.map(function (project, i) {
+	                return _react2.default.createElement(
+	                    'li',
+	                    {
+	                        key: i,
+	                        onClick: function onClick() {
+	                            return _this2.whenClicked(project._id);
+	                        },
+	                        className: 'list-group-item'
+	                    },
+	                    project.projectName
+	                );
+	            });
+	        }
+	    }, {
+	        key: 'render',
+	        value: function render() {
+	            var _this3 = this;
+
+	            return _react2.default.createElement(
+	                _reactBootstrap.Modal,
+	                { show: this.props.show },
+	                _react2.default.createElement(
+	                    _reactBootstrap.Modal.Header,
+	                    null,
+	                    _react2.default.createElement(
+	                        _reactBootstrap.Modal.Title,
+	                        null,
+	                        this.props.modalTitle
+	                    )
+	                ),
+	                _react2.default.createElement(
+	                    _reactBootstrap.Modal.Body,
+	                    null,
+	                    _react2.default.createElement(
+	                        'ul',
+	                        { className: 'list-group' },
+	                        this.props.projects.map(function (project, i) {
+	                            return _react2.default.createElement(
+	                                'li',
+	                                {
+	                                    key: i,
+	                                    onClick: function onClick() {
+	                                        return _this3.whenClicked(project._id);
+	                                    },
+	                                    className: 'list-group-item'
+	                                },
+	                                project.projectName
+	                            );
+	                        })
+	                    )
+	                ),
+	                _react2.default.createElement(_reactBootstrap.Modal.Footer, null)
+	            );
+	        }
+	    }]);
+
+	    return OpenModal;
+	}(_react.Component);
+
+	exports.default = OpenModal;
 
 /***/ }
 /******/ ]);

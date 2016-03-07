@@ -8,7 +8,8 @@ import Header from './../components/header';
 import LeftSidebar from './../components/left-sidebar';
 import Pad from './../components/pad';
 import Preview from './../components/preview';
-import Modal from './../components/modal';
+import SaveModal from './../components/save-modal';
+import OpenModal from './../components/open-modal';
 
 const socket = io('http://localhost:3000');
 
@@ -21,7 +22,7 @@ export default class App extends Component {
         // will be used for DB and socket.io and for unique URL for project
         this.uniqueID = this.generateUniqueID(10);
         this.initialCode = "<html>\n    <body>\n        \n    </body>\n</html>";
-        this.projectNames = [];
+        this.projects = [];
 
 
         this.state = {
@@ -29,7 +30,8 @@ export default class App extends Component {
             projectName: '',
             code: this.initialCode,
             showSaveModal: false,
-            showOpenModal: false
+            showOpenModal: false,
+            projectsFromDB: []
         };
 
         this.handleChange = this.handleChange.bind(this);
@@ -37,7 +39,10 @@ export default class App extends Component {
         this.createNewDoc = this.createNewDoc.bind(this);
         this.newProject = this.newProject.bind(this);
         this.openProject = this.openProject.bind(this);
-        //this.open = this.open.bind(this);
+        this.viewProjects = this.viewProjects.bind(this);
+        this.storeProjects = this.storeProjects.bind(this);
+        this.closeModal = this.closeModal.bind(this);
+        this.loadProject = this.loadProject.bind(this);
     }
 
     componentWillMount() {
@@ -67,6 +72,10 @@ export default class App extends Component {
     welcome(serverState) {
     }
 
+    closeModal() {
+        this.setState({ showOpenModal: false });
+    }
+
     handleChange(stateToChange, value) {
         switch (stateToChange) {
             case 'code':
@@ -78,6 +87,14 @@ export default class App extends Component {
         }
     }
 
+    // this is 'Save As', or what happens when user first saves the project
+    createNewDoc() {
+        this.pdb.setProjectDoc(this.uniqueID, 'index.html', this.state.code, this.state.projectName);
+        this.pdb.upsertDoc();
+        this.setState({ showSaveModal: false });
+    }
+
+    // normal save, if project is not defined then it shows the user a 'Save As' Modal
     handleSave() {
         // should set or update data before putting to DB
         this.pdb.setProjectDoc(this.uniqueID, 'index.html', this.state.code, this.state.projectName);
@@ -91,32 +108,43 @@ export default class App extends Component {
         }
     }
 
+    // reset everything
     newProject() {
         this.setState({projectName: '', code: this.initialCode});
+        // need a new ID now
+        this.uniqueID = this.generateUniqueID(10);
     }
 
-    openProject() {
-        this.pdb.getDocs();
-        this.setState({ showOpenModal: true });
-        setTimeout(() => {
-            for (let row of this.pdb.dbContents.rows) {
-                //console.log(row.doc.projectName);
-                this.projectNames.push(row.doc.projectName);
-                console.log(this.projectNames);
-            }
-        }, 100);
-
+    // note callback is passed which is called once the operation has finished
+    viewProjects() {
+        this.pdb.getDocs(this.storeProjects);
     }
 
-    createNewDoc() {
-        this.pdb.setProjectDoc(this.uniqueID, 'index.html', this.state.code, this.state.projectName);
-        this.pdb.upsertDoc();
-        this.setState({ showSaveModal: false });
+    // this is called once pouch has retrieved docs from the DB, store all project names locally
+    storeProjects() {
+        for (let row of this.pdb.dbContents.rows) {
+            this.projects.push(row.doc);
+        }
+
+        this.setState({
+            projectsFromDB: this.projects,
+            showOpenModal: true });
     }
 
-    open() {
-        console.log('open project called');
+    openProject(projectID) {
+        console.log(projectID);
+        // lets restore the project along with the ID
+        this.pdb.findSingleDoc(projectID, this.loadProject);
+    }
 
+    loadProject(proj) {
+        console.log(proj);
+        this.uniqueID = proj._id;
+        this.setState({
+            projectName: proj.projectName,
+            code: proj.files[0].content,
+            showOpenModal: false
+        });
     }
 
     render() {
@@ -127,23 +155,25 @@ export default class App extends Component {
                     title={this.state.title}
                     onSave={this.handleSave}
                     onNew={this.newProject}
-                    onOpen={this.openProject}
+                    onOpen={this.viewProjects}
                 />
 
-                <Modal
+                <SaveModal
+                    modalTitle='Save'
                     onChange={this.handleChange}
                     show={this.state.showSaveModal}
                     inputValue={this.state.projectName}
-                    modalTitle='Save'
                     buttonTitle='Save'
                     buttonClick={ this.createNewDoc }
                 />
 
-                <Modal
-                    show={this.state.showOpenModal}
+                <OpenModal
                     modalTitle='Open Project'
+                    show={this.state.showOpenModal}
                     buttonTitle='Close'
-                    projects={this.projectNames}
+                    projects={this.state.projectsFromDB}
+                    buttonClick={ this.closeModal }
+                    selectProject={ this.openProject }
                 />
 
                 <div className="row">
