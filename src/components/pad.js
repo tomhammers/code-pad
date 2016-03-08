@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import Ace from 'brace';
 import AceEditor from 'react-ace';
+import { Col } from 'react-bootstrap';
 
 import 'brace/mode/javascript';
 import 'brace/mode/html';
@@ -27,18 +28,6 @@ export default class Pad extends Component {
         this.props.onChange('code', value);
     }
 
-    //componentDidMount() {
-    //    this.editor = Ace.edit('editor');
-    //    this.editor.getSession().setMode('ace/mode/html');
-    //    this.editor.setTheme('ace/theme/dawn');
-    //    this.editor.getSession().doc.on('change', () => {
-    //        let content = this.editor.getSession().getValue();
-    //        this.whenChanged(content);
-    //    });
-    //    this.editor.getSession().setValue(this.props.code);
-    //    this.editor.$blockScrolling = Infinity;
-    //}
-
 
     whenCleared() {
         this.editor.getSession().setValue(this.props.code);
@@ -47,7 +36,7 @@ export default class Pad extends Component {
 
     render() {
         return (
-            <div className="col-md-5">
+            <Col md={5}>
                 <AceEditor
                     mode="html"
                     theme="dreamweaver"
@@ -55,10 +44,11 @@ export default class Pad extends Component {
                     name="htmlPad"
                     editorProps={{$blockScrolling: true}}
                     value={this.props.code}
-                    height="90vh"
                     fontSize={16}
+                    height="90vh"
                 />
-            </div>
+            </Col>
         );
     }
 }
+

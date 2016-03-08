@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
+import { Button } from 'react-bootstrap';
 
-export default class Button extends Component {
+export default class BSButton extends Component {
 
     constructor(props) {
         super(props);
@@ -14,12 +15,12 @@ export default class Button extends Component {
 
     render() {
         return (
-            <button
+            <Button
                 style={buttonStyle}
                 onClick={this.handleClick}
                 type="button"
-                className="btn btn-primary"
-            >{this.props.buttonTitle}</button>
+                bsStyle="primary"
+            >{this.props.buttonTitle}</Button>
         );
     }
 }

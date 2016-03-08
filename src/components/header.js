@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { Grid, Row, Col } from 'react-bootstrap';
 import Button from './button.js';
 
 
@@ -26,21 +27,35 @@ export default class Header extends Component {
 
     render() {
         return (
-            <header className="row">
-                <div className="col-sm-10">
-                    <h3 id="logo">{this.props.title}</h3>
+            <Row style={style.headerStyle}>
+
+                <Col md={10}>
+                    <h3 style={style.logo}>{this.props.title}</h3>
                     <Button whenClicked={this.whenSaved} buttonTitle='Save'/>
                     <Button whenClicked={this.new} buttonTitle='New'/>
                     <Button whenClicked={this.load} buttonTitle='Open'/>
-                </div>
-                <div className="col-sm-2 pull-right">
+                </Col>
+                <Col md={2}>
                     Settings | Sign-In
-                </div>
-            </header>
+                </Col>
+            </Row>
+
         );
     }
 }
 
 Header.propTypes = {
     title: React.PropTypes.string.isRequired
+};
+
+let style = {
+    headerStyle: {
+        borderBottom: '4px solid grey',
+        paddingBottom: '3px'
+    },
+    logo: {
+        padding: '10px',
+        paddingTop: 0,
+        margin: 0
+    }
 };

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
+import { Grid, Row } from 'react-bootstrap';
 import io from 'socket.io-client';
-
 import Pouch from '../pouch/pouchdb';
 
 import Header from './../components/header';
@@ -73,7 +73,7 @@ export default class App extends Component {
     }
 
     closeModal() {
-        this.setState({ showOpenModal: false });
+        this.setState({showOpenModal: false});
     }
 
     handleChange(stateToChange, value) {
@@ -91,7 +91,7 @@ export default class App extends Component {
     createNewDoc() {
         this.pdb.setProjectDoc(this.uniqueID, 'index.html', this.state.code, this.state.projectName);
         this.pdb.upsertDoc();
-        this.setState({ showSaveModal: false });
+        this.setState({showSaveModal: false});
     }
 
     // normal save, if project is not defined then it shows the user a 'Save As' Modal
@@ -104,7 +104,7 @@ export default class App extends Component {
             this.pdb.upsertDoc();
         } else {
             // else show modal so user can name the project
-            this.setState({ showSaveModal: true });
+            this.setState({showSaveModal: true});
         }
     }
 
@@ -128,7 +128,8 @@ export default class App extends Component {
 
         this.setState({
             projectsFromDB: this.projects,
-            showOpenModal: true });
+            showOpenModal: true
+        });
     }
 
     openProject(projectID) {
@@ -149,7 +150,7 @@ export default class App extends Component {
 
     render() {
         return (
-            <div>
+            <Grid fluid={true}>
                 <Header
                     className="header"
                     title={this.state.title}
@@ -157,6 +158,20 @@ export default class App extends Component {
                     onNew={this.newProject}
                     onOpen={this.viewProjects}
                 />
+
+                <Row>
+                    <LeftSidebar
+                    />
+
+                    <Pad
+                        onChange={this.handleChange}
+                        code={this.state.code}
+                    />
+
+                    <Preview
+                        code={this.state.code}
+                    />
+                </Row>
 
                 <SaveModal
                     modalTitle='Save'
@@ -176,20 +191,9 @@ export default class App extends Component {
                     selectProject={ this.openProject }
                 />
 
-                <div className="row">
-                    <LeftSidebar
-                    />
+            </Grid>
 
-                    <Pad
-                        onChange={this.handleChange}
-                        code={this.state.code}
-                    />
 
-                    <Preview
-                        code={this.state.code}
-                    />
-                </div>
-            </div>
         );
     }
 }

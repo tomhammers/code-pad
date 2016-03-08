@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
+import { Col } from 'react-bootstrap';
 
 export default class Preview extends Component {
     constructor(props) {
@@ -7,7 +8,7 @@ export default class Preview extends Component {
     }
 
     componentDidMount() {
-         this.sandbox = this.refs.iframe;
+        this.sandbox = this.refs.iframe;
     }
 
     componentDidUpdate() {
@@ -22,9 +23,16 @@ export default class Preview extends Component {
 
     render() {
         return (
-                <iframe ref="iframe"className="col-md-6">
+            <Col md={6}>
+                <iframe ref="iframe" style={style}>
                 </iframe>
+            </Col>
         );
     }
 }
 
+let style = {
+    width: '100%',
+    height: '90vh',
+    borderTop: 0
+};

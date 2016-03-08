@@ -4,6 +4,10 @@ import { Route, IndexRoute } from 'react-router';
 import App from './containers/app';
 
 ReactDOM.render(
-    <App />,
-    document.getElementById('react-container')
+    <App style={style}/>,
+    document.getElementById('app')
 );
+
+let style = {
+  height: '100%'
+};
