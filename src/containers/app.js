@@ -150,7 +150,7 @@ export default class App extends Component {
 
     render() {
         return (
-            <Grid fluid={true}>
+            <Grid fluid>
                 <Header
                     className="header"
                     title={this.state.title}

@@ -10,7 +10,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "prestart": "webpack",
     "start": "node server.js",
-    "github": "git push origin master"
+    "github": "git push origin master",
+    "ds": "node ./node_modules/webpack-dev-server/bin/webpack-dev-server.js"
   },
   "repository": {
     "type": "git",
@@ -41,7 +42,8 @@
     "babel-preset-es2015": "^6.5.0",
     "babel-preset-react": "^6.5.0",
     "node-babel": "^0.1.2",
-    "webpack": "^1.12.13"
+    "webpack": "^1.12.13",
+    "webpack-dev-server": "^1.14.1"
   },
   "bugs": {
     "url": "https://github.com/tomhammers/code-pad/issues"

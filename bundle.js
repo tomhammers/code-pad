@@ -34,7 +34,7 @@
 /******/ 	__webpack_require__.c = installedModules;
 
 /******/ 	// __webpack_public_path__
-/******/ 	__webpack_require__.p = "";
+/******/ 	__webpack_require__.p = "/public";
 
 /******/ 	// Load entry module and return exports
 /******/ 	return __webpack_require__(0);
@@ -24775,7 +24775,7 @@
 	        _this.projects = [];
 
 	        _this.state = {
-	            title: 'Code-Pad',
+	            title: 'Code-Paddhouhouer',
 	            projectName: '',
 	            code: _this.initialCode,
 	            showSaveModal: false,
@@ -66984,6 +66984,13 @@
 	    }
 
 	    _createClass(Header, [{
+	        key: 'getDefaultProps',
+	        value: function getDefaultProps() {
+	            return {
+	                connected: 'false'
+	            };
+	        }
+	    }, {
 	        key: 'whenSaved',
 	        value: function whenSaved() {
 	            this.props.onSave();
@@ -67013,76 +67020,37 @@
 	                    margin: 0
 	                },
 	                connectionStatus: {
-	                    borderRadius: '50%',
-	                    width: '20px',
-	                    height: '20px',
+	                    width: '100px',
+	                    height: '100px',
 	                    background: 'red'
 	                }
 	            };
 
 	            return _react2.default.createElement(
-	                _reactBootstrap.Navbar,
-	                { inverse: true, fluid: true },
+	                _reactBootstrap.Row,
+	                { style: style.headerStyle },
 	                _react2.default.createElement(
-	                    _reactBootstrap.Navbar.Header,
-	                    null,
+	                    _reactBootstrap.Col,
+	                    { md: 10 },
 	                    _react2.default.createElement(
-	                        _reactBootstrap.Navbar.Brand,
-	                        null,
-	                        'Code-Pad'
+	                        'h3',
+	                        { style: style.logo },
+	                        this.props.title
 	                    ),
-	                    _react2.default.createElement(_reactBootstrap.Navbar.Toggle, null)
+	                    _react2.default.createElement(_button2.default, { whenClicked: this.whenSaved, buttonTitle: 'Save' }),
+	                    _react2.default.createElement(_button2.default, { whenClicked: this.new, buttonTitle: 'New' }),
+	                    _react2.default.createElement(_button2.default, { whenClicked: this.load, buttonTitle: 'Open' })
 	                ),
 	                _react2.default.createElement(
-	                    _reactBootstrap.Navbar.Collapse,
-	                    null,
+	                    _reactBootstrap.Col,
+	                    { md: 2 },
+	                    'Settings | Sign-In',
 	                    _react2.default.createElement(
-	                        _reactBootstrap.Nav,
-	                        null,
-	                        _react2.default.createElement(
-	                            _reactBootstrap.NavDropdown,
-	                            { eventKey: 3, title: 'File', id: 'basic-nav-dropdown' },
-	                            _react2.default.createElement(
-	                                _reactBootstrap.MenuItem,
-	                                { eventKey: 3.1 },
-	                                'New'
-	                            ),
-	                            _react2.default.createElement(
-	                                _reactBootstrap.MenuItem,
-	                                { eventKey: 3.2 },
-	                                'Open'
-	                            ),
-	                            _react2.default.createElement(
-	                                _reactBootstrap.MenuItem,
-	                                { eventKey: 3.3 },
-	                                'Save'
-	                            )
-	                        ),
-	                        _react2.default.createElement(
-	                            _reactBootstrap.NavItem,
-	                            { eventKey: 1, href: '#' },
-	                            'Link'
-	                        ),
-	                        _react2.default.createElement(
-	                            _reactBootstrap.NavItem,
-	                            { eventKey: 2, href: '#' },
-	                            'Link'
-	                        )
+	                        'div',
+	                        { className: 'status' },
+	                        'dfzdfz'
 	                    ),
-	                    _react2.default.createElement(
-	                        _reactBootstrap.Nav,
-	                        { pullRight: true },
-	                        _react2.default.createElement(
-	                            _reactBootstrap.NavItem,
-	                            { eventKey: 1, href: '#' },
-	                            'Settings'
-	                        ),
-	                        _react2.default.createElement(
-	                            _reactBootstrap.NavItem,
-	                            { eventKey: 2, href: '#' },
-	                            'Sign In'
-	                        )
-	                    )
+	                    'dfadfa'
 	                )
 	            );
 	        }
@@ -67094,30 +67062,9 @@
 	exports.default = Header;
 
 
-	Header.defaultProps = {
-	    connected: 'false'
-	};
-
 	Header.propTypes = {
 	    title: _react2.default.PropTypes.string.isRequired
 	};
-
-	//<Row style={style.headerStyle}>
-	//    <Col md={9}>
-	//        <h3 style={style.logo}>{this.props.title}</h3>
-	//        <Button whenClicked={this.whenSaved} buttonTitle='Save'/>
-	//        <Button whenClicked={this.new} buttonTitle='New'/>
-	//        <Button whenClicked={this.load} buttonTitle='Open'/>
-	//    </Col>
-	//    <Col md={2} pullRight>
-	//        Settings | Sign-In
-	//
-	//
-	//    </Col>
-	//    <Col md={1}>
-	//        <div style={style.connectionStatus}></div>
-	//    </Col>
-	//</Row>
 
 /***/ },
 /* 573 */
@@ -67229,7 +67176,7 @@
 	            return _react2.default.createElement(
 	                _reactBootstrap.Col,
 	                { md: 1, style: style },
-	                'Files'
+	                'Files !!'
 	            );
 	        }
 	    }]);
