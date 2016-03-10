@@ -24716,6 +24716,8 @@
 
 	var _reactBootstrap = __webpack_require__(217);
 
+	var _reactRouter = __webpack_require__(159);
+
 	var _socket = __webpack_require__(459);
 
 	var _socket2 = _interopRequireDefault(_socket);
@@ -24756,7 +24758,7 @@
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-	var socket = (0, _socket2.default)('http://localhost:3000');
+	var socket = (0, _socket2.default)();
 
 	var App = function (_Component) {
 	    _inherits(App, _Component);
@@ -24769,6 +24771,7 @@
 	        _this.pdb = new _pouchdb2.default();
 	        // first create local DB if one doesn't exist (couch ignores otherwise)
 	        _this.pdb.createDB('projects');
+
 	        // will be used for DB and socket.io and for unique URL for project
 	        _this.uniqueID = _this.generateUniqueID(10);
 	        _this.initialCode = "<html>\n    <body>\n        \n    </body>\n</html>";
@@ -24831,11 +24834,25 @@
 	            this.setState({ showOpenModal: false });
 	        }
 	    }, {
+	        key: 'sendProjectToServer',
+	        value: function sendProjectToServer() {
+	            socket.emit('sendProject', {
+	                id: this.uniqueID,
+	                project: this.pdb.projectData
+	            });
+	        }
+	    }, {
 	        key: 'handleChange',
 	        value: function handleChange(stateToChange, value) {
 	            switch (stateToChange) {
 	                case 'code':
 	                    this.setState({ code: value });
+
+	                    if (this.state.projectName !== '') {
+	                        this.pdb.setProjectDoc(this.uniqueID, 'index.html', this.state.code, this.state.projectName);
+	                        // should save existing document
+	                        this.pdb.upsertDoc();
+	                    }
 	                    break;
 	                case 'saveAsInput':
 	                    this.setState({ projectName: value });
@@ -24849,8 +24866,17 @@
 	        key: 'createNewDoc',
 	        value: function createNewDoc() {
 	            this.pdb.setProjectDoc(this.uniqueID, 'index.html', this.state.code, this.state.projectName);
+
 	            this.pdb.upsertDoc();
 	            this.setState({ showSaveModal: false });
+	            // create a socket.io room for this project
+	            socket.emit('joinRoom', {
+	                id: this.uniqueID
+	            });
+	            // send project to socket.io room
+	            this.sendProjectToServer();
+	            // change the URL, this is now the project's URL
+	            history.pushState({ "id": 1 }, "", this.uniqueID);
 	        }
 
 	        // normal save, if project is not defined then it shows the user a 'Save As' Modal
@@ -49391,19 +49417,18 @@
 
 	window.PouchDB = _pouchdb2.default; // allow extension in chrome dev tools to work
 
-	var PouchDB = function () {
-	    function PouchDB() {
-	        _classCallCheck(this, PouchDB);
+	var Pouch = function () {
+	    function Pouch() {
+	        _classCallCheck(this, Pouch);
 
 	        this.projectData = {};
 	        this.selectedProject = {};
 	    }
 
-	    _createClass(PouchDB, [{
+	    _createClass(Pouch, [{
 	        key: 'createDB',
 	        value: function createDB(dbName) {
 	            this.db = new _pouchdb2.default(dbName);
-	            var remoteCouch = false;
 	        }
 	    }, {
 	        key: 'setProjectDoc',
@@ -49426,7 +49451,6 @@
 	        value: function upsertDoc() {
 	            var _this = this;
 
-	            console.log(this.db);
 	            this.db.upsert(this.projectData._id, function (doc) {
 	                return _this.projectData;
 	            });
@@ -49459,14 +49483,14 @@
 	        }
 	    }]);
 
-	    return PouchDB;
+	    return Pouch;
 	}();
 
-	exports.default = PouchDB;
+	exports.default = Pouch;
 
 
-	PouchDB.dbContents = {};
-	PouchDB.projectData = {};
+	_pouchdb2.default.dbContents = {};
+	_pouchdb2.default.projectData = {};
 	// new Date().toISOString()
 
 /***/ },
@@ -67044,18 +67068,18 @@
 	                            { eventKey: 3, title: 'File', id: 'basic-nav-dropdown' },
 	                            _react2.default.createElement(
 	                                _reactBootstrap.MenuItem,
-	                                { eventKey: 3.1 },
+	                                { eventKey: 3.1, onSelect: this.new },
 	                                'New'
 	                            ),
 	                            _react2.default.createElement(
 	                                _reactBootstrap.MenuItem,
-	                                { eventKey: 3.2 },
+	                                { eventKey: 3.2, onSelect: this.load },
 	                                'Open'
 	                            ),
 	                            _react2.default.createElement(
 	                                _reactBootstrap.MenuItem,
-	                                { eventKey: 3.3 },
-	                                'Save'
+	                                { eventKey: 3.3, onSelect: this.whenSaved },
+	                                'Save As'
 	                            )
 	                        ),
 	                        _react2.default.createElement(
@@ -67101,23 +67125,6 @@
 	Header.propTypes = {
 	    title: _react2.default.PropTypes.string.isRequired
 	};
-
-	//<Row style={style.headerStyle}>
-	//    <Col md={9}>
-	//        <h3 style={style.logo}>{this.props.title}</h3>
-	//        <Button whenClicked={this.whenSaved} buttonTitle='Save'/>
-	//        <Button whenClicked={this.new} buttonTitle='New'/>
-	//        <Button whenClicked={this.load} buttonTitle='Open'/>
-	//    </Col>
-	//    <Col md={2} pullRight>
-	//        Settings | Sign-In
-	//
-	//
-	//    </Col>
-	//    <Col md={1}>
-	//        <div style={style.connectionStatus}></div>
-	//    </Col>
-	//</Row>
 
 /***/ },
 /* 573 */
@@ -67226,6 +67233,12 @@
 	    _createClass(LeftSidebar, [{
 	        key: 'render',
 	        value: function render() {
+
+	            var style = {
+	                borderRight: '2px solid grey',
+	                minHeight: '100%'
+	            };
+
 	            return _react2.default.createElement(
 	                _reactBootstrap.Col,
 	                { md: 1, style: style },
@@ -67238,12 +67251,6 @@
 	}(_react.Component);
 
 	exports.default = LeftSidebar;
-
-
-	var style = {
-	    borderRight: '2px solid grey',
-	    height: '100%'
-	};
 
 /***/ },
 /* 575 */
@@ -67324,9 +67331,10 @@
 	    }, {
 	        key: 'render',
 	        value: function render() {
+
 	            return _react2.default.createElement(
 	                _reactBootstrap.Col,
-	                { md: 5 },
+	                { md: 5, className: 'pad' },
 	                _react2.default.createElement(_reactAce2.default, {
 	                    mode: 'html',
 	                    theme: 'dreamweaver',
@@ -91595,14 +91603,14 @@
 	        value: function render() {
 	            return _react2.default.createElement(
 	                _reactBootstrap.Modal,
-	                { show: this.props.show },
+	                { show: this.props.show, bsSize: 'small' },
 	                _react2.default.createElement(
 	                    _reactBootstrap.Modal.Header,
-	                    null,
+	                    { closeButton: true },
 	                    _react2.default.createElement(
 	                        _reactBootstrap.Modal.Title,
 	                        null,
-	                        this.props.modalTitle
+	                        'Save As:'
 	                    )
 	                ),
 	                _react2.default.createElement(

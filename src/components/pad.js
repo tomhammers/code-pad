@@ -35,8 +35,9 @@ export default class Pad extends Component {
 
 
     render() {
+
         return (
-            <Col md={5}>
+            <Col md={5} className="pad">
                 <AceEditor
                     mode="html"
                     theme="dreamweaver"

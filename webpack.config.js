@@ -13,8 +13,8 @@ module.exports = {
         loaders: [
             {
                 test: /\.jsx?$/,
-                loader: 'babel',
-                exclude: /node_modules/,
+                loader: 'babel-loader',
+                exclude: [/node_modules/, /pouch__all_dbs__/, /_replicator/, /_users/],
                 query: {
                     cacheDirectory: true,
                     presets: ['react', 'es2015']

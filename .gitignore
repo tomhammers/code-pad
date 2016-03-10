@@ -3,3 +3,9 @@
 npm-debug.log
 .DS_Store
 /*.env
+accessDB.txt
+databaseSchema.json
+/_replicator
+/_users
+/pouch__all_dbs__
+log.txt

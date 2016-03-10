@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import { Grid, Row } from 'react-bootstrap';
+import { Link } from  'react-router';
 import io from 'socket.io-client';
 import Pouch from '../pouch/pouchdb';
 
@@ -11,7 +12,7 @@ import Preview from './../components/preview';
 import SaveModal from './../components/save-modal';
 import OpenModal from './../components/open-modal';
 
-const socket = io('http://localhost:3000');
+const socket = io();
 
 export default class App extends Component {
     constructor(props) {
@@ -19,6 +20,7 @@ export default class App extends Component {
         this.pdb = new Pouch();
         // first create local DB if one doesn't exist (couch ignores otherwise)
         this.pdb.createDB('projects');
+
         // will be used for DB and socket.io and for unique URL for project
         this.uniqueID = this.generateUniqueID(10);
         this.initialCode = "<html>\n    <body>\n        \n    </body>\n</html>";
@@ -76,10 +78,23 @@ export default class App extends Component {
         this.setState({showOpenModal: false});
     }
 
+    sendProjectToServer() {
+        socket.emit('sendProject', {
+            id: this.uniqueID,
+            project: this.pdb.projectData
+        });
+    }
+
     handleChange(stateToChange, value) {
         switch (stateToChange) {
             case 'code':
                 this.setState({code: value});
+
+                if (this.state.projectName !== '') {
+                    this.pdb.setProjectDoc(this.uniqueID, 'index.html', this.state.code, this.state.projectName);
+                    // should save existing document
+                    this.pdb.upsertDoc();
+                }
                 break;
             case 'saveAsInput':
                 this.setState({projectName: value});
@@ -90,8 +105,17 @@ export default class App extends Component {
     // this is 'Save As', or what happens when user first saves the project
     createNewDoc() {
         this.pdb.setProjectDoc(this.uniqueID, 'index.html', this.state.code, this.state.projectName);
+
         this.pdb.upsertDoc();
         this.setState({showSaveModal: false});
+        // create a socket.io room for this project
+        socket.emit('joinRoom', {
+            id: this.uniqueID
+        });
+        // send project to socket.io room
+        this.sendProjectToServer();
+        // change the URL, this is now the project's URL
+        history.pushState({"id": 1}, "", this.uniqueID);
     }
 
     // normal save, if project is not defined then it shows the user a 'Save As' Modal

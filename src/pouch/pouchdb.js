@@ -1,10 +1,10 @@
-import pdb from 'pouchdb';
-pdb.plugin(require('pouchdb-upsert'));
-pdb.plugin(require('pouchdb-find'));
+import PouchDB from 'pouchdb';
+PouchDB.plugin(require('pouchdb-upsert'));
+PouchDB.plugin(require('pouchdb-find'));
 
-window.PouchDB = pdb; // allow extension in chrome dev tools to work
+window.PouchDB = PouchDB; // allow extension in chrome dev tools to work
 
-export default class PouchDB {
+export default class Pouch {
 
     constructor() {
         this.projectData = {};
@@ -12,8 +12,7 @@ export default class PouchDB {
     }
 
     createDB(dbName) {
-        this.db = new pdb(dbName);
-        let remoteCouch = false;
+        this.db = new PouchDB(dbName);
     }
 
     setProjectDoc(id, filename, content, projectName) {
@@ -36,7 +35,6 @@ export default class PouchDB {
     }
 
     upsertDoc() {
-        console.log(this.db);
         this.db.upsert(this.projectData._id, (doc) => {
             return this.projectData;
         });

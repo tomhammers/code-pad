@@ -9,5 +9,9 @@ body {
 
 .navbar {
     border-radius: 0; !important;
-    margin-bottom: 0px; !important;
+    margin-bottom: 0; !important;
+}
+
+.pad {
+    padding: 0; !important;
 }

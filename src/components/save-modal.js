@@ -22,10 +22,10 @@ export default class SaveModal extends Component {
 
     render() {
         return (
-            <Modal show={this.props.show}>
+            <Modal show={this.props.show} bsSize="small">
 
-                <Modal.Header>
-                    <Modal.Title>{ this.props.modalTitle }</Modal.Title>
+                <Modal.Header closeButton>
+                    <Modal.Title>Save As:</Modal.Title>
                 </Modal.Header>
 
                 <Modal.Body>

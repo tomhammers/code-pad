@@ -58,9 +58,9 @@ export default class Header extends Component {
                 <Navbar.Collapse>
                     <Nav>
                         <NavDropdown eventKey={3} title="File" id="basic-nav-dropdown">
-                            <MenuItem eventKey={3.1}>New</MenuItem>
-                            <MenuItem eventKey={3.2}>Open</MenuItem>
-                            <MenuItem eventKey={3.3}>Save</MenuItem>
+                            <MenuItem eventKey={3.1} onSelect={this.new}>New</MenuItem>
+                            <MenuItem eventKey={3.2} onSelect={this.load}>Open</MenuItem>
+                            <MenuItem eventKey={3.3} onSelect={this.whenSaved}>Save As</MenuItem>
                         </NavDropdown>
                         <NavItem eventKey={1} href="#">Link</NavItem>
                         <NavItem eventKey={2} href="#">Link</NavItem>
@@ -84,22 +84,5 @@ Header.propTypes = {
     title: React.PropTypes.string.isRequired
 };
 
-
-//<Row style={style.headerStyle}>
-//    <Col md={9}>
-//        <h3 style={style.logo}>{this.props.title}</h3>
-//        <Button whenClicked={this.whenSaved} buttonTitle='Save'/>
-//        <Button whenClicked={this.new} buttonTitle='New'/>
-//        <Button whenClicked={this.load} buttonTitle='Open'/>
-//    </Col>
-//    <Col md={2} pullRight>
-//        Settings | Sign-In
-//
-//
-//    </Col>
-//    <Col md={1}>
-//        <div style={style.connectionStatus}></div>
-//    </Col>
-//</Row>
 
 
