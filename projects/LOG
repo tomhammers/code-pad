@@ -1,5 +1,14 @@
-2016/03/10-22:17:11.196 2ccc Recovering log #152
-2016/03/10-22:17:11.196 2ccc Level-0 table #154: started
-2016/03/10-22:17:11.223 2ccc Level-0 table #154: 237 bytes OK
-2016/03/10-22:17:11.256 2ccc Delete type=0 #152
-2016/03/10-22:17:11.257 2ccc Delete type=3 #150
+2016/03/11-22:02:05.058 ce8 Recovering log #300
+2016/03/11-22:02:05.058 ce8 Level-0 table #302: started
+2016/03/11-22:02:05.070 ce8 Level-0 table #302: 237 bytes OK
+2016/03/11-22:02:05.101 ce8 Delete type=0 #300
+2016/03/11-22:02:05.102 ce8 Delete type=3 #298
+2016/03/11-22:02:05.103 6b8 Compacting 4@0 + 1@1 files
+2016/03/11-22:02:05.111 6b8 Generated table #304: 14 keys, 1445 bytes
+2016/03/11-22:02:05.111 6b8 Compacted 4@0 + 1@1 files => 1445 bytes
+2016/03/11-22:02:05.119 6b8 compacted to: files[ 0 1 0 0 0 0 0 ]
+2016/03/11-22:02:05.119 6b8 Delete type=2 #291
+2016/03/11-22:02:05.119 6b8 Delete type=2 #293
+2016/03/11-22:02:05.119 6b8 Delete type=2 #296
+2016/03/11-22:02:05.119 6b8 Delete type=2 #299
+2016/03/11-22:02:05.120 6b8 Delete type=2 #302

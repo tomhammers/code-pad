@@ -8504,7 +8504,7 @@
 
 	function inject() {
 	  if (alreadyInjected) {
-	    // TODO: This is currently true because these injections are shared between
+	    // TODO: This is currently true because these injections are room between
 	    // the client and the server package. They should be built independently
 	    // and not share any injection state. Then this problem will be solved.
 	    return;

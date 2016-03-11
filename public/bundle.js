@@ -24773,7 +24773,7 @@
 	        _this.pdb.createDB('projects');
 
 	        // will be used for DB and socket.io and for unique URL for project
-	        _this.uniqueID = _this.generateUniqueID(10);
+	        //this.uniqueID = this.generateUniqueID(10);
 	        _this.initialCode = "<html>\n    <body>\n        \n    </body>\n</html>";
 	        _this.projects = [];
 
@@ -24795,16 +24795,18 @@
 	        _this.storeProjects = _this.storeProjects.bind(_this);
 	        _this.closeModal = _this.closeModal.bind(_this);
 	        _this.loadProject = _this.loadProject.bind(_this);
+	        _this.setupProject = _this.setupProject.bind(_this);
+	        _this.projectChange = _this.projectChange.bind(_this);
 	        return _this;
 	    }
 
 	    _createClass(App, [{
 	        key: 'componentWillMount',
 	        value: function componentWillMount() {
-	            console.log(this.uniqueID);
 	            socket.on('connect', this.connect);
 	            socket.on('disconnect', this.disconnect);
-	            socket.on('welcome', this.welcome);
+	            socket.on('setupProject', this.setupProject);
+	            socket.on('projectChange', this.projectChange);
 	        }
 	    }, {
 	        key: 'generateUniqueID',
@@ -24812,7 +24814,6 @@
 	            var chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
 	            var id = '';
 	            for (var i = 0; i < length; i++) {
-	                // will admit to google for this part!
 	                id += chars.charAt(Math.floor(Math.random() * 62));
 	            }
 	            return id;
@@ -24829,17 +24830,24 @@
 	        key: 'welcome',
 	        value: function welcome(serverState) {}
 	    }, {
+	        key: 'setupProject',
+	        value: function setupProject(data) {
+	            console.log(data);
+	            this.uniqueID = data.project._id;
+	            this.setState({ code: data.project.files[0].content, projectName: data.project.projectName });
+	            // put a copy of project in client's db
+	            this.pdb.projectData = data.project;
+	            this.pdb.upsertDoc();
+	        }
+	    }, {
+	        key: 'projectChange',
+	        value: function projectChange(data) {
+	            this.setState({ code: data.project.files[0].content });
+	        }
+	    }, {
 	        key: 'closeModal',
 	        value: function closeModal() {
 	            this.setState({ showOpenModal: false });
-	        }
-	    }, {
-	        key: 'sendProjectToServer',
-	        value: function sendProjectToServer() {
-	            socket.emit('sendProject', {
-	                id: this.uniqueID,
-	                project: this.pdb.projectData
-	            });
 	        }
 	    }, {
 	        key: 'handleChange',
@@ -24849,7 +24857,10 @@
 	                    this.setState({ code: value });
 
 	                    if (this.state.projectName !== '') {
+	                        // store project in local db
 	                        this.pdb.setProjectDoc(this.uniqueID, 'index.html', this.state.code, this.state.projectName);
+	                        // emit to server
+	                        socket.emit('codeChange', { project: this.pdb.projectData });
 	                        // should save existing document
 	                        this.pdb.upsertDoc();
 	                    }
@@ -24865,16 +24876,15 @@
 	    }, {
 	        key: 'createNewDoc',
 	        value: function createNewDoc() {
+	            this.uniqueID = this.generateUniqueID(10);
 	            this.pdb.setProjectDoc(this.uniqueID, 'index.html', this.state.code, this.state.projectName);
 
 	            this.pdb.upsertDoc();
 	            this.setState({ showSaveModal: false });
-	            // create a socket.io room for this project
+	            // create a socket.io room on the server for this project
 	            socket.emit('joinRoom', {
-	                id: this.uniqueID
+	                project: this.pdb.projectData
 	            });
-	            // send project to socket.io room
-	            this.sendProjectToServer();
 	            // change the URL, this is now the project's URL
 	            history.pushState({ "id": 1 }, "", this.uniqueID);
 	        }

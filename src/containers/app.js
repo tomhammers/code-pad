@@ -22,7 +22,7 @@ export default class App extends Component {
         this.pdb.createDB('projects');
 
         // will be used for DB and socket.io and for unique URL for project
-        this.uniqueID = this.generateUniqueID(10);
+        //this.uniqueID = this.generateUniqueID(10);
         this.initialCode = "<html>\n    <body>\n        \n    </body>\n</html>";
         this.projects = [];
 
@@ -45,20 +45,21 @@ export default class App extends Component {
         this.storeProjects = this.storeProjects.bind(this);
         this.closeModal = this.closeModal.bind(this);
         this.loadProject = this.loadProject.bind(this);
+        this.setupProject = this.setupProject.bind(this);
+        this.projectChange = this.projectChange.bind(this);
     }
 
     componentWillMount() {
-        console.log(this.uniqueID);
         socket.on('connect', this.connect);
         socket.on('disconnect', this.disconnect);
-        socket.on('welcome', this.welcome);
+        socket.on('setupProject', this.setupProject);
+        socket.on('projectChange', this.projectChange);
     }
 
     generateUniqueID(length) {
         const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
         let id = '';
         for (let i = 0; i < length; i++) {
-            // will admit to google for this part!
             id += chars.charAt(Math.floor(Math.random() * 62));
         }
         return id;
@@ -74,15 +75,21 @@ export default class App extends Component {
     welcome(serverState) {
     }
 
-    closeModal() {
-        this.setState({showOpenModal: false});
+    setupProject(data) {
+        console.log(data);
+        this.uniqueID = data.project._id;
+        this.setState({ code: data.project.files[0].content, projectName: data.project.projectName});
+        // put a copy of project in client's db
+        this.pdb.projectData = data.project;
+        this.pdb.upsertDoc();
     }
 
-    sendProjectToServer() {
-        socket.emit('sendProject', {
-            id: this.uniqueID,
-            project: this.pdb.projectData
-        });
+    projectChange(data) {
+        this.setState({ code: data.project.files[0].content});
+    }
+
+    closeModal() {
+        this.setState({showOpenModal: false});
     }
 
     handleChange(stateToChange, value) {
@@ -91,7 +98,10 @@ export default class App extends Component {
                 this.setState({code: value});
 
                 if (this.state.projectName !== '') {
+                    // store project in local db
                     this.pdb.setProjectDoc(this.uniqueID, 'index.html', this.state.code, this.state.projectName);
+                    // emit to server
+                    socket.emit('codeChange', {project: this.pdb.projectData});
                     // should save existing document
                     this.pdb.upsertDoc();
                 }
@@ -104,16 +114,15 @@ export default class App extends Component {
 
     // this is 'Save As', or what happens when user first saves the project
     createNewDoc() {
+        this.uniqueID = this.generateUniqueID(10);
         this.pdb.setProjectDoc(this.uniqueID, 'index.html', this.state.code, this.state.projectName);
 
         this.pdb.upsertDoc();
         this.setState({showSaveModal: false});
-        // create a socket.io room for this project
+        // create a socket.io room on the server for this project
         socket.emit('joinRoom', {
-            id: this.uniqueID
+            project: this.pdb.projectData
         });
-        // send project to socket.io room
-        this.sendProjectToServer();
         // change the URL, this is now the project's URL
         history.pushState({"id": 1}, "", this.uniqueID);
     }
