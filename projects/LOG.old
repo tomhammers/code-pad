@@ -1,5 +1,5 @@
-2016/03/11-22:01:19.193 2fe0 Recovering log #297
-2016/03/11-22:01:19.193 2fe0 Level-0 table #299: started
-2016/03/11-22:01:19.215 2fe0 Level-0 table #299: 237 bytes OK
-2016/03/11-22:01:19.257 2fe0 Delete type=0 #297
-2016/03/11-22:01:19.257 2fe0 Delete type=3 #295
+2016/03/14-14:54:13.787 1c94 Recovering log #466
+2016/03/14-14:54:13.788 1c94 Level-0 table #468: started
+2016/03/14-14:54:13.799 1c94 Level-0 table #468: 237 bytes OK
+2016/03/14-14:54:13.820 1c94 Delete type=0 #466
+2016/03/14-14:54:13.820 1c94 Delete type=3 #464

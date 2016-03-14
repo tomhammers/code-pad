@@ -24769,11 +24769,9 @@
 	        var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(App).call(this, props));
 
 	        _this.pdb = new _pouchdb2.default();
-	        // first create local DB if one doesn't exist (couch ignores otherwise)
+	        // create local DB if one doesn't exist (couch ignores otherwise)
 	        _this.pdb.createDB('projects');
 
-	        // will be used for DB and socket.io and for unique URL for project
-	        //this.uniqueID = this.generateUniqueID(10);
 	        _this.initialCode = "<html>\n    <body>\n        \n    </body>\n</html>";
 	        _this.projects = [];
 
@@ -24797,12 +24795,16 @@
 	        _this.loadProject = _this.loadProject.bind(_this);
 	        _this.setupProject = _this.setupProject.bind(_this);
 	        _this.projectChange = _this.projectChange.bind(_this);
+	        _this.joinRoom = _this.joinRoom.bind(_this);
+	        _this.connect = _this.connect.bind(_this);
 	        return _this;
 	    }
 
 	    _createClass(App, [{
 	        key: 'componentWillMount',
 	        value: function componentWillMount() {
+	            var url = window.location.href;
+	            this.uniqueID = url.split("/").pop();
 	            socket.on('connect', this.connect);
 	            socket.on('disconnect', this.disconnect);
 	            socket.on('setupProject', this.setupProject);
@@ -24822,13 +24824,29 @@
 	        key: 'connect',
 	        value: function connect() {
 	            console.log('Connected! ' + socket.id);
+	            if (this.uniqueID !== '') {
+	                // if ID in URL is not empty, attempt to connect to room on server
+	                this.joinRoom(this.uniqueID, null);
+	            }
 	        }
 	    }, {
 	        key: 'disconnect',
 	        value: function disconnect() {}
+
+	        /**
+	         * Sends request to sever to join or create a socket.io room for project
+	         * @param id
+	         * @param project
+	         */
+
 	    }, {
-	        key: 'welcome',
-	        value: function welcome(serverState) {}
+	        key: 'joinRoom',
+	        value: function joinRoom(id, project) {
+	            socket.emit('joinRoom', {
+	                id: id,
+	                project: project
+	            });
+	        }
 	    }, {
 	        key: 'setupProject',
 	        value: function setupProject(data) {
@@ -24842,7 +24860,7 @@
 	    }, {
 	        key: 'projectChange',
 	        value: function projectChange(data) {
-	            this.setState({ code: data.project.files[0].content });
+	            this.setState({ code: data.files[0].content });
 	        }
 	    }, {
 	        key: 'closeModal',
@@ -24860,7 +24878,7 @@
 	                        // store project in local db
 	                        this.pdb.setProjectDoc(this.uniqueID, 'index.html', this.state.code, this.state.projectName);
 	                        // emit to server
-	                        socket.emit('codeChange', { project: this.pdb.projectData });
+	                        socket.emit('codeChange', { id: this.uniqueID, project: this.pdb.projectData });
 	                        // should save existing document
 	                        this.pdb.upsertDoc();
 	                    }
@@ -24882,9 +24900,11 @@
 	            this.pdb.upsertDoc();
 	            this.setState({ showSaveModal: false });
 	            // create a socket.io room on the server for this project
-	            socket.emit('joinRoom', {
-	                project: this.pdb.projectData
-	            });
+	            //socket.emit('joinRoom', {
+	            //    id: this.uniqueID,
+	            //    project: this.pdb.projectData
+	            //});
+	            this.joinRoom(this.uniqueID, this.pdb.projectData);
 	            // change the URL, this is now the project's URL
 	            history.pushState({ "id": 1 }, "", this.uniqueID);
 	        }
@@ -24962,20 +24982,31 @@
 	    }, {
 	        key: 'openProject',
 	        value: function openProject(projectID) {
-	            console.log(projectID);
-	            // lets restore the project along with the ID
+	            // find project in db using ID, and pass a callback to handle the response
 	            this.pdb.findSingleDoc(projectID, this.loadProject);
 	        }
+	        // file->open
+
 	    }, {
 	        key: 'loadProject',
 	        value: function loadProject(proj) {
-	            console.log(proj);
+	            // proj is response from pouchdb, set up project in editor
 	            this.uniqueID = proj._id;
+	            // setting state will force a render
 	            this.setState({
 	                projectName: proj.projectName,
 	                code: proj.files[0].content,
 	                showOpenModal: false
 	            });
+	            // change URL to match project ID
+	            history.pushState({ "id": 1 }, "", this.uniqueID);
+	            // now join / create a socket.io room
+	            //socket.emit('joinRoom', {
+	            //    id: this.uniqueID,
+	            //    project: proj
+	            //});
+	            console.log(proj);
+	            this.joinRoom(this.uniqueID, proj);
 	        }
 	    }, {
 	        key: 'render',

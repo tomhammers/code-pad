@@ -30,46 +30,46 @@ app.get('/:room([A-Za-z0-9]{10})', function (req, res) {
 
 io.sockets.on('connection', function (socket) {
     connections.push(socket);
+    console.log("Connected: " + connections.length + " sockets connected");
 
-    socket.once('disconnect', function() {
+    socket.once('disconnect', function () {
         connections.splice(connections.indexOf(socket), 1);
         socket.disconnect();
         console.log("Disconnected: " + connections.length + " sockets remaining");
     });
 
-    console.log("Connected: " + connections.length + " sockets connected");
-    // room exists! let socket join room(this happens on unique URL)
-    if (rooms.indexOf(projectID) !== -1) {
-        socket.join(projectID);
-        //console.log(Object.keys(socket.adapter.rooms[projectID]).length + " users in room " + projectID);
-        // using the id, find correct project object in array (projectData._id)
-        var projectsLength = projects.length;
-        for (var i=0; i< projectsLength; i++) {
-            if (projects[i]._id === projectID) {
-                socket.emit('setupProject', { project: projects[i] });
-            }
+    socket.on('joinRoom', function (data) {
+        // OPEN / unique URL, project exists on server
+        if (data.id in rooms) {  // room exists
+            console.log('block one');
+            socket.join(data.id);
+            rooms[data.id].addClient(socket);
+            socket.emit('setupProject', {project: rooms[data.id].projectData});
         }
-    }
-    // this happens after initial save on a new project
-    socket.on('joinRoom', function(data) {
-        // initialise the room and project for the room
-        var room = new ProjectRoom(data);
-        rooms.push(room.roomid);
-        projects.push(room.projectData);
-        socket.join(room.roomid);
-        console.log('Room ' + room.roomid + ' created');
+        // SAVE AS / OPEN, project does not exist on server (later - check DB too)
+        // room does not exist, did the client send a project in the joinRoom request?
+        else if (data.project !== null) { // project data exists, set up a new room
+            console.log('block two');
+            var room = new ProjectRoom(data.project);
+            room.addClient(socket.id);
+            rooms[data.id] = room; // add key value pair to array
+            socket.join(data.id);
+        }
+        // unique URL but no matching key, project doesn't exist anywhere
+        else { // at this stage there is not much we can do
+            console.log('block three');
+            // this could happen if project owner sets up project -> room, at a later date room no longer exists
+            console.log("project doesn't exist on client or server");
+            // later - make request to DB to look for project
+        }
     });
+
     // code changed, pass to all sockets
-    socket.on('codeChange', function(data) {
-        socket.broadcast.to(data.project._id).emit('projectChange', data);
-        var projectsLength = projects.length;
-        for (var i=0; i< projectsLength; i++) {
-            if (projects[i]._id === data.project._id) {
-                //socket.emit('setupProject', { project: projects[i] });
-                projects[i] = data.project;
-            }
-        }
-        console.log(projects[0]);
+    socket.on('codeChange', function (data) {
+        // send to all clients other then sender
+        socket.broadcast.to(data.id).emit('projectChange', data.project);
+        // update project data in room
+        rooms[data.id].projectData = data.project;
     });
 });
 

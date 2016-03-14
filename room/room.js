@@ -1,8 +1,8 @@
 var Room = function Room(data) {
-    this.roomid = data.project._id;
-    this.projectName = data.project.projectName;
-    this.fileName = data.project.files[0].fileName;
-    this.fileContent = data.project.files[0].content;
+    this.roomid = data._id;
+    this.projectName = data.projectName;
+    this.fileName = data.files[0].fileName;
+    this.fileContent = data.files[0].content;
     this.clients = [];
     this.projectData = {};
 
