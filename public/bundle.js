@@ -24738,15 +24738,15 @@
 
 	var _pad2 = _interopRequireDefault(_pad);
 
-	var _preview = __webpack_require__(586);
+	var _preview = __webpack_require__(587);
 
 	var _preview2 = _interopRequireDefault(_preview);
 
-	var _saveModal = __webpack_require__(587);
+	var _saveModal = __webpack_require__(588);
 
 	var _saveModal2 = _interopRequireDefault(_saveModal);
 
-	var _openModal = __webpack_require__(588);
+	var _openModal = __webpack_require__(589);
 
 	var _openModal2 = _interopRequireDefault(_openModal);
 
@@ -24772,7 +24772,8 @@
 	        // create local DB if one doesn't exist (couch ignores otherwise)
 	        _this.pdb.createDB('projects');
 
-	        _this.initialCode = "<html>\n    <body>\n        \n    </body>\n</html>";
+	        _this.initialCode = "<html>\n    <head>\n        <style>\n            body {\n                color: white;\n                background-color: #2D2D2D;\n                font-family: ‘Lucida Console’, Monaco, monospace;\n            }\n        </style>\n    </head>\n    <body>\n        <h2><center>Welcome to Code-Pad</center></h2>\n    </body>\n</html>";
+	        //this.initialCode =
 	        _this.projects = [];
 	        _this.joinedRoom = false;
 
@@ -67130,32 +67131,75 @@
 	                        null,
 	                        _react2.default.createElement(
 	                            _reactBootstrap.NavDropdown,
-	                            { eventKey: 3, title: 'File', id: 'basic-nav-dropdown' },
+	                            { eventKey: 1, title: 'File', id: 'basic-nav-dropdown' },
 	                            _react2.default.createElement(
 	                                _reactBootstrap.MenuItem,
-	                                { eventKey: 3.1, onSelect: this.new },
+	                                { eventKey: 1.1, onSelect: this.new },
 	                                'New'
 	                            ),
 	                            _react2.default.createElement(
 	                                _reactBootstrap.MenuItem,
-	                                { eventKey: 3.2, onSelect: this.load },
+	                                { eventKey: 1.2, onSelect: this.load },
 	                                'Open'
 	                            ),
 	                            _react2.default.createElement(
 	                                _reactBootstrap.MenuItem,
-	                                { eventKey: 3.3, onSelect: this.whenSaved },
+	                                { eventKey: 1.3, onSelect: this.whenSaved },
 	                                'Save As'
+	                            ),
+	                            _react2.default.createElement(
+	                                _reactBootstrap.MenuItem,
+	                                { eventKey: 1.4 },
+	                                'Fork'
+	                            ),
+	                            _react2.default.createElement(
+	                                _reactBootstrap.MenuItem,
+	                                { eventKey: 1.5 },
+	                                'Rename'
+	                            ),
+	                            _react2.default.createElement(
+	                                _reactBootstrap.MenuItem,
+	                                { eventKey: 1.6 },
+	                                'Delete'
+	                            ),
+	                            _react2.default.createElement(
+	                                _reactBootstrap.MenuItem,
+	                                { eventKey: 1.6 },
+	                                'Download'
 	                            )
 	                        ),
 	                        _react2.default.createElement(
-	                            _reactBootstrap.NavItem,
-	                            { eventKey: 1, href: '#' },
-	                            'Link'
+	                            _reactBootstrap.NavDropdown,
+	                            { eventKey: 2, title: 'Collaboration', id: 'basic-nav-dropdown' },
+	                            _react2.default.createElement(
+	                                _reactBootstrap.MenuItem,
+	                                { eventKey: 2.1 },
+	                                'Share'
+	                            ),
+	                            _react2.default.createElement(
+	                                _reactBootstrap.MenuItem,
+	                                { eventKey: 2.2 },
+	                                'Go offline'
+	                            )
 	                        ),
 	                        _react2.default.createElement(
-	                            _reactBootstrap.NavItem,
-	                            { eventKey: 2, href: '#' },
-	                            'Link'
+	                            _reactBootstrap.NavDropdown,
+	                            { eventKey: 3, title: 'Settings', id: 'basic-nav-dropdown' },
+	                            _react2.default.createElement(
+	                                _reactBootstrap.MenuItem,
+	                                { eventKey: 3.1 },
+	                                'Editor Settings'
+	                            ),
+	                            _react2.default.createElement(
+	                                _reactBootstrap.MenuItem,
+	                                { eventKey: 3.2 },
+	                                'Collaboration Settings'
+	                            ),
+	                            _react2.default.createElement(
+	                                _reactBootstrap.MenuItem,
+	                                { eventKey: 3.3 },
+	                                'User Settings'
+	                            )
 	                        )
 	                    ),
 	                    _react2.default.createElement(
@@ -67163,12 +67207,7 @@
 	                        { pullRight: true },
 	                        _react2.default.createElement(
 	                            _reactBootstrap.NavItem,
-	                            { eventKey: 1, href: '#' },
-	                            'Settings'
-	                        ),
-	                        _react2.default.createElement(
-	                            _reactBootstrap.NavItem,
-	                            { eventKey: 2, href: '#' },
+	                            { eventKey: 4, href: '#' },
 	                            'Sign In'
 	                        )
 	                    )
@@ -67298,11 +67337,42 @@
 	    _createClass(LeftSidebar, [{
 	        key: 'render',
 	        value: function render() {
+	            var style = {
+	                outer: {
+	                    paddingRight: '0',
+	                    backgroundColor: '#404040'
+	                },
+	                projectHeader: {
+	                    color: '#9d9d9d',
+	                    paddingLeft: '3px'
+	                },
+	                chevron: {
+	                    paddingRight: '10px'
+	                }
+	            };
 
 	            return _react2.default.createElement(
 	                _reactBootstrap.Col,
-	                { md: 1 },
-	                'Files'
+	                { sm: 1, style: style.outer },
+	                _react2.default.createElement(
+	                    'div',
+	                    null,
+	                    _react2.default.createElement(
+	                        'span',
+	                        { style: style.projectHeader },
+	                        _react2.default.createElement(_reactBootstrap.Glyphicon, { style: style.chevron, glyph: 'folder-open' }),
+	                        _react2.default.createElement(
+	                            'b',
+	                            null,
+	                            'Project'
+	                        )
+	                    )
+	                ),
+	                _react2.default.createElement(
+	                    'div',
+	                    null,
+	                    _react2.default.createElement('ul', null)
+	                )
 	            );
 	        }
 	    }]);
@@ -67342,6 +67412,8 @@
 
 	__webpack_require__(585);
 
+	__webpack_require__(586);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -67375,9 +67447,9 @@
 
 	            this.editor = _brace2.default.edit('editor');
 	            this.editor.$blockScrolling = Infinity;
-	            this.editor.setFontSize(16);
+	            this.editor.setFontSize(15);
 	            this.editor.getSession().setMode('ace/mode/html');
-	            this.editor.setTheme('ace/theme/dreamweaver');
+	            this.editor.setTheme('ace/theme/tomorrow_night_eighties');
 	            this.editor.setShowPrintMargin(false);
 	            this.editor.getSession().setValue(this.props.code);
 	            this.editor.getSession().on('change', function () {
@@ -67411,19 +67483,19 @@
 	            var style = {
 	                pad: {
 	                    height: this.props.height,
-	                    borderRight: 'thick solid grey',
-	                    borderLeft: 'thick solid grey'
+	                    borderRight: 'thick solid #404040',
+	                    borderLeft: 'thick solid #404040'
 	                },
 	                padParent: {
 	                    height: this.props.height,
-	                    paddingLeft: 0,
+	                    paddingLeft: '2px',
 	                    paddingRight: 0
 	                }
 	            };
 
 	            return _react2.default.createElement(
 	                _reactBootstrap.Col,
-	                { md: 5, id: 'pad', style: style.padParent },
+	                { sm: 5, id: 'pad', style: style.padParent },
 	                _react2.default.createElement('div', { id: 'editor', style: style.pad })
 	            );
 	        }
@@ -91142,142 +91214,109 @@
 /* 585 */
 /***/ function(module, exports) {
 
-	ace.define("ace/theme/dreamweaver",["require","exports","module","ace/lib/dom"], function(acequire, exports, module) {
+	ace.define("ace/theme/tomorrow",["require","exports","module","ace/lib/dom"], function(acequire, exports, module) {
+
 	exports.isDark = false;
-	exports.cssClass = "ace-dreamweaver";
-	exports.cssText = ".ace-dreamweaver .ace_gutter {\
-	background: #e8e8e8;\
-	color: #333;\
+	exports.cssClass = "ace-tomorrow";
+	exports.cssText = ".ace-tomorrow .ace_gutter {\
+	background: #f6f6f6;\
+	color: #4D4D4C\
 	}\
-	.ace-dreamweaver .ace_print-margin {\
+	.ace-tomorrow .ace_print-margin {\
 	width: 1px;\
-	background: #e8e8e8;\
+	background: #f6f6f6\
 	}\
-	.ace-dreamweaver {\
+	.ace-tomorrow {\
 	background-color: #FFFFFF;\
-	color: black;\
+	color: #4D4D4C\
 	}\
-	.ace-dreamweaver .ace_fold {\
-	background-color: #757AD8;\
+	.ace-tomorrow .ace_cursor {\
+	color: #AEAFAD\
 	}\
-	.ace-dreamweaver .ace_cursor {\
-	color: black;\
+	.ace-tomorrow .ace_marker-layer .ace_selection {\
+	background: #D6D6D6\
 	}\
-	.ace-dreamweaver .ace_invisible {\
-	color: rgb(191, 191, 191);\
+	.ace-tomorrow.ace_multiselect .ace_selection.ace_start {\
+	box-shadow: 0 0 3px 0px #FFFFFF;\
 	}\
-	.ace-dreamweaver .ace_storage,\
-	.ace-dreamweaver .ace_keyword {\
-	color: blue;\
+	.ace-tomorrow .ace_marker-layer .ace_step {\
+	background: rgb(255, 255, 0)\
 	}\
-	.ace-dreamweaver .ace_constant.ace_buildin {\
-	color: rgb(88, 72, 246);\
-	}\
-	.ace-dreamweaver .ace_constant.ace_language {\
-	color: rgb(88, 92, 246);\
-	}\
-	.ace-dreamweaver .ace_constant.ace_library {\
-	color: rgb(6, 150, 14);\
-	}\
-	.ace-dreamweaver .ace_invalid {\
-	background-color: rgb(153, 0, 0);\
-	color: white;\
-	}\
-	.ace-dreamweaver .ace_support.ace_function {\
-	color: rgb(60, 76, 114);\
-	}\
-	.ace-dreamweaver .ace_support.ace_constant {\
-	color: rgb(6, 150, 14);\
-	}\
-	.ace-dreamweaver .ace_support.ace_type,\
-	.ace-dreamweaver .ace_support.ace_class {\
-	color: #009;\
-	}\
-	.ace-dreamweaver .ace_support.ace_php_tag {\
-	color: #f00;\
-	}\
-	.ace-dreamweaver .ace_keyword.ace_operator {\
-	color: rgb(104, 118, 135);\
-	}\
-	.ace-dreamweaver .ace_string {\
-	color: #00F;\
-	}\
-	.ace-dreamweaver .ace_comment {\
-	color: rgb(76, 136, 107);\
-	}\
-	.ace-dreamweaver .ace_comment.ace_doc {\
-	color: rgb(0, 102, 255);\
-	}\
-	.ace-dreamweaver .ace_comment.ace_doc.ace_tag {\
-	color: rgb(128, 159, 191);\
-	}\
-	.ace-dreamweaver .ace_constant.ace_numeric {\
-	color: rgb(0, 0, 205);\
-	}\
-	.ace-dreamweaver .ace_variable {\
-	color: #06F\
-	}\
-	.ace-dreamweaver .ace_xml-pe {\
-	color: rgb(104, 104, 91);\
-	}\
-	.ace-dreamweaver .ace_entity.ace_name.ace_function {\
-	color: #00F;\
-	}\
-	.ace-dreamweaver .ace_heading {\
-	color: rgb(12, 7, 255);\
-	}\
-	.ace-dreamweaver .ace_list {\
-	color:rgb(185, 6, 144);\
-	}\
-	.ace-dreamweaver .ace_marker-layer .ace_selection {\
-	background: rgb(181, 213, 255);\
-	}\
-	.ace-dreamweaver .ace_marker-layer .ace_step {\
-	background: rgb(252, 255, 0);\
-	}\
-	.ace-dreamweaver .ace_marker-layer .ace_stack {\
-	background: rgb(164, 229, 101);\
-	}\
-	.ace-dreamweaver .ace_marker-layer .ace_bracket {\
+	.ace-tomorrow .ace_marker-layer .ace_bracket {\
 	margin: -1px 0 0 -1px;\
-	border: 1px solid rgb(192, 192, 192);\
+	border: 1px solid #D1D1D1\
 	}\
-	.ace-dreamweaver .ace_marker-layer .ace_active-line {\
-	background: rgba(0, 0, 0, 0.07);\
+	.ace-tomorrow .ace_marker-layer .ace_active-line {\
+	background: #EFEFEF\
 	}\
-	.ace-dreamweaver .ace_gutter-active-line {\
-	background-color : #DCDCDC;\
+	.ace-tomorrow .ace_gutter-active-line {\
+	background-color : #dcdcdc\
 	}\
-	.ace-dreamweaver .ace_marker-layer .ace_selected-word {\
-	background: rgb(250, 250, 255);\
-	border: 1px solid rgb(200, 200, 250);\
+	.ace-tomorrow .ace_marker-layer .ace_selected-word {\
+	border: 1px solid #D6D6D6\
 	}\
-	.ace-dreamweaver .ace_meta.ace_tag {\
-	color:#009;\
+	.ace-tomorrow .ace_invisible {\
+	color: #D1D1D1\
 	}\
-	.ace-dreamweaver .ace_meta.ace_tag.ace_anchor {\
-	color:#060;\
+	.ace-tomorrow .ace_keyword,\
+	.ace-tomorrow .ace_meta,\
+	.ace-tomorrow .ace_storage,\
+	.ace-tomorrow .ace_storage.ace_type,\
+	.ace-tomorrow .ace_support.ace_type {\
+	color: #8959A8\
 	}\
-	.ace-dreamweaver .ace_meta.ace_tag.ace_form {\
-	color:#F90;\
+	.ace-tomorrow .ace_keyword.ace_operator {\
+	color: #3E999F\
 	}\
-	.ace-dreamweaver .ace_meta.ace_tag.ace_image {\
-	color:#909;\
+	.ace-tomorrow .ace_constant.ace_character,\
+	.ace-tomorrow .ace_constant.ace_language,\
+	.ace-tomorrow .ace_constant.ace_numeric,\
+	.ace-tomorrow .ace_keyword.ace_other.ace_unit,\
+	.ace-tomorrow .ace_support.ace_constant,\
+	.ace-tomorrow .ace_variable.ace_parameter {\
+	color: #F5871F\
 	}\
-	.ace-dreamweaver .ace_meta.ace_tag.ace_script {\
-	color:#900;\
+	.ace-tomorrow .ace_constant.ace_other {\
+	color: #666969\
 	}\
-	.ace-dreamweaver .ace_meta.ace_tag.ace_style {\
-	color:#909;\
+	.ace-tomorrow .ace_invalid {\
+	color: #FFFFFF;\
+	background-color: #C82829\
 	}\
-	.ace-dreamweaver .ace_meta.ace_tag.ace_table {\
-	color:#099;\
+	.ace-tomorrow .ace_invalid.ace_deprecated {\
+	color: #FFFFFF;\
+	background-color: #8959A8\
 	}\
-	.ace-dreamweaver .ace_string.ace_regex {\
-	color: rgb(255, 0, 0)\
+	.ace-tomorrow .ace_fold {\
+	background-color: #4271AE;\
+	border-color: #4D4D4C\
 	}\
-	.ace-dreamweaver .ace_indent-guide {\
-	background: url(\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAACCAYAAACZgbYnAAAAE0lEQVQImWP4////f4bLly//BwAmVgd1/w11/gAAAABJRU5ErkJggg==\") right repeat-y;\
+	.ace-tomorrow .ace_entity.ace_name.ace_function,\
+	.ace-tomorrow .ace_support.ace_function,\
+	.ace-tomorrow .ace_variable {\
+	color: #4271AE\
+	}\
+	.ace-tomorrow .ace_support.ace_class,\
+	.ace-tomorrow .ace_support.ace_type {\
+	color: #C99E00\
+	}\
+	.ace-tomorrow .ace_heading,\
+	.ace-tomorrow .ace_markup.ace_heading,\
+	.ace-tomorrow .ace_string {\
+	color: #718C00\
+	}\
+	.ace-tomorrow .ace_entity.ace_name.ace_tag,\
+	.ace-tomorrow .ace_entity.ace_other.ace_attribute-name,\
+	.ace-tomorrow .ace_meta.ace_tag,\
+	.ace-tomorrow .ace_string.ace_regexp,\
+	.ace-tomorrow .ace_variable {\
+	color: #C82829\
+	}\
+	.ace-tomorrow .ace_comment {\
+	color: #8E908C\
+	}\
+	.ace-tomorrow .ace_indent-guide {\
+	background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAACCAYAAACZgbYnAAAAE0lEQVQImWP4////f4bdu3f/BwAlfgctduB85QAAAABJRU5ErkJggg==) right repeat-y\
 	}";
 
 	var dom = acequire("../lib/dom");
@@ -91287,6 +91326,120 @@
 
 /***/ },
 /* 586 */
+/***/ function(module, exports) {
+
+	ace.define("ace/theme/tomorrow_night_eighties",["require","exports","module","ace/lib/dom"], function(acequire, exports, module) {
+
+	exports.isDark = true;
+	exports.cssClass = "ace-tomorrow-night-eighties";
+	exports.cssText = ".ace-tomorrow-night-eighties .ace_gutter {\
+	background: #272727;\
+	color: #CCC\
+	}\
+	.ace-tomorrow-night-eighties .ace_print-margin {\
+	width: 1px;\
+	background: #272727\
+	}\
+	.ace-tomorrow-night-eighties {\
+	background-color: #2D2D2D;\
+	color: #CCCCCC\
+	}\
+	.ace-tomorrow-night-eighties .ace_constant.ace_other,\
+	.ace-tomorrow-night-eighties .ace_cursor {\
+	color: #CCCCCC\
+	}\
+	.ace-tomorrow-night-eighties .ace_marker-layer .ace_selection {\
+	background: #515151\
+	}\
+	.ace-tomorrow-night-eighties.ace_multiselect .ace_selection.ace_start {\
+	box-shadow: 0 0 3px 0px #2D2D2D;\
+	}\
+	.ace-tomorrow-night-eighties .ace_marker-layer .ace_step {\
+	background: rgb(102, 82, 0)\
+	}\
+	.ace-tomorrow-night-eighties .ace_marker-layer .ace_bracket {\
+	margin: -1px 0 0 -1px;\
+	border: 1px solid #6A6A6A\
+	}\
+	.ace-tomorrow-night-bright .ace_stack {\
+	background: rgb(66, 90, 44)\
+	}\
+	.ace-tomorrow-night-eighties .ace_marker-layer .ace_active-line {\
+	background: #393939\
+	}\
+	.ace-tomorrow-night-eighties .ace_gutter-active-line {\
+	background-color: #393939\
+	}\
+	.ace-tomorrow-night-eighties .ace_marker-layer .ace_selected-word {\
+	border: 1px solid #515151\
+	}\
+	.ace-tomorrow-night-eighties .ace_invisible {\
+	color: #6A6A6A\
+	}\
+	.ace-tomorrow-night-eighties .ace_keyword,\
+	.ace-tomorrow-night-eighties .ace_meta,\
+	.ace-tomorrow-night-eighties .ace_storage,\
+	.ace-tomorrow-night-eighties .ace_storage.ace_type,\
+	.ace-tomorrow-night-eighties .ace_support.ace_type {\
+	color: #CC99CC\
+	}\
+	.ace-tomorrow-night-eighties .ace_keyword.ace_operator {\
+	color: #66CCCC\
+	}\
+	.ace-tomorrow-night-eighties .ace_constant.ace_character,\
+	.ace-tomorrow-night-eighties .ace_constant.ace_language,\
+	.ace-tomorrow-night-eighties .ace_constant.ace_numeric,\
+	.ace-tomorrow-night-eighties .ace_keyword.ace_other.ace_unit,\
+	.ace-tomorrow-night-eighties .ace_support.ace_constant,\
+	.ace-tomorrow-night-eighties .ace_variable.ace_parameter {\
+	color: #F99157\
+	}\
+	.ace-tomorrow-night-eighties .ace_invalid {\
+	color: #CDCDCD;\
+	background-color: #F2777A\
+	}\
+	.ace-tomorrow-night-eighties .ace_invalid.ace_deprecated {\
+	color: #CDCDCD;\
+	background-color: #CC99CC\
+	}\
+	.ace-tomorrow-night-eighties .ace_fold {\
+	background-color: #6699CC;\
+	border-color: #CCCCCC\
+	}\
+	.ace-tomorrow-night-eighties .ace_entity.ace_name.ace_function,\
+	.ace-tomorrow-night-eighties .ace_support.ace_function,\
+	.ace-tomorrow-night-eighties .ace_variable {\
+	color: #6699CC\
+	}\
+	.ace-tomorrow-night-eighties .ace_support.ace_class,\
+	.ace-tomorrow-night-eighties .ace_support.ace_type {\
+	color: #FFCC66\
+	}\
+	.ace-tomorrow-night-eighties .ace_heading,\
+	.ace-tomorrow-night-eighties .ace_markup.ace_heading,\
+	.ace-tomorrow-night-eighties .ace_string {\
+	color: #99CC99\
+	}\
+	.ace-tomorrow-night-eighties .ace_comment {\
+	color: #999999\
+	}\
+	.ace-tomorrow-night-eighties .ace_entity.ace_name.ace_tag,\
+	.ace-tomorrow-night-eighties .ace_entity.ace_other.ace_attribute-name,\
+	.ace-tomorrow-night-eighties .ace_meta.ace_tag,\
+	.ace-tomorrow-night-eighties .ace_variable {\
+	color: #F2777A\
+	}\
+	.ace-tomorrow-night-eighties .ace_indent-guide {\
+	background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAACCAYAAACZgbYnAAAAEklEQVQImWPQ09NrYAgMjP4PAAtGAwchHMyAAAAAAElFTkSuQmCC) right repeat-y\
+	}";
+
+	var dom = acequire("../lib/dom");
+	dom.importCssString(exports.cssText, exports.cssClass);
+	});
+
+
+/***/ },
+/* 587 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -91359,7 +91512,7 @@
 
 	            return _react2.default.createElement(
 	                _reactBootstrap.Col,
-	                { md: 6, style: style.iframeParent },
+	                { sm: 6, style: style.iframeParent },
 	                _react2.default.createElement('iframe', { ref: 'iframe', style: style.iframeStyle })
 	            );
 	        }
@@ -91371,7 +91524,7 @@
 	exports.default = Preview;
 
 /***/ },
-/* 587 */
+/* 588 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -91443,12 +91596,6 @@
 	                _react2.default.createElement(
 	                    _reactBootstrap.Modal.Body,
 	                    null,
-	                    _react2.default.createElement(
-	                        'h6',
-	                        {
-	                            key: this.props.modalTitle },
-	                        'Save As:'
-	                    ),
 	                    _react2.default.createElement(_reactBootstrap.Input, { key: '133445323',
 	                        type: 'text',
 	                        value: this.props.inputValue,
@@ -91470,7 +91617,7 @@
 	exports.default = SaveModal;
 
 /***/ },
-/* 588 */
+/* 589 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -91515,6 +91662,9 @@
 	    }
 
 	    _createClass(OpenModal, [{
+	        key: 'componentWillUnmount',
+	        value: function componentWillUnmount() {}
+	    }, {
 	        key: 'whenClicked',
 	        value: function whenClicked(projectID) {
 	            this.props.selectProject(projectID);
@@ -91543,6 +91693,12 @@
 	        value: function render() {
 	            var _this3 = this;
 
+	            var style = {
+	                listitems: {
+	                    cursor: 'pointer'
+	                }
+	            };
+
 	            return _react2.default.createElement(
 	                _reactBootstrap.Modal,
 	                { show: this.props.show },
@@ -91565,11 +91721,12 @@
 	                            return _react2.default.createElement(
 	                                'li',
 	                                {
+	                                    style: style.listitems,
 	                                    key: i,
 	                                    onClick: function onClick() {
 	                                        return _this3.whenClicked(project._id);
 	                                    },
-	                                    className: 'list-group-item'
+	                                    className: 'list-group-item highlight'
 	                                },
 	                                project.projectName
 	                            );

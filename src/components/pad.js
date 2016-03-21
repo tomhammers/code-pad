@@ -5,7 +5,8 @@ import { Col } from 'react-bootstrap';
 import 'brace/mode/javascript';
 import 'brace/mode/html';
 import 'brace/mode/css';
-import 'brace/theme/dreamweaver';
+import 'brace/theme/tomorrow';
+import 'brace/theme/tomorrow_night_eighties';
 
 export default class Pad extends Component {
 
@@ -23,9 +24,9 @@ export default class Pad extends Component {
     componentDidMount() {
         this.editor = Ace.edit('editor');
         this.editor.$blockScrolling = Infinity;
-        this.editor.setFontSize(16);
+        this.editor.setFontSize(15);
         this.editor.getSession().setMode('ace/mode/html');
-        this.editor.setTheme('ace/theme/dreamweaver');
+        this.editor.setTheme('ace/theme/tomorrow_night_eighties');
         this.editor.setShowPrintMargin(false);
         this.editor.getSession().setValue(this.props.code);
         this.editor.getSession().on('change', () => {
@@ -55,18 +56,18 @@ export default class Pad extends Component {
         let style = {
             pad: {
                 height: this.props.height,
-                borderRight: 'thick solid grey',
-                borderLeft: 'thick solid grey'
+                borderRight: 'thick solid #404040',
+                borderLeft: 'thick solid #404040',
             },
             padParent: {
                 height: this.props.height,
-                paddingLeft: 0,
+                paddingLeft: '2px',
                 paddingRight: 0
             }
         };
 
         return (
-            <Col md={5} id="pad" style={style.padParent}>
+            <Col sm={5} id="pad" style={style.padParent}>
                 <div id="editor" style={style.pad}>
                 </div>
             </Col>

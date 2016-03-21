@@ -14,6 +14,10 @@ export default class OpenModal extends Component {
         this.setProjectItems = this.setProjectItems.bind(this);
     }
 
+    componentWillUnmount() {
+
+    }
+
     whenClicked(projectID) {
         this.props.selectProject(projectID);
     }
@@ -36,6 +40,12 @@ export default class OpenModal extends Component {
 
     render() {
 
+        let style = {
+            listitems: {
+                cursor: 'pointer'
+            }
+        };
+
         return (
             <Modal show={this.props.show}>
 
@@ -48,9 +58,10 @@ export default class OpenModal extends Component {
                         {this.props.projects.map((project, i) => {
                             return (
                                 <li
+                                    style={style.listitems}
                                     key={i}
                                     onClick={ () => this.whenClicked(project._id) }
-                                    className="list-group-item"
+                                    className="list-group-item highlight"
                                 >
                                     {project.projectName}
                                 </li>

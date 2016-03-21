@@ -21,7 +21,8 @@ export default class App extends Component {
         // create local DB if one doesn't exist (couch ignores otherwise)
         this.pdb.createDB('projects');
 
-        this.initialCode = "<html>\n    <body>\n        \n    </body>\n</html>";
+        this.initialCode = "<html>\n    <head>\n        <style>\n            body {\n                color: white;\n                background-color: #2D2D2D;\n                font-family: ‘Lucida Console’, Monaco, monospace;\n            }\n        </style>\n    </head>\n    <body>\n        <h2><center>Welcome to Code-Pad</center></h2>\n    </body>\n</html>";
+        //this.initialCode =
         this.projects = [];
         this.joinedRoom = false;
 

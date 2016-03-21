@@ -29,9 +29,6 @@ export default class SaveModal extends Component {
                 </Modal.Header>
 
                 <Modal.Body>
-                    <h6
-                        key={this.props.modalTitle}>Save As:
-                    </h6>
                     <Input key="133445323"
                            type="text"
                            value={this.props.inputValue}
