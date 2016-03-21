@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import Ace from 'brace';
-import AceEditor from 'react-ace';
 import { Col } from 'react-bootstrap';
 
 import 'brace/mode/javascript';
@@ -8,46 +7,68 @@ import 'brace/mode/html';
 import 'brace/mode/css';
 import 'brace/theme/dreamweaver';
 
-function onChange(newValue) {
-    console.log('change', newValue);
-}
-
 export default class Pad extends Component {
 
     constructor(props) {
         super(props);
+        this.height = 0;
         // set initial state here, so code from database?
-        this.state = {padContent: this.props.code};
-
+        this.state = {
+            padContent: this.props.code,
+            padHeight: 0
+        };
         this.whenChanged = this.whenChanged.bind(this);
-        this.whenCleared = this.whenCleared.bind(this);
+    }
+
+    componentDidMount() {
+        this.editor = Ace.edit('editor');
+        this.editor.$blockScrolling = Infinity;
+        this.editor.setFontSize(16);
+        this.editor.getSession().setMode('ace/mode/html');
+        this.editor.setTheme('ace/theme/dreamweaver');
+        this.editor.setShowPrintMargin(false);
+        this.editor.getSession().setValue(this.props.code);
+        this.editor.getSession().on('change', () => {
+            this.whenChanged()
+        });
+
+    }
+
+    componentWillReceiveProps(nextProps) {
+        if (this.editor.getSession().getValue() !== nextProps.code) {
+            // editor.setValue is a synchronous function call, change event is emitted before setValue return.
+            this.silent = true;
+            this.editor.setValue(nextProps.code, -1);
+            this.silent = false;
+        }
     }
 
     // calls parent method
-    whenChanged(value) {
-        this.props.onChange('code', value);
+    whenChanged() {
+        if (this.props.onChange && !this.silent) {
+            this.props.onChange('code', this.editor.getSession().getValue());
+        }
     }
-
-
-    whenCleared() {
-        this.editor.getSession().setValue(this.props.code);
-    }
-
 
     render() {
 
+        let style = {
+            pad: {
+                height: this.props.height,
+                borderRight: 'thick solid grey',
+                borderLeft: 'thick solid grey'
+            },
+            padParent: {
+                height: this.props.height,
+                paddingLeft: 0,
+                paddingRight: 0
+            }
+        };
+
         return (
-            <Col md={5} className="pad">
-                <AceEditor
-                    mode="html"
-                    theme="dreamweaver"
-                    onChange={this.whenChanged}
-                    name="htmlPad"
-                    editorProps={{$blockScrolling: true}}
-                    value={this.props.code}
-                    fontSize={16}
-                    height="90vh"
-                />
+            <Col md={5} id="pad" style={style.padParent}>
+                <div id="editor" style={style.pad}>
+                </div>
             </Col>
         );
     }

@@ -23,10 +23,12 @@ export default class App extends Component {
 
         this.initialCode = "<html>\n    <body>\n        \n    </body>\n</html>";
         this.projects = [];
+        this.joinedRoom = false;
 
         this.state = {
             title: 'Code-Pad',
             projectName: '',
+            pageHeight: 0,
             code: this.initialCode,
             showSaveModal: false,
             showOpenModal: false,
@@ -55,6 +57,16 @@ export default class App extends Component {
         socket.on('disconnect', this.disconnect);
         socket.on('setupProject', this.setupProject);
         socket.on('projectChange', this.projectChange);
+    }
+
+    componentDidMount() {
+        // get the window height - header height
+        let fullPageHeight = document.getElementById('app').offsetHeight;
+        let headerHeight = document.getElementsByClassName('navbar')[0].offsetHeight;
+        let height = fullPageHeight - headerHeight;
+        this.setState({
+            pageHeight: height
+        });
     }
 
 
@@ -88,6 +100,7 @@ export default class App extends Component {
             id: id,
             project: project
         });
+        this.joinedRoom = true;
     }
 
     /**
@@ -114,13 +127,15 @@ export default class App extends Component {
         switch (stateToChange) {
             case 'code':
                 this.setState({code: value});
-
+                // if project is saved / exists
                 if (this.state.projectName !== '') {
-                    // store project in local db
+                    // update project doc
                     this.pdb.setProjectDoc(this.uniqueID, 'index.html', this.state.code, this.state.projectName);
                     // emit to server
-                    socket.emit('codeChange', {id: this.uniqueID, project: this.pdb.projectData});
-                    // should save existing document
+                    if(this.joinedRoom) {
+                        socket.emit('codeChange', {id: this.uniqueID, project: this.pdb.projectData});
+                    }
+                    // should save existing project in local db
                     this.pdb.upsertDoc();
                 }
                 break;
@@ -138,10 +153,6 @@ export default class App extends Component {
         this.pdb.upsertDoc();
         this.setState({showSaveModal: false});
         // create a socket.io room on the server for this project
-        //socket.emit('joinRoom', {
-        //    id: this.uniqueID,
-        //    project: this.pdb.projectData
-        //});
         this.joinRoom(this.uniqueID, this.pdb.projectData);
         // change the URL, this is now the project's URL
         history.pushState({"id": 1}, "", this.uniqueID);
@@ -177,6 +188,7 @@ export default class App extends Component {
     storeProjects() {
         for (let row of this.pdb.dbContents.rows) {
             this.projects.push(row.doc);
+            console.log('called');
         }
 
         this.setState({
@@ -187,6 +199,7 @@ export default class App extends Component {
 
     openProject(projectID) {
         // find project in db using ID, and pass a callback to handle the response
+
         this.pdb.findSingleDoc(projectID, this.loadProject);
     }
     // file->open
@@ -202,17 +215,22 @@ export default class App extends Component {
         // change URL to match project ID
         history.pushState({"id": 1}, "", this.uniqueID);
         // now join / create a socket.io room
-        //socket.emit('joinRoom', {
-        //    id: this.uniqueID,
-        //    project: proj
-        //});
         console.log(proj);
         this.joinRoom(this.uniqueID, proj);
     }
 
     render() {
+        let style = {
+            container: {
+                paddingRight: 0,
+                paddingLeft: 0
+            },
+            row: {
+                height: this.state.pageHeight
+            }
+        };
         return (
-            <Grid fluid>
+            <Grid fluid style={style.container}>
                 <Header
                     className="header"
                     title={this.state.title}
@@ -221,17 +239,19 @@ export default class App extends Component {
                     onOpen={this.viewProjects}
                 />
 
-                <Row>
+                <Row style={style.row}>
                     <LeftSidebar
                     />
 
                     <Pad
                         onChange={this.handleChange}
                         code={this.state.code}
+                        height={this.state.pageHeight}
                     />
 
                     <Preview
                         code={this.state.code}
+                        height={this.state.pageHeight}
                     />
                 </Row>
 

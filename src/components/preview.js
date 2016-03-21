@@ -22,17 +22,25 @@ export default class Preview extends Component {
     }
 
     render() {
+
+        let style = {
+            iframeStyle: {
+                height: this.props.height - 5,
+                width: '100%',
+                border: '0'
+            },
+            iframeParent: {
+                paddingRight: 0,
+                paddingLeft: 0
+            }
+        };
+
         return (
-            <Col md={6}>
-                <iframe ref="iframe" style={style}>
+            <Col md={6} style={style.iframeParent}>
+                <iframe ref="iframe" style={style.iframeStyle}>
                 </iframe>
             </Col>
         );
     }
 }
 
-let style = {
-    width: '100%',
-    height: '90vh',
-    borderTop: 0
-};

@@ -7,13 +7,8 @@ export default class LeftSidebar extends Component {
 
     render() {
 
-        let style = {
-            borderRight: '2px solid grey',
-            minHeight: '100%'
-        };
-
         return (
-            <Col md={1} style={style}>
+            <Col md={1}>
                 Files
             </Col>
         );

@@ -26,11 +26,9 @@ export default class Header extends Component {
     }
 
     render() {
-
         let style = {
             headerStyle: {
-                borderBottom: '4px solid grey',
-                paddingBottom: '3px'
+                border: 0
             },
             logo: {
                 padding: '10px',
@@ -46,9 +44,7 @@ export default class Header extends Component {
         };
 
         return (
-
-
-            <Navbar inverse fluid>
+            <Navbar inverse fluid style={style.headerStyle}>
                 <Navbar.Header>
                     <Navbar.Brand>
                         Code-Pad
@@ -71,7 +67,6 @@ export default class Header extends Component {
                     </Nav>
                 </Navbar.Collapse>
             </Navbar>
-
         );
     }
 }

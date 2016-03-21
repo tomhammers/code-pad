@@ -3,8 +3,8 @@ var app = express();
 var port = Number(process.env.PORT || 3000);
 var server = app.listen(port);
 var io = require('socket.io').listen(server);
-var ProjectRoom = require('./room/room');
 
+var ProjectRoom = require('./room/room');
 var PouchDB = require('pouchdb');
 var db = new PouchDB('projects');
 app.use('/db', require('express-pouchdb')(PouchDB));
@@ -27,14 +27,6 @@ app.get('/:room([A-Za-z0-9]{10})', function (req, res) {
     res.sendFile(__dirname + '/public/index.html');
 });
 
-// Heroku won't actually allow us to use WebSockets
-// so we have to setup polling instead.
-// https://devcenter.heroku.com/articles/using-socket-io-with-node-js-on-heroku
-io.configure(function () {
-    io.set("transports", ["xhr-polling"]);
-    io.set("polling duration", 10);
-});
-
 io.sockets.on('connection', function (socket) {
     connections.push(socket);
     console.log("Connected: " + connections.length + " sockets connected");
@@ -47,15 +39,16 @@ io.sockets.on('connection', function (socket) {
 
     socket.on('joinRoom', function (data) {
         // OPEN / unique URL, project exists on server
-        if (data.id in rooms) {  // room exists
+        if (data.id in rooms) {  // room key exists, therefore project data exists on server too
             console.log('block one');
             socket.join(data.id);
             rooms[data.id].addClient(socket);
+            // send client project data
             socket.emit('setupProject', {project: rooms[data.id].projectData});
         }
         // SAVE AS / OPEN, project does not exist on server (later - check DB too)
         // room does not exist, did the client send a project in the joinRoom request?
-        else if (data.project !== null) { // project data exists, set up a new room
+        else if (data.project !== null) { // project data was sent by client, set up a new room
             console.log('block two');
             var room = new ProjectRoom(data.project);
             room.addClient(socket.id);
