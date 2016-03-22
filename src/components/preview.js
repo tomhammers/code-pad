@@ -25,9 +25,10 @@ export default class Preview extends Component {
 
         let style = {
             iframeStyle: {
-                height: this.props.height - 5,
+                height: this.props.height,
                 width: '100%',
-                border: '0'
+                border: '0',
+                background: 'white'
             },
             iframeParent: {
                 paddingRight: 0,

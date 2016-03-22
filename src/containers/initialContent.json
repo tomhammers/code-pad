@@ -1,0 +1,5 @@
+{
+  "html": "<html>\n    <head>\n        <style>\n            body {\n                color: white;\n                background-color: #2D2D2D;\n                font-family: ‘Lucida Console’, Monaco, monospace;\n            }\n        </style>\n    </head>\n    <body>\n        <h2><center>Welcome to Code-Pad</center></h2>\n    </body>\n</html>",
+  "css": "body {\n                color: white;\n                background-color: #2D2D2D;\n                font-family: ‘Lucida Console’, Monaco, monospace;\n            }",
+  "js": "console.log('hello world');"
+}

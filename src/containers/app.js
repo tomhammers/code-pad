@@ -12,6 +12,8 @@ import Preview from './../components/preview';
 import SaveModal from './../components/save-modal';
 import OpenModal from './../components/open-modal';
 
+import InitialContent from './initialContent.json';
+
 const socket = io();
 
 export default class App extends Component {
@@ -20,9 +22,6 @@ export default class App extends Component {
         this.pdb = new Pouch();
         // create local DB if one doesn't exist (couch ignores otherwise)
         this.pdb.createDB('projects');
-
-        this.initialCode = "<html>\n    <head>\n        <style>\n            body {\n                color: white;\n                background-color: #2D2D2D;\n                font-family: ‘Lucida Console’, Monaco, monospace;\n            }\n        </style>\n    </head>\n    <body>\n        <h2><center>Welcome to Code-Pad</center></h2>\n    </body>\n</html>";
-        //this.initialCode =
         this.projects = [];
         this.joinedRoom = false;
 
@@ -30,7 +29,10 @@ export default class App extends Component {
             title: 'Code-Pad',
             projectName: '',
             pageHeight: 0,
-            code: this.initialCode,
+            selectedTab: 0,
+            htmlcode: InitialContent.html,
+            jscode: InitialContent.js,
+            csscode: InitialContent.css,
             showSaveModal: false,
             showOpenModal: false,
             projectsFromDB: []
@@ -49,6 +51,7 @@ export default class App extends Component {
         this.projectChange = this.projectChange.bind(this);
         this.joinRoom = this.joinRoom.bind(this);
         this.connect = this.connect.bind(this);
+        this.selectFile = this.selectFile.bind(this);
     }
 
     componentWillMount() {
@@ -110,28 +113,33 @@ export default class App extends Component {
      */
     setupProject(data) {
         this.uniqueID = data.project._id;
-        this.setState({ code: data.project.files[0].content, projectName: data.project.projectName});
+        this.setState({ htmlcode: data.project.files[0].content, projectName: data.project.projectName});
         // put a copy of project in client's db
         this.pdb.projectData = data.project;
         this.pdb.upsertDoc();
     }
 
     projectChange(data) {
-        this.setState({ code: data.files[0].content});
+        this.setState({ htmlcode: data.files[0].content});
     }
 
     closeModal() {
         this.setState({showOpenModal: false});
     }
 
+    /**
+     * Handles changes user makes
+     * @param stateToChange
+     * @param value
+     */
     handleChange(stateToChange, value) {
         switch (stateToChange) {
-            case 'code':
-                this.setState({code: value});
+            case 'html':
+                this.setState({htmlcode: value});
                 // if project is saved / exists
                 if (this.state.projectName !== '') {
                     // update project doc
-                    this.pdb.setProjectDoc(this.uniqueID, 'index.html', this.state.code, this.state.projectName);
+                    this.pdb.setProjectDoc(this.uniqueID, 'index.html', this.state.htmlcode, this.state.projectName);
                     // emit to server
                     if(this.joinedRoom) {
                         socket.emit('codeChange', {id: this.uniqueID, project: this.pdb.projectData});
@@ -149,20 +157,19 @@ export default class App extends Component {
     // this is 'Save As', or what happens when user first saves the project
     createNewDoc() {
         this.uniqueID = this.generateUniqueID(10);
-        this.pdb.setProjectDoc(this.uniqueID, 'index.html', this.state.code, this.state.projectName);
-
+        this.pdb.setProjectDoc(this.uniqueID, this.state.htmlcode, this.state.jscode, this.state.csscode, this.state.projectName);
         this.pdb.upsertDoc();
         this.setState({showSaveModal: false});
         // create a socket.io room on the server for this project
         this.joinRoom(this.uniqueID, this.pdb.projectData);
-        // change the URL, this is now the project's URL
+        // change the URL, this is now the project's unique URL(first 2 values dummy data)
         history.pushState({"id": 1}, "", this.uniqueID);
     }
 
     // normal save, if project is not defined then it shows the user a 'Save As' Modal
     handleSave() {
         // should set or update data before putting to DB
-        this.pdb.setProjectDoc(this.uniqueID, 'index.html', this.state.code, this.state.projectName);
+        this.pdb.setProjectDoc(this.uniqueID, this.state.htmlcode, this.state.jscode, this.state.csscode, this.state.projectName);
 
         if (this.state.projectName !== '') {
             // should save existing document
@@ -210,14 +217,17 @@ export default class App extends Component {
         // setting state will force a render
         this.setState({
             projectName: proj.projectName,
-            code: proj.files[0].content,
+            htmlcode: proj.files[0].content,
             showOpenModal: false
         });
         // change URL to match project ID
         history.pushState({"id": 1}, "", this.uniqueID);
         // now join / create a socket.io room
-        console.log(proj);
         this.joinRoom(this.uniqueID, proj);
+    }
+
+    selectFile() {
+        console.log('hello');
     }
 
     render() {
@@ -239,23 +249,22 @@ export default class App extends Component {
                     onNew={this.newProject}
                     onOpen={this.viewProjects}
                 />
-
                 <Row style={style.row}>
                     <LeftSidebar
+                        onSelectFile={this.selectFile}
                     />
-
                     <Pad
                         onChange={this.handleChange}
-                        code={this.state.code}
+                        htmlCode={this.state.htmlcode}
+                        jsCode={this.state.jscode}
+                        cssCode={this.state.csscode}
                         height={this.state.pageHeight}
                     />
-
                     <Preview
-                        code={this.state.code}
+                        code={this.state.htmlcode}
                         height={this.state.pageHeight}
                     />
                 </Row>
-
                 <SaveModal
                     modalTitle='Save'
                     onChange={this.handleChange}
@@ -264,7 +273,6 @@ export default class App extends Component {
                     buttonTitle='Save'
                     buttonClick={ this.createNewDoc }
                 />
-
                 <OpenModal
                     modalTitle='Open Project'
                     show={this.state.showOpenModal}
@@ -273,10 +281,7 @@ export default class App extends Component {
                     buttonClick={ this.closeModal }
                     selectProject={ this.openProject }
                 />
-
             </Grid>
-
-
         );
     }
 }

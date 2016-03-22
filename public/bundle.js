@@ -24750,6 +24750,10 @@
 
 	var _openModal2 = _interopRequireDefault(_openModal);
 
+	var _initialContent = __webpack_require__(590);
+
+	var _initialContent2 = _interopRequireDefault(_initialContent);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -24771,9 +24775,6 @@
 	        _this.pdb = new _pouchdb2.default();
 	        // create local DB if one doesn't exist (couch ignores otherwise)
 	        _this.pdb.createDB('projects');
-
-	        _this.initialCode = "<html>\n    <head>\n        <style>\n            body {\n                color: white;\n                background-color: #2D2D2D;\n                font-family: ‘Lucida Console’, Monaco, monospace;\n            }\n        </style>\n    </head>\n    <body>\n        <h2><center>Welcome to Code-Pad</center></h2>\n    </body>\n</html>";
-	        //this.initialCode =
 	        _this.projects = [];
 	        _this.joinedRoom = false;
 
@@ -24781,7 +24782,10 @@
 	            title: 'Code-Pad',
 	            projectName: '',
 	            pageHeight: 0,
-	            code: _this.initialCode,
+	            selectedTab: 0,
+	            htmlcode: _initialContent2.default.html,
+	            jscode: _initialContent2.default.js,
+	            csscode: _initialContent2.default.css,
 	            showSaveModal: false,
 	            showOpenModal: false,
 	            projectsFromDB: []
@@ -24800,6 +24804,7 @@
 	        _this.projectChange = _this.projectChange.bind(_this);
 	        _this.joinRoom = _this.joinRoom.bind(_this);
 	        _this.connect = _this.connect.bind(_this);
+	        _this.selectFile = _this.selectFile.bind(_this);
 	        return _this;
 	    }
 
@@ -24872,7 +24877,7 @@
 	        key: 'setupProject',
 	        value: function setupProject(data) {
 	            this.uniqueID = data.project._id;
-	            this.setState({ code: data.project.files[0].content, projectName: data.project.projectName });
+	            this.setState({ htmlcode: data.project.files[0].content, projectName: data.project.projectName });
 	            // put a copy of project in client's db
 	            this.pdb.projectData = data.project;
 	            this.pdb.upsertDoc();
@@ -24880,23 +24885,30 @@
 	    }, {
 	        key: 'projectChange',
 	        value: function projectChange(data) {
-	            this.setState({ code: data.files[0].content });
+	            this.setState({ htmlcode: data.files[0].content });
 	        }
 	    }, {
 	        key: 'closeModal',
 	        value: function closeModal() {
 	            this.setState({ showOpenModal: false });
 	        }
+
+	        /**
+	         * Handles changes user makes
+	         * @param stateToChange
+	         * @param value
+	         */
+
 	    }, {
 	        key: 'handleChange',
 	        value: function handleChange(stateToChange, value) {
 	            switch (stateToChange) {
-	                case 'code':
-	                    this.setState({ code: value });
+	                case 'html':
+	                    this.setState({ htmlcode: value });
 	                    // if project is saved / exists
 	                    if (this.state.projectName !== '') {
 	                        // update project doc
-	                        this.pdb.setProjectDoc(this.uniqueID, 'index.html', this.state.code, this.state.projectName);
+	                        this.pdb.setProjectDoc(this.uniqueID, 'index.html', this.state.htmlcode, this.state.projectName);
 	                        // emit to server
 	                        if (this.joinedRoom) {
 	                            socket.emit('codeChange', { id: this.uniqueID, project: this.pdb.projectData });
@@ -24917,13 +24929,12 @@
 	        key: 'createNewDoc',
 	        value: function createNewDoc() {
 	            this.uniqueID = this.generateUniqueID(10);
-	            this.pdb.setProjectDoc(this.uniqueID, 'index.html', this.state.code, this.state.projectName);
-
+	            this.pdb.setProjectDoc(this.uniqueID, this.state.htmlcode, this.state.jscode, this.state.csscode, this.state.projectName);
 	            this.pdb.upsertDoc();
 	            this.setState({ showSaveModal: false });
 	            // create a socket.io room on the server for this project
 	            this.joinRoom(this.uniqueID, this.pdb.projectData);
-	            // change the URL, this is now the project's URL
+	            // change the URL, this is now the project's unique URL(first 2 values dummy data)
 	            history.pushState({ "id": 1 }, "", this.uniqueID);
 	        }
 
@@ -24933,7 +24944,7 @@
 	        key: 'handleSave',
 	        value: function handleSave() {
 	            // should set or update data before putting to DB
-	            this.pdb.setProjectDoc(this.uniqueID, 'index.html', this.state.code, this.state.projectName);
+	            this.pdb.setProjectDoc(this.uniqueID, this.state.htmlcode, this.state.jscode, this.state.csscode, this.state.projectName);
 
 	            if (this.state.projectName !== '') {
 	                // should save existing document
@@ -25015,14 +25026,18 @@
 	            // setting state will force a render
 	            this.setState({
 	                projectName: proj.projectName,
-	                code: proj.files[0].content,
+	                htmlcode: proj.files[0].content,
 	                showOpenModal: false
 	            });
 	            // change URL to match project ID
 	            history.pushState({ "id": 1 }, "", this.uniqueID);
 	            // now join / create a socket.io room
-	            console.log(proj);
 	            this.joinRoom(this.uniqueID, proj);
+	        }
+	    }, {
+	        key: 'selectFile',
+	        value: function selectFile() {
+	            console.log('hello');
 	        }
 	    }, {
 	        key: 'render',
@@ -25049,14 +25064,18 @@
 	                _react2.default.createElement(
 	                    _reactBootstrap.Row,
 	                    { style: style.row },
-	                    _react2.default.createElement(_leftSidebar2.default, null),
+	                    _react2.default.createElement(_leftSidebar2.default, {
+	                        onSelectFile: this.selectFile
+	                    }),
 	                    _react2.default.createElement(_pad2.default, {
 	                        onChange: this.handleChange,
-	                        code: this.state.code,
+	                        htmlCode: this.state.htmlcode,
+	                        jsCode: this.state.jscode,
+	                        cssCode: this.state.csscode,
 	                        height: this.state.pageHeight
 	                    }),
 	                    _react2.default.createElement(_preview2.default, {
-	                        code: this.state.code,
+	                        code: this.state.htmlcode,
 	                        height: this.state.pageHeight
 	                    })
 	                ),
@@ -49500,13 +49519,19 @@
 	        }
 	    }, {
 	        key: 'setProjectDoc',
-	        value: function setProjectDoc(id, filename, content, projectName) {
+	        value: function setProjectDoc(id, htmlContent, jsContent, cssContent, projectName) {
 	            this.projectData = {
 	                _id: id,
 	                projectName: projectName,
 	                files: [{
-	                    fileName: filename,
-	                    content: content
+	                    fileName: 'index.html',
+	                    content: htmlContent
+	                }, {
+	                    fileName: 'script.js',
+	                    content: jsContent
+	                }, {
+	                    fileName: 'style.css',
+	                    content: cssContent
 	                }],
 	                public: false,
 	                users: [{
@@ -67337,17 +67362,25 @@
 	    _createClass(LeftSidebar, [{
 	        key: 'render',
 	        value: function render() {
+	            var _this2 = this;
+
 	            var style = {
 	                outer: {
 	                    paddingRight: '0',
-	                    backgroundColor: '#404040'
+	                    color: '#9d9d9d'
 	                },
 	                projectHeader: {
-	                    color: '#9d9d9d',
-	                    paddingLeft: '3px'
+	                    paddingLeft: '1px'
 	                },
-	                chevron: {
-	                    paddingRight: '10px'
+	                folder: {
+	                    paddingRight: '10px',
+	                    paddingLeft: '5px'
+	                },
+	                file: {
+	                    paddingLeft: '15px'
+	                },
+	                listItems: {
+	                    whiteSpace: 'nowrap'
 	                }
 	            };
 
@@ -67360,7 +67393,7 @@
 	                    _react2.default.createElement(
 	                        'span',
 	                        { style: style.projectHeader },
-	                        _react2.default.createElement(_reactBootstrap.Glyphicon, { style: style.chevron, glyph: 'folder-open' }),
+	                        _react2.default.createElement(_reactBootstrap.Glyphicon, { style: style.folder, glyph: 'folder-open' }),
 	                        _react2.default.createElement(
 	                            'b',
 	                            null,
@@ -67371,7 +67404,43 @@
 	                _react2.default.createElement(
 	                    'div',
 	                    null,
-	                    _react2.default.createElement('ul', null)
+	                    _react2.default.createElement(
+	                        'ul',
+	                        null,
+	                        _react2.default.createElement(
+	                            'li',
+	                            {
+	                                onClick: function onClick() {
+	                                    return _this2.props.onSelectFile();
+	                                },
+	                                style: style.listItems
+	                            },
+	                            _react2.default.createElement(_reactBootstrap.Glyphicon, { style: style.file, glyph: 'file' }),
+	                            'index.html'
+	                        ),
+	                        _react2.default.createElement(
+	                            'li',
+	                            {
+	                                onClick: function onClick() {
+	                                    return _this2.props.onSelectFile();
+	                                },
+	                                style: style.listItems
+	                            },
+	                            _react2.default.createElement(_reactBootstrap.Glyphicon, { style: style.file, glyph: 'file' }),
+	                            'script.js'
+	                        ),
+	                        _react2.default.createElement(
+	                            'li',
+	                            {
+	                                onClick: function onClick() {
+	                                    return _this2.props.onSelectFile();
+	                                },
+	                                style: style.listItems
+	                            },
+	                            _react2.default.createElement(_reactBootstrap.Glyphicon, { style: style.file, glyph: 'file' }),
+	                            'style.css'
+	                        )
+	                    )
 	                )
 	            );
 	        }
@@ -67437,49 +67506,90 @@
 	            padHeight: 0
 	        };
 	        _this.whenChanged = _this.whenChanged.bind(_this);
+	        _this.setupEditor = _this.setupEditor.bind(_this);
+	        _this.updateEditorContent = _this.updateEditorContent.bind(_this);
 	        return _this;
 	    }
+
+	    /**
+	     * react lifecycle, editor will mount onto the dom after dom has loaded
+	     */
+
 
 	    _createClass(Pad, [{
 	        key: 'componentDidMount',
 	        value: function componentDidMount() {
-	            var _this2 = this;
-
-	            this.editor = _brace2.default.edit('editor');
-	            this.editor.$blockScrolling = Infinity;
-	            this.editor.setFontSize(15);
-	            this.editor.getSession().setMode('ace/mode/html');
-	            this.editor.setTheme('ace/theme/tomorrow_night_eighties');
-	            this.editor.setShowPrintMargin(false);
-	            this.editor.getSession().setValue(this.props.code);
-	            this.editor.getSession().on('change', function () {
-	                _this2.whenChanged();
-	            });
+	            // Set up the html editor
+	            this.htmleditor = _brace2.default.edit('html-editor');
+	            this.setupEditor(this.htmleditor, 'html', this.props.htmlCode);
 	        }
+
+	        /**
+	         * This will happen on Open Project or an incoming change from the server
+	         * @param nextProps
+	         */
+
 	    }, {
 	        key: 'componentWillReceiveProps',
 	        value: function componentWillReceiveProps(nextProps) {
-	            if (this.editor.getSession().getValue() !== nextProps.code) {
-	                // editor.setValue is a synchronous function call, change event is emitted before setValue return.
-	                this.silent = true;
-	                this.editor.setValue(nextProps.code, -1);
-	                this.silent = false;
+	            if (this.htmleditor.getSession().getValue() !== nextProps.htmlCode) {
+	                this.updateEditorContent(this.htmleditor, nextProps.htmlCode);
 	            }
 	        }
 
-	        // calls parent method
+	        /**
+	         * Updates editor content from external resource (local db or from server)
+	         * @param editor
+	         * @param code
+	         */
+
+	    }, {
+	        key: 'updateEditorContent',
+	        value: function updateEditorContent(editor, code) {
+	            this.silent = true;
+	            editor.setValue(code, -1);
+	            this.silent = false;
+	        }
+
+	        /**
+	         * Set up a new editor, pass in editor object, codeType string, and the actual code
+	         * @param editor
+	         * @param codeType
+	         * @param code
+	         */
+
+	    }, {
+	        key: 'setupEditor',
+	        value: function setupEditor(editor, codeType, code) {
+	            var _this2 = this;
+
+	            editor.$blockScrolling = Infinity;
+	            editor.setFontSize(14);
+	            editor.setTheme('ace/theme/tomorrow_night_eighties');
+	            editor.setShowPrintMargin(false);
+	            editor.getSession().setMode('ace/mode/' + codeType);
+	            editor.getSession().setValue(code);
+	            editor.getSession().on('change', function () {
+	                _this2.whenChanged(editor, codeType);
+	            });
+	        }
+
+	        /**
+	         * Will call parent method when user makes changes on editor, pass editor object and codetype string
+	         * @param editor
+	         * @param codeType
+	         */
 
 	    }, {
 	        key: 'whenChanged',
-	        value: function whenChanged() {
+	        value: function whenChanged(editor, codeType) {
 	            if (this.props.onChange && !this.silent) {
-	                this.props.onChange('code', this.editor.getSession().getValue());
+	                this.props.onChange(codeType, editor.getSession().getValue());
 	            }
 	        }
 	    }, {
 	        key: 'render',
 	        value: function render() {
-
 	            var style = {
 	                pad: {
 	                    height: this.props.height,
@@ -67496,7 +67606,9 @@
 	            return _react2.default.createElement(
 	                _reactBootstrap.Col,
 	                { sm: 5, id: 'pad', style: style.padParent },
-	                _react2.default.createElement('div', { id: 'editor', style: style.pad })
+	                _react2.default.createElement('div', { id: 'html-editor', style: style.pad }),
+	                _react2.default.createElement('div', { id: 'js-editor', style: style.pad }),
+	                _react2.default.createElement('div', { id: 'css-editor', style: style.pad })
 	            );
 	        }
 	    }]);
@@ -91500,9 +91612,10 @@
 
 	            var style = {
 	                iframeStyle: {
-	                    height: this.props.height - 5,
+	                    height: this.props.height,
 	                    width: '100%',
-	                    border: '0'
+	                    border: '0',
+	                    background: 'white'
 	                },
 	                iframeParent: {
 	                    paddingRight: 0,
@@ -91742,6 +91855,16 @@
 	}(_react.Component);
 
 	exports.default = OpenModal;
+
+/***/ },
+/* 590 */
+/***/ function(module, exports) {
+
+	module.exports = {
+		"html": "<html>\n    <head>\n        <style>\n            body {\n                color: white;\n                background-color: #2D2D2D;\n                font-family: ‘Lucida Console’, Monaco, monospace;\n            }\n        </style>\n    </head>\n    <body>\n        <h2><center>Welcome to Code-Pad</center></h2>\n    </body>\n</html>",
+		"css": "body {\n                color: white;\n                background-color: #2D2D2D;\n                font-family: ‘Lucida Console’, Monaco, monospace;\n            }",
+		"js": "console.log('hello world');"
+	};
 
 /***/ }
 /******/ ]);

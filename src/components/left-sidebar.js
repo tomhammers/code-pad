@@ -8,14 +8,20 @@ export default class LeftSidebar extends Component {
         let style = {
             outer: {
                 paddingRight: '0',
-                backgroundColor: '#404040'
+                color: '#9d9d9d'
             },
             projectHeader: {
-                color: '#9d9d9d',
-                paddingLeft: '3px'
+                paddingLeft: '1px'
             },
-            chevron: {
-                paddingRight: '10px'
+            folder: {
+                paddingRight: '10px',
+                paddingLeft: '5px'
+            },
+            file: {
+                paddingLeft: '15px'
+            },
+            listItems: {
+                whiteSpace: 'nowrap'
             }
         };
 
@@ -23,14 +29,34 @@ export default class LeftSidebar extends Component {
             <Col sm={1} style={style.outer}>
                 <div>
                     <span style={style.projectHeader}>
-                        <Glyphicon style={style.chevron} glyph="folder-open"/>
+                        <Glyphicon style={style.folder} glyph="folder-open"/>
                         <b>Project</b>
                     </span>
                 </div>
 
                 <div>
                     <ul>
-
+                        <li
+                            onClick={ () => this.props.onSelectFile() }
+                            style={style.listItems}
+                        >
+                            <Glyphicon style={style.file} glyph="file"/>
+                            index.html
+                        </li>
+                        <li
+                            onClick={ () => this.props.onSelectFile() }
+                            style={style.listItems}
+                        >
+                            <Glyphicon style={style.file} glyph="file"/>
+                            script.js
+                        </li>
+                        <li
+                            onClick={ () => this.props.onSelectFile() }
+                            style={style.listItems}
+                        >
+                            <Glyphicon style={style.file} glyph="file"/>
+                            style.css
+                        </li>
                     </ul>
                 </div>
 

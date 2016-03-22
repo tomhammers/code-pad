@@ -15,14 +15,22 @@ export default class Pouch {
         this.db = new PouchDB(dbName);
     }
 
-    setProjectDoc(id, filename, content, projectName) {
+    setProjectDoc(id, htmlContent, jsContent, cssContent, projectName) {
         this.projectData = {
             _id: id,
             projectName: projectName,
             files: [
                 {
-                    fileName: filename,
-                    content: content
+                    fileName: 'index.html',
+                    content: htmlContent
+                },
+                {
+                    fileName: 'script.js',
+                    content: jsContent
+                },
+                {
+                    fileName: 'style.css',
+                    content: cssContent
                 }
             ],
             public: false,
