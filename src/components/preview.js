@@ -16,9 +16,21 @@ export default class Preview extends Component {
     }
 
     populateSandbox() {
-        this.sandbox.contentWindow.document.open();
-        this.sandbox.contentWindow.document.write(this.props.code);
-        this.sandbox.contentWindow.document.close();
+        let css = '' +
+            '<style type="text/css">' +
+            this.props.cssCode +
+            '</style>';
+        let js = '' +
+                '<script>' +
+                this.props.jsCode +
+                '</script>';
+        let doc = this.sandbox.contentWindow.document;
+        doc.open();
+        doc.write(this.props.htmlCode);
+        doc.write(css);
+        doc.write(js);
+        doc.close();
+        console.log(doc);
     }
 
     render() {
@@ -37,7 +49,7 @@ export default class Preview extends Component {
         };
 
         return (
-            <Col sm={6} style={style.iframeParent}>
+            <Col lg={6} style={style.iframeParent}>
                 <iframe ref="iframe" style={style.iframeStyle}>
                 </iframe>
             </Col>

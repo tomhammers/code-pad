@@ -1,4 +1,5 @@
 import PouchDB from 'pouchdb';
+import ProjectDoc from '../../universal/projectDoc';
 PouchDB.plugin(require('pouchdb-upsert'));
 PouchDB.plugin(require('pouchdb-find'));
 
@@ -7,6 +8,7 @@ window.PouchDB = PouchDB; // allow extension in chrome dev tools to work
 export default class Pouch {
 
     constructor() {
+        this.project = new ProjectDoc();
         this.projectData = {};
         this.selectedProject = {};
     }
@@ -15,36 +17,13 @@ export default class Pouch {
         this.db = new PouchDB(dbName);
     }
 
-    setProjectDoc(id, htmlContent, jsContent, cssContent, projectName) {
-        this.projectData = {
-            _id: id,
-            projectName: projectName,
-            files: [
-                {
-                    fileName: 'index.html',
-                    content: htmlContent
-                },
-                {
-                    fileName: 'script.js',
-                    content: jsContent
-                },
-                {
-                    fileName: 'style.css',
-                    content: cssContent
-                }
-            ],
-            public: false,
-            users: [
-                {
-                    user: ''
-                }
-            ]
-        };
+    setupProjectDoc(id, projectName, htmlContent, jsContent, cssContent) {
+        this.projectData = this.project.setProjectDoc(id, projectName, htmlContent);
     }
 
     upsertDoc() {
-        this.db.upsert(this.projectData._id, (doc) => {
-            return this.projectData;
+        this.db.upsert(this.project.projectData._id, (doc) => {
+            return this.project.projectData;
         });
     }
 
@@ -69,8 +48,6 @@ export default class Pouch {
             console.log(err);
         });
     }
-
-
 }
 
 PouchDB.dbContents = {};

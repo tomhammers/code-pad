@@ -3,6 +3,26 @@ import { Col, Glyphicon } from 'react-bootstrap';
 
 export default class LeftSidebar extends Component {
 
+    renderList() {
+        let style = {
+            paddingLeft: '3px',
+            paddingTop: '5px',
+            whiteSpace: 'nowrap'
+        };
+        return this.props.fileNames.map((fileName) => {
+            return (
+                <li
+                    style={style}
+                    key={fileName}
+                    onClick={ () => this.props.onSelectFile(fileName) }
+                >
+                    <Glyphicon glyph="file"/>
+                    {fileName}
+                </li>
+            );
+        });
+    }
+
 
     render() {
         let style = {
@@ -16,47 +36,14 @@ export default class LeftSidebar extends Component {
             folder: {
                 paddingRight: '10px',
                 paddingLeft: '5px'
-            },
-            file: {
-                paddingLeft: '15px'
-            },
-            listItems: {
-                whiteSpace: 'nowrap'
             }
         };
 
         return (
-            <Col sm={1} style={style.outer}>
-                <div>
-                    <span style={style.projectHeader}>
-                        <Glyphicon style={style.folder} glyph="folder-open"/>
-                        <b>Project</b>
-                    </span>
-                </div>
-
+            <Col lg={1} style={style.outer}>
                 <div>
                     <ul>
-                        <li
-                            onClick={ () => this.props.onSelectFile() }
-                            style={style.listItems}
-                        >
-                            <Glyphicon style={style.file} glyph="file"/>
-                            index.html
-                        </li>
-                        <li
-                            onClick={ () => this.props.onSelectFile() }
-                            style={style.listItems}
-                        >
-                            <Glyphicon style={style.file} glyph="file"/>
-                            script.js
-                        </li>
-                        <li
-                            onClick={ () => this.props.onSelectFile() }
-                            style={style.listItems}
-                        >
-                            <Glyphicon style={style.file} glyph="file"/>
-                            style.css
-                        </li>
+                        {this.renderList()}
                     </ul>
                 </div>
 
@@ -64,4 +51,5 @@ export default class LeftSidebar extends Component {
         );
     }
 }
+
 

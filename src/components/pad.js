@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import Ace from 'brace';
 import { Col } from 'react-bootstrap';
+import ToggleDisplay from'react-toggle-display';
 
 import 'brace/mode/javascript';
 import 'brace/mode/html';
@@ -30,6 +31,14 @@ export default class Pad extends Component {
         // Set up the html editor
         this.htmleditor = Ace.edit('html-editor');
         this.setupEditor(this.htmleditor, 'html', this.props.htmlCode);
+
+        // Set up the js editor
+        this.jseditor = Ace.edit('js-editor');
+        this.setupEditor(this.jseditor, 'javascript', this.props.jsCode);
+
+        // Set up the css editor
+        this.csseditor = Ace.edit('css-editor');
+        this.setupEditor(this.csseditor, 'css', this.props.cssCode);
     }
 
     /**
@@ -86,24 +95,42 @@ export default class Pad extends Component {
         let style = {
             pad: {
                 height: this.props.height,
-                borderRight: 'thick solid #404040',
-                borderLeft: 'thick solid #404040',
+                borderRight: 'thin solid #404040',
+                borderLeft: 'thin solid #404040'
             },
             padParent: {
                 height: this.props.height,
                 paddingLeft: '2px',
                 paddingRight: 0
+            },
+            hidden: {
+                display: 'none'
             }
         };
 
         return (
-            <Col sm={5} id="pad" style={style.padParent}>
-                <div id="html-editor" style={style.pad}>
-                </div>
-                <div id="js-editor" style={style.pad}>
-                </div>
-                <div id="css-editor" style={style.pad}>
-                </div>
+            <Col lg={5} id="pad" style={style.padParent}>
+                <ToggleDisplay show={this.props.activePad === 'index.html'}>
+                    <div
+                        id="html-editor"
+                        style={style.pad}
+                    >
+                    </div>
+                </ToggleDisplay>
+                <ToggleDisplay show={this.props.activePad === 'script.js'}>
+                    <div
+                        id="js-editor"
+                        style={style.pad}
+                    >
+                    </div>
+                </ToggleDisplay>
+                <ToggleDisplay show={this.props.activePad === 'style.css'}>
+                    <div
+                        id="css-editor"
+                        style={style.pad}
+                    >
+                    </div>
+                </ToggleDisplay>
             </Col>
         );
     }

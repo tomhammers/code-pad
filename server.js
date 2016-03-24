@@ -44,7 +44,7 @@ io.sockets.on('connection', function (socket) {
             socket.join(data.id);
             rooms[data.id].addClient(socket);
             // send client project data
-            socket.emit('setupProject', {project: rooms[data.id].projectData});
+            socket.emit('setupProject', {project: rooms[data.id].project.projectData});
         }
         // SAVE AS / OPEN, project does not exist on server (later - check DB too)
         // room does not exist, did the client send a project in the joinRoom request?

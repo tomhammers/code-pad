@@ -1,10 +1,9 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import { Grid, Row } from 'react-bootstrap';
-import { Link } from  'react-router';
 import io from 'socket.io-client';
 import Pouch from '../pouch/pouchdb';
-
+// react components that will be rendered
 import Header from './../components/header';
 import LeftSidebar from './../components/left-sidebar';
 import Pad from './../components/pad';
@@ -24,7 +23,7 @@ export default class App extends Component {
         this.pdb.createDB('projects');
         this.projects = [];
         this.joinedRoom = false;
-
+        // setting initial state for the first React render()
         this.state = {
             title: 'Code-Pad',
             projectName: '',
@@ -35,7 +34,9 @@ export default class App extends Component {
             csscode: InitialContent.css,
             showSaveModal: false,
             showOpenModal: false,
-            projectsFromDB: []
+            projectsFromDB: [],
+            fileNames: ['index.html', 'script.js', 'style.css'],
+            activeFile: 'index.html'
         };
 
         this.handleChange = this.handleChange.bind(this);
@@ -73,7 +74,10 @@ export default class App extends Component {
         });
     }
 
-
+    /**
+     * @param length
+     * @returns {string}
+     */
     generateUniqueID(length) {
         const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
         let id = '';
@@ -83,6 +87,9 @@ export default class App extends Component {
         return id;
     }
 
+    /**
+     * when user connects to socket.io server, if unique id was part of url will attempt to join 'room'
+     */
     connect() {
         console.log('Connected! ' + socket.id);
         if (this.uniqueID !== '') {
@@ -112,17 +119,25 @@ export default class App extends Component {
      * @param data
      */
     setupProject(data) {
+        console.log(data);
         this.uniqueID = data.project._id;
         this.setState({ htmlcode: data.project.files[0].content, projectName: data.project.projectName});
         // put a copy of project in client's db
-        this.pdb.projectData = data.project;
+        this.pdb.project.projectData = data.project;
         this.pdb.upsertDoc();
     }
 
+    /**
+     * On messages from socket.io, setting the state will cause React to re-render
+     * @param data
+     */
     projectChange(data) {
         this.setState({ htmlcode: data.files[0].content});
     }
 
+    /**
+     * Closes the open project modal
+     */
     closeModal() {
         this.setState({showOpenModal: false});
     }
@@ -139,14 +154,20 @@ export default class App extends Component {
                 // if project is saved / exists
                 if (this.state.projectName !== '') {
                     // update project doc
-                    this.pdb.setProjectDoc(this.uniqueID, 'index.html', this.state.htmlcode, this.state.projectName);
+                    this.pdb.setupProjectDoc(this.uniqueID, this.state.projectName, this.state.htmlcode);
                     // emit to server
                     if(this.joinedRoom) {
-                        socket.emit('codeChange', {id: this.uniqueID, project: this.pdb.projectData});
+                        socket.emit('codeChange', {id: this.uniqueID, project: this.pdb.project.projectData});
                     }
                     // should save existing project in local db
                     this.pdb.upsertDoc();
                 }
+                break;
+            case 'javascript':
+                this.setState({jscode: value});
+                break;
+            case 'css':
+                this.setState({csscode: value});
                 break;
             case 'saveAsInput':
                 this.setState({projectName: value});
@@ -154,25 +175,30 @@ export default class App extends Component {
         }
     }
 
-    // this is 'Save As', or what happens when user first saves the project
+    /**
+     * this is 'Save As', or what happens when user first saves the project and gives the project a name
+     */
     createNewDoc() {
         this.uniqueID = this.generateUniqueID(10);
-        this.pdb.setProjectDoc(this.uniqueID, this.state.htmlcode, this.state.jscode, this.state.csscode, this.state.projectName);
+        this.pdb.setupProjectDoc(this.uniqueID, this.state.projectName, this.state.htmlcode, this.state.jscode, this.state.csscode);
         this.pdb.upsertDoc();
         this.setState({showSaveModal: false});
         // create a socket.io room on the server for this project
-        this.joinRoom(this.uniqueID, this.pdb.projectData);
+        console.log(this.pdb);
+        this.joinRoom(this.uniqueID, this.pdb.project.projectData);
         // change the URL, this is now the project's unique URL(first 2 values dummy data)
         history.pushState({"id": 1}, "", this.uniqueID);
     }
 
-    // normal save, if project is not defined then it shows the user a 'Save As' Modal
+    /**
+     * normal save, if project is not defined then it shows the user a 'Save As' Modal
+     */
     handleSave() {
         // should set or update data before putting to DB
-        this.pdb.setProjectDoc(this.uniqueID, this.state.htmlcode, this.state.jscode, this.state.csscode, this.state.projectName);
+        this.pdb.setupProjectDoc(this.uniqueID, this.state.projectName, this.state.htmlcode, this.state.jscode, this.state.csscode);
 
         if (this.state.projectName !== '') {
-            // should save existing document
+            // should save existing document with no further input from user
             this.pdb.upsertDoc();
         } else {
             // else show modal so user can name the project
@@ -180,37 +206,47 @@ export default class App extends Component {
         }
     }
 
-    // reset everything
+    /**
+     * reset everything to default
+     */
     newProject() {
         this.setState({projectName: '', code: this.initialCode});
         // need a new ID now
         this.uniqueID = this.generateUniqueID(10);
     }
 
-    // note callback is passed which is called once the operation has finished
+    /**
+     *  callback is passed which is called once the operation has finished (file->open)
+     */
     viewProjects() {
         this.pdb.getDocs(this.storeProjects);
     }
 
-    // this is called once pouch has retrieved docs from the DB, store all project names locally
+    /**
+     * this is called once pouch has retrieved docs from the DB, store all project names locally
+     */
     storeProjects() {
         for (let row of this.pdb.dbContents.rows) {
             this.projects.push(row.doc);
-            console.log('called');
         }
-
         this.setState({
             projectsFromDB: this.projects,
             showOpenModal: true
         });
     }
 
+    /**
+     * find project in db using ID, and pass a callback to handle the response
+     * @param projectID
+     */
     openProject(projectID) {
-        // find project in db using ID, and pass a callback to handle the response
-
         this.pdb.findSingleDoc(projectID, this.loadProject);
     }
-    // file->open
+
+    /**
+     * callback called once pouchdb has found correct project (on file->open)
+     * @param proj
+     */
     loadProject(proj) {
         // proj is response from pouchdb, set up project in editor
         this.uniqueID = proj._id;
@@ -226,8 +262,15 @@ export default class App extends Component {
         this.joinRoom(this.uniqueID, proj);
     }
 
-    selectFile() {
-        console.log('hello');
+    /**
+     * when user clicks a filename, present the corrosponding file
+     * @param fileName
+     */
+    selectFile(fileName) {
+        console.log(fileName);
+        this.setState({
+            activeFile: fileName
+        });
     }
 
     render() {
@@ -252,6 +295,7 @@ export default class App extends Component {
                 <Row style={style.row}>
                     <LeftSidebar
                         onSelectFile={this.selectFile}
+                        fileNames={this.state.fileNames}
                     />
                     <Pad
                         onChange={this.handleChange}
@@ -259,9 +303,12 @@ export default class App extends Component {
                         jsCode={this.state.jscode}
                         cssCode={this.state.csscode}
                         height={this.state.pageHeight}
+                        activePad={this.state.activeFile}
                     />
                     <Preview
-                        code={this.state.htmlcode}
+                        htmlCode={this.state.htmlcode}
+                        jsCode={this.state.jscode}
+                        cssCode={this.state.csscode}
                         height={this.state.pageHeight}
                     />
                 </Row>
