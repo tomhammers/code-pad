@@ -5,7 +5,7 @@ import io from 'socket.io-client';
 import Pouch from '../pouch/pouchdb';
 // react components that will be rendered
 import Header from './../components/header';
-import LeftSidebar from './../components/left-sidebar';
+import FileTabs from './../components/file-tabs';
 import Pad from './../components/pad';
 import Preview from './../components/preview';
 import SaveModal from './../components/save-modal';
@@ -21,6 +21,15 @@ export default class App extends Component {
         this.pdb = new Pouch();
         // create local DB if one doesn't exist (couch ignores otherwise)
         this.pdb.createDB('projects');
+        // attempt to get uniqueID from URL
+        this.uniqueID = window.location.href.split("/").pop();
+        // if didn't find one set a new one
+        if(this.uniqueID === '') {
+            this.uniqueID = this.generateUniqueID(10);
+        }
+        // set the project up with default values
+        this.pdb.setupProjectDoc(this.uniqueID, '', InitialContent);
+
         this.projects = [];
         this.joinedRoom = false;
         // setting initial state for the first React render()
@@ -28,25 +37,21 @@ export default class App extends Component {
             title: 'Code-Pad',
             projectName: '',
             pageHeight: 0,
-            selectedTab: 0,
-            htmlcode: InitialContent.html,
-            jscode: InitialContent.js,
-            csscode: InitialContent.css,
+            code: this.pdb.project.projectData,
             showSaveModal: false,
             showOpenModal: false,
             projectsFromDB: [],
             fileNames: ['index.html', 'script.js', 'style.css'],
-            activeFile: 'index.html'
+            activeFile: 'HTML'
         };
 
-        this.handleChange = this.handleChange.bind(this);
+        this.handlePadChange = this.handlePadChange.bind(this);
         this.handleSave = this.handleSave.bind(this);
         this.createNewDoc = this.createNewDoc.bind(this);
         this.newProject = this.newProject.bind(this);
         this.openProject = this.openProject.bind(this);
         this.viewProjects = this.viewProjects.bind(this);
         this.storeProjects = this.storeProjects.bind(this);
-        this.closeModal = this.closeModal.bind(this);
         this.loadProject = this.loadProject.bind(this);
         this.setupProject = this.setupProject.bind(this);
         this.projectChange = this.projectChange.bind(this);
@@ -56,8 +61,6 @@ export default class App extends Component {
     }
 
     componentWillMount() {
-        var url = window.location.href;
-        this.uniqueID = url.split("/").pop();
         socket.on('connect', this.connect);
         socket.on('disconnect', this.disconnect);
         socket.on('setupProject', this.setupProject);
@@ -121,7 +124,7 @@ export default class App extends Component {
     setupProject(data) {
         console.log(data);
         this.uniqueID = data.project._id;
-        this.setState({ htmlcode: data.project.files[0].content, projectName: data.project.projectName});
+        this.setState({htmlcode: data.project.files[0].content, projectName: data.project.projectName});
         // put a copy of project in client's db
         this.pdb.project.projectData = data.project;
         this.pdb.upsertDoc();
@@ -132,54 +135,37 @@ export default class App extends Component {
      * @param data
      */
     projectChange(data) {
-        this.setState({ htmlcode: data.files[0].content});
+        this.setState({htmlcode: data.files[0].content});
     }
 
     /**
-     * Closes the open project modal
+     * Whenever a user changes something in a pad
+     * @param pads
      */
-    closeModal() {
-        this.setState({showOpenModal: false});
-    }
-
-    /**
-     * Handles changes user makes
-     * @param stateToChange
-     * @param value
-     */
-    handleChange(stateToChange, value) {
-        switch (stateToChange) {
-            case 'html':
-                this.setState({htmlcode: value});
-                // if project is saved / exists
-                if (this.state.projectName !== '') {
-                    // update project doc
-                    this.pdb.setupProjectDoc(this.uniqueID, this.state.projectName, this.state.htmlcode);
-                    // emit to server
-                    if(this.joinedRoom) {
-                        socket.emit('codeChange', {id: this.uniqueID, project: this.pdb.project.projectData});
-                    }
-                    // should save existing project in local db
-                    this.pdb.upsertDoc();
-                }
-                break;
-            case 'javascript':
-                this.setState({jscode: value});
-                break;
-            case 'css':
-                this.setState({csscode: value});
-                break;
-            case 'saveAsInput':
-                this.setState({projectName: value});
-                break;
+    handlePadChange(pads) {
+        // loop through all pads and get their value, update the projectDoc
+        for(let i = 0, l = pads.length; i < l; i++) {
+            this.pdb.project.projectData.files[i].content = pads[i].getSession().getValue();
         }
+
+        if (this.state.projectName !== '') {
+            // emit to server
+            if (this.joinedRoom) {
+                socket.emit('codeChange', {id: this.uniqueID, project: this.pdb.project.projectData});
+            }
+            // should save existing project in local db
+            this.pdb.upsertDoc();
+        }
+        // finally setState will cause React to re render all components
+        this.setState({
+            code: this.pdb.project.projectData
+        });
     }
 
     /**
      * this is 'Save As', or what happens when user first saves the project and gives the project a name
      */
     createNewDoc() {
-        this.uniqueID = this.generateUniqueID(10);
         this.pdb.setupProjectDoc(this.uniqueID, this.state.projectName, this.state.htmlcode, this.state.jscode, this.state.csscode);
         this.pdb.upsertDoc();
         this.setState({showSaveModal: false});
@@ -293,28 +279,25 @@ export default class App extends Component {
                     onOpen={this.viewProjects}
                 />
                 <Row style={style.row}>
-                    <LeftSidebar
+                    <FileTabs
                         onSelectFile={this.selectFile}
-                        fileNames={this.state.fileNames}
+                        fileNames={this.state.code.files}
+                        activeFile={this.state.activeFile}
                     />
                     <Pad
-                        onChange={this.handleChange}
-                        htmlCode={this.state.htmlcode}
-                        jsCode={this.state.jscode}
-                        cssCode={this.state.csscode}
+                        onChange={this.handlePadChange}
+                        code={this.state.code}
                         height={this.state.pageHeight}
                         activePad={this.state.activeFile}
                     />
                     <Preview
-                        htmlCode={this.state.htmlcode}
-                        jsCode={this.state.jscode}
-                        cssCode={this.state.csscode}
+                        code={this.state.code}
                         height={this.state.pageHeight}
                     />
                 </Row>
                 <SaveModal
                     modalTitle='Save'
-                    onChange={this.handleChange}
+                    onChange={event => this.setState({ projectName: event })}
                     show={this.state.showSaveModal}
                     inputValue={this.state.projectName}
                     buttonTitle='Save'
@@ -325,10 +308,14 @@ export default class App extends Component {
                     show={this.state.showOpenModal}
                     buttonTitle='Close'
                     projects={this.state.projectsFromDB}
-                    buttonClick={ this.closeModal }
+                    buttonClick={ event => this.setState({ showOpenModal: false }) }
                     selectProject={ this.openProject }
                 />
             </Grid>
         );
     }
 }
+
+//htmlCode={this.state.htmlcode}
+//jsCode={this.state.jscode}
+//cssCode={this.state.csscode}

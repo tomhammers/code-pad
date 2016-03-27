@@ -17,7 +17,7 @@ export default class SaveModal extends Component {
     }
 
     whenChanged(event) {
-        this.props.onChange('saveAsInput', event.target.value);
+        this.props.onChange(event.target.value);
     }
 
     render() {

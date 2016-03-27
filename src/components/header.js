@@ -1,7 +1,5 @@
 import React, { Component } from 'react';
-import { Grid, Row, Col, Navbar, Nav, NavItem, NavDropdown, MenuItem } from 'react-bootstrap';
-import Button from './button.js';
-
+import { Navbar, Nav, NavItem, NavDropdown, MenuItem, Button } from 'react-bootstrap';
 
 export default class Header extends Component {
 
@@ -28,12 +26,19 @@ export default class Header extends Component {
     render() {
         let style = {
             headerStyle: {
-                border: 0
+                border: 0,
+                backgroundColor: '#363636',
+                borderBottom: '1px solid black',
+                color: '#BABABB'
             },
             logo: {
                 padding: '10px',
                 paddingTop: 0,
                 margin: 0
+            },
+            menuItem: {
+                paddingLeft: '5px',
+                paddingRight: '5px'
             },
             connectionStatus: {
                 borderRadius: '50%',
@@ -73,7 +78,7 @@ export default class Header extends Component {
                         </NavDropdown>
                     </Nav>
                     <Nav pullRight>
-                        <NavItem eventKey={4} href="#">Sign In</NavItem>
+                        <NavItem eventKey={4} href="#"><Button bsStyle="primary">Sign In</Button></NavItem>
                     </Nav>
                 </Navbar.Collapse>
             </Navbar>

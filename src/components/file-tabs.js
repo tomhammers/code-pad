@@ -1,34 +1,45 @@
 import React, { Component } from 'react';
-import { Col, Glyphicon } from 'react-bootstrap';
+import { Col, ListGroup, ListGroupItem } from 'react-bootstrap';
 
 export default class LeftSidebar extends Component {
 
     renderList() {
-        let style = {
-            paddingLeft: '3px',
-            paddingTop: '5px',
-            whiteSpace: 'nowrap'
-        };
+
         return this.props.fileNames.map((fileName) => {
+            let style = {
+                paddingLeft: '15px',
+                marginTop: '5px',
+                color: '#9d9d9d',
+                fontSize: '16px',
+                cursor: 'pointer',
+                backgroundColor: ''
+            };
+            if (this.props.activeFile === fileName.fileName) {
+                style.backgroundColor = "#152B39"
+            } else {
+                style.backgroundColor = ""
+            }
             return (
                 <li
                     style={style}
-                    key={fileName}
-                    onClick={ () => this.props.onSelectFile(fileName) }
+                    key={fileName.fileName}
+                    onClick={ () => this.props.onSelectFile(fileName.fileName) }
+                    className="active filesHover"
                 >
-                    <Glyphicon glyph="file"/>
-                    {fileName}
+                    {fileName.fileName}
                 </li>
+
             );
         });
     }
 
 
     render() {
+        console.log(this.props.fileNames);
         let style = {
             outer: {
                 paddingRight: '0',
-                color: '#9d9d9d'
+                color: '#FFFFFF'
             },
             projectHeader: {
                 paddingLeft: '1px'

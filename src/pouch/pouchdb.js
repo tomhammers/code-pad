@@ -17,8 +17,9 @@ export default class Pouch {
         this.db = new PouchDB(dbName);
     }
 
-    setupProjectDoc(id, projectName, htmlContent, jsContent, cssContent) {
-        this.projectData = this.project.setProjectDoc(id, projectName, htmlContent);
+    setupProjectDoc(id, projectName, files) {
+        this.projectData = this.project.setProjectDoc(id, projectName, files);
+        return this.projectData;
     }
 
     upsertDoc() {

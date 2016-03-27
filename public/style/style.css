@@ -9,12 +9,11 @@ html, body, #app, .container-fluid {
 }
 
 body {
-    overflow-y: hidden;
     overflow-x: hidden;
-    color: #333333;
-    font-size: 15px;
+    color: #BABABB;
+    font-size: 14px;
     font-family: ‘Lucida Console’, Monaco, monospace;
-    background-color: #2D2D2D;
+    background-color: #363636;
 }
 
 .navbar {
@@ -26,3 +25,10 @@ body {
     background-color: #e6e6e6;
 }
 
+.filesHover:hover {
+    background-color: #4d4d4d;
+}
+
+.ace_gutter-layer {
+    background-color: #313131;
+}

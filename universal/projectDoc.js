@@ -1,25 +1,20 @@
-var Project = function() {};
+var Project = function(files) {
+    this.files = [];
+    //this.loadFiles(files);
+};
+
 /**
- *
+ * Method to setup the project doc, used both on the client and sever side to ensure
+ * its always consistent
+ * @param id
+ * @param projectName
+ * @param files
  */
-Project.prototype.setProjectDoc = function(id, projectName, htmlContent, jsContent, cssContent) {
+Project.prototype.setProjectDoc = function(id, projectName, files) {
     this.projectData = {
         _id: id,
         projectName: projectName,
-        files: [
-            {
-                fileName: 'index.html',
-                content: htmlContent
-            },
-            {
-                fileName: 'script.js',
-                content: jsContent
-            },
-            {
-                fileName: 'style.css',
-                content: cssContent
-            }
-        ],
+        files: files.files,
         public: false,
         users: [
             {
@@ -28,5 +23,6 @@ Project.prototype.setProjectDoc = function(id, projectName, htmlContent, jsConte
         ]
     };
 };
+
 
 module.exports = Project;
