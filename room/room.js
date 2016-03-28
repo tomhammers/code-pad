@@ -1,7 +1,7 @@
 var ProjectDoc = require('../universal/projectDoc');
 
 var Room = function Room(data) {
-    console.log(data);
+    //console.log(data);
     //this.roomid = data._id;
     //this.projectName = data.projectName;
     //this.fileName = data.files[0].fileName;
@@ -13,7 +13,7 @@ var Room = function Room(data) {
     //    data.projectName,
     //    data.files[0].content
     //);
-    this.projectData = this.project.setProjectDoc(data._id, data.projectName, data.files[0].content);
+    this.projectData = this.project.setProjectDoc(data._id, data.projectName, data);
 };
 
 Room.prototype.addClient = function(socketID) {

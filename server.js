@@ -40,16 +40,16 @@ io.sockets.on('connection', function (socket) {
     socket.on('joinRoom', function (data) {
         // OPEN / unique URL, project exists on server
         if (data.id in rooms) {  // room key exists, therefore project data exists on server too
-            console.log('block one');
+            //console.log('block one');
             socket.join(data.id);
             rooms[data.id].addClient(socket);
             // send client project data
-            socket.emit('setupProject', {project: rooms[data.id].project.projectData});
+            socket.emit('setupProject', {project: rooms[data.id].project});
         }
         // SAVE AS / OPEN, project does not exist on server (later - check DB too)
         // room does not exist, did the client send a project in the joinRoom request?
         else if (data.project !== null) { // project data was sent by client, set up a new room
-            console.log('block two');
+            //console.log('block two');
             var room = new ProjectRoom(data.project);
             room.addClient(socket.id);
             rooms[data.id] = room; // add key value pair to array
@@ -57,9 +57,9 @@ io.sockets.on('connection', function (socket) {
         }
         // unique URL but no matching key, project doesn't exist anywhere
         else { // at this stage there is not much we can do
-            console.log('block three');
+            //console.log('block three');
             // this could happen if project owner sets up project -> room, at a later date room no longer exists
-            console.log("project doesn't exist on client or server");
+            //console.log("project doesn't exist on client or server");
             // later - make request to DB to look for project
         }
     });
@@ -69,7 +69,7 @@ io.sockets.on('connection', function (socket) {
         // send to all clients other then sender
         socket.broadcast.to(data.id).emit('projectChange', data.project);
         // update project data in room
-        rooms[data.id].projectData = data.project;
+        rooms[data.id].project.projectData = data.project;
     });
 });
 

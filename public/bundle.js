@@ -24894,9 +24894,9 @@
 	        value: function setupProject(data) {
 	            console.log(data);
 	            this.uniqueID = data.project._id;
-	            this.setState({ htmlcode: data.project.files[0].content, projectName: data.project.projectName });
+	            this.setState({ code: data.project.projectData, projectName: data.project.projectData.projectName });
 	            // put a copy of project in client's db
-	            this.pdb.project.projectData = data.project;
+	            this.pdb.project.projectData = data.project.projectData;
 	            this.pdb.upsertDoc();
 	        }
 
@@ -24908,7 +24908,8 @@
 	    }, {
 	        key: 'projectChange',
 	        value: function projectChange(data) {
-	            this.setState({ htmlcode: data.files[0].content });
+	            console.log(data);
+	            this.setState({ code: data });
 	        }
 
 	        /**
@@ -24927,7 +24928,7 @@
 	            if (this.state.projectName !== '') {
 	                // emit to server
 	                if (this.joinedRoom) {
-	                    socket.emit('codeChange', { id: this.uniqueID, project: this.pdb.project.projectData });
+	                    socket.emit('codeChange', { id: this.pdb.project.projectData._id, project: this.pdb.project.projectData });
 	                }
 	                // should save existing project in local db
 	                this.pdb.upsertDoc();
@@ -24945,7 +24946,7 @@
 	    }, {
 	        key: 'createNewDoc',
 	        value: function createNewDoc() {
-	            this.pdb.setupProjectDoc(this.uniqueID, this.state.projectName, this.state.htmlcode, this.state.jscode, this.state.csscode);
+	            this.pdb.setupProjectDoc(this.uniqueID, this.state.projectName, this.state.code);
 	            this.pdb.upsertDoc();
 	            this.setState({ showSaveModal: false });
 	            // create a socket.io room on the server for this project
@@ -24963,7 +24964,7 @@
 	        key: 'handleSave',
 	        value: function handleSave() {
 	            // should set or update data before putting to DB
-	            this.pdb.setupProjectDoc(this.uniqueID, this.state.projectName, this.state.htmlcode, this.state.jscode, this.state.csscode);
+	            //this.pdb.setupProjectDoc(this.uniqueID, this.state.projectName);
 
 	            if (this.state.projectName !== '') {
 	                // should save existing document with no further input from user
@@ -62222,6 +62223,7 @@
 	 * @param files
 	 */
 	Project.prototype.setProjectDoc = function (id, projectName, files) {
+	    console.log(files);
 	    this.projectData = {
 	        _id: id,
 	        projectName: projectName,
@@ -67407,7 +67409,6 @@
 	    }, {
 	        key: 'render',
 	        value: function render() {
-	            console.log(this.props.fileNames);
 	            var style = {
 	                outer: {
 	                    paddingRight: '0',

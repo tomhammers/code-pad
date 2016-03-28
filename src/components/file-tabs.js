@@ -35,7 +35,6 @@ export default class LeftSidebar extends Component {
 
 
     render() {
-        console.log(this.props.fileNames);
         let style = {
             outer: {
                 paddingRight: '0',

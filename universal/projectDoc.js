@@ -11,6 +11,7 @@ var Project = function(files) {
  * @param files
  */
 Project.prototype.setProjectDoc = function(id, projectName, files) {
+    console.log(files);
     this.projectData = {
         _id: id,
         projectName: projectName,
