@@ -66,6 +66,7 @@ io.sockets.on('connection', function (socket) {
 
     // code changed, pass to all sockets
     socket.on('codeChange', function (data) {
+        console.log(data.id);
         // send to all clients other then sender
         socket.broadcast.to(data.id).emit('projectChange', data.project);
         // update project data in room

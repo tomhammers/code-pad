@@ -25043,6 +25043,7 @@
 	    }, {
 	        key: 'openProject',
 	        value: function openProject(projectID) {
+	            console.log(projectID);
 	            this.pdb.findSingleDoc(projectID, this.loadProject);
 	        }
 
@@ -25059,10 +25060,10 @@
 	            // setting state will force a render
 	            this.setState({
 	                projectName: proj.projectName,
-	                htmlcode: proj.files[0].content,
+	                code: proj,
 	                showOpenModal: false
 	            });
-	            // change URL to match project ID
+	            // change URL to match project ID (first two values are dummy data)
 	            history.pushState({ "id": 1 }, "", this.uniqueID);
 	            // now join / create a socket.io room
 	            this.joinRoom(this.uniqueID, proj);
@@ -49601,7 +49602,6 @@
 	            }).then(function (result) {
 	                _this2.dbContents = result;
 	                callback();
-	                //return;
 	            }).catch(function (error) {
 	                console.log(error);
 	            });
@@ -49610,7 +49610,7 @@
 	        key: 'findSingleDoc',
 	        value: function findSingleDoc(id, callback) {
 	            this.db.get(id).then(function (doc) {
-	                //console.log(doc);
+	                console.log(doc);
 	                //this.selectedProject = doc;
 	                callback(doc);
 	            }).catch(function (err) {
@@ -67511,7 +67511,7 @@
 	    }
 
 	    /**
-	     * Set up the right amount of dom nodes for each file (each node needs a unique name)
+	     * Set up the right amount of dom nodes for each file to hold a pad (each node needs a unique name)
 	     */
 
 
@@ -67581,7 +67581,11 @@
 	        key: 'updateEditorContent',
 	        value: function updateEditorContent(editor, code) {
 	            this.silent = true;
-	            editor.setValue(code, -1);
+	            var cursor = editor.selection.getCursor();
+	            console.log(cursor);
+	            editor.setValue(code);
+
+	            editor.navigateTo(cursor);
 	            this.silent = false;
 	        }
 
@@ -67618,8 +67622,6 @@
 	        key: 'whenChanged',
 	        value: function whenChanged(editor, codeType) {
 	            if (this.props.onChange && !this.silent) {
-	                //this.props.onChange(codeType, editor.getSession().getValue());
-	                //console.log(editor.getSession().getValue());
 	                this.props.onChange(this.pads);
 	            }
 	        }
@@ -67627,18 +67629,10 @@
 	        key: 'render',
 	        value: function render() {
 	            var style = {
-	                pad: {
-	                    height: this.props.height,
-	                    borderRight: 'thin solid black',
-	                    borderLeft: 'thin solid black'
-	                },
 	                padParent: {
 	                    height: this.props.height,
 	                    paddingLeft: '2px',
 	                    paddingRight: 0
-	                },
-	                hidden: {
-	                    display: 'none'
 	                }
 	            };
 

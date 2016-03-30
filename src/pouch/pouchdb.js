@@ -34,7 +34,6 @@ export default class Pouch {
         }).then((result) => {
             this.dbContents = result;
             callback();
-            //return;
         }).catch((error) => {
             console.log(error);
         });
@@ -42,7 +41,7 @@ export default class Pouch {
 
     findSingleDoc(id, callback) {
         this.db.get(id).then(function (doc) {
-            //console.log(doc);
+            console.log(doc);
             //this.selectedProject = doc;
             callback(doc);
         }).catch(function (err) {

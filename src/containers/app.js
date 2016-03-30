@@ -227,6 +227,7 @@ export default class App extends Component {
      * @param projectID
      */
     openProject(projectID) {
+        console.log(projectID);
         this.pdb.findSingleDoc(projectID, this.loadProject);
     }
 
@@ -240,10 +241,10 @@ export default class App extends Component {
         // setting state will force a render
         this.setState({
             projectName: proj.projectName,
-            htmlcode: proj.files[0].content,
+            code: proj,
             showOpenModal: false
         });
-        // change URL to match project ID
+        // change URL to match project ID (first two values are dummy data)
         history.pushState({"id": 1}, "", this.uniqueID);
         // now join / create a socket.io room
         this.joinRoom(this.uniqueID, proj);

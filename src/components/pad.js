@@ -27,7 +27,7 @@ export default class Pad extends Component {
     }
 
     /**
-     * Set up the right amount of dom nodes for each file (each node needs a unique name)
+     * Set up the right amount of dom nodes for each file to hold a pad (each node needs a unique name)
      */
     setUpDom() {
         let style = {
@@ -83,7 +83,11 @@ export default class Pad extends Component {
      */
     updateEditorContent(editor, code) {
         this.silent = true;
-        editor.setValue(code, -1);
+        let cursor = editor.selection.getCursor();
+        console.log(cursor);
+        editor.setValue(code);
+
+        editor.navigateTo(cursor);
         this.silent = false;
     }
 
@@ -112,26 +116,16 @@ export default class Pad extends Component {
      */
     whenChanged(editor, codeType) {
         if (this.props.onChange && !this.silent) {
-            //this.props.onChange(codeType, editor.getSession().getValue());
-            //console.log(editor.getSession().getValue());
             this.props.onChange(this.pads);
         }
     }
 
     render() {
         let style = {
-            pad: {
-                height: this.props.height,
-                borderRight: 'thin solid black',
-                borderLeft: 'thin solid black'
-            },
             padParent: {
                 height: this.props.height,
                 paddingLeft: '2px',
                 paddingRight: 0
-            },
-            hidden: {
-                display: 'none'
             }
         };
 
