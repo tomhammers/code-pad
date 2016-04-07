@@ -84,7 +84,6 @@ export default class Pad extends Component {
     updateEditorContent(editor, code) {
         this.silent = true;
         let cursor = editor.selection.getCursor();
-        console.log(cursor);
         editor.setValue(code);
 
         editor.navigateTo(cursor);

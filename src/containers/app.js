@@ -122,8 +122,8 @@ export default class App extends Component {
      * @param data
      */
     setupProject(data) {
+        this.uniqueID = data.project.projectData._id;
         console.log(data);
-        this.uniqueID = data.project._id;
         this.setState({code: data.project.projectData, projectName: data.project.projectData.projectName});
         // put a copy of project in client's db
         this.pdb.project.projectData = data.project.projectData;
@@ -135,7 +135,6 @@ export default class App extends Component {
      * @param data
      */
     projectChange(data) {
-        console.log(data);
         this.setState({code: data});
     }
 
@@ -144,6 +143,7 @@ export default class App extends Component {
      * @param pads
      */
     handlePadChange(pads) {
+        console.log(this.uniqueID);
         // loop through all pads and get their value, update the projectDoc
         for(let i = 0, l = pads.length; i < l; i++) {
             this.pdb.project.projectData.files[i].content = pads[i].getSession().getValue();
@@ -152,7 +152,8 @@ export default class App extends Component {
         if (this.state.projectName !== '') {
             // emit to server
             if (this.joinedRoom) {
-                socket.emit('codeChange', {id: this.pdb.project.projectData._id, project: this.pdb.project.projectData});
+                console.log("emitting: " + this.uniqueID);
+                socket.emit('codeChange', {id: this.uniqueID, project: this.pdb.project.projectData});
             }
             // should save existing project in local db
             this.pdb.upsertDoc();
@@ -227,7 +228,6 @@ export default class App extends Component {
      * @param projectID
      */
     openProject(projectID) {
-        console.log(projectID);
         this.pdb.findSingleDoc(projectID, this.loadProject);
     }
 

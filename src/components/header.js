@@ -50,15 +50,10 @@ export default class Header extends Component {
 
         return (
             <Navbar inverse fluid style={style.headerStyle}>
-                <Navbar.Header>
-                    <Navbar.Brand>
-                        Code-Pad
-                    </Navbar.Brand>
-                    <Navbar.Toggle />
-                </Navbar.Header>
+
                 <Navbar.Collapse>
                     <Nav>
-                        <NavDropdown eventKey={1} title="File" id="basic-nav-dropdown">
+                        <NavDropdown style={style.menuItem} eventKey={1} title="File" id="basic-nav-dropdown">
                             <MenuItem eventKey={1.1} onSelect={this.new}>New</MenuItem>
                             <MenuItem eventKey={1.2} onSelect={this.load}>Open</MenuItem>
                             <MenuItem eventKey={1.3} onSelect={this.whenSaved}>Save As</MenuItem>
@@ -67,11 +62,11 @@ export default class Header extends Component {
                             <MenuItem eventKey={1.6}>Delete</MenuItem>
                             <MenuItem eventKey={1.6}>Download</MenuItem>
                         </NavDropdown>
-                        <NavDropdown eventKey={2} title="Collaboration" id="basic-nav-dropdown">
+                        <NavDropdown style={style.menuItem}eventKey={2} title="Collaboration" id="basic-nav-dropdown">
                             <MenuItem eventKey={2.1}>Share</MenuItem>
                             <MenuItem eventKey={2.2}>Go offline</MenuItem>
                         </NavDropdown>
-                        <NavDropdown eventKey={3} title="Settings" id="basic-nav-dropdown">
+                        <NavDropdown style={style.menuItem}eventKey={3} title="Settings" id="basic-nav-dropdown">
                             <MenuItem eventKey={3.1}>Editor Settings</MenuItem>
                             <MenuItem eventKey={3.2}>Collaboration Settings</MenuItem>
                             <MenuItem eventKey={3.3}>User Settings</MenuItem>
@@ -93,6 +88,14 @@ Header.defaultProps = {
 Header.propTypes = {
     title: React.PropTypes.string.isRequired
 };
+
+
+//<Navbar.Header>
+//    <Navbar.Brand>
+//        Code-Pad
+//    </Navbar.Brand>
+//    <Navbar.Toggle />
+//</Navbar.Header>
 
 
 

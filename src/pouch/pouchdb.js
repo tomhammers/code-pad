@@ -41,7 +41,6 @@ export default class Pouch {
 
     findSingleDoc(id, callback) {
         this.db.get(id).then(function (doc) {
-            console.log(doc);
             //this.selectedProject = doc;
             callback(doc);
         }).catch(function (err) {

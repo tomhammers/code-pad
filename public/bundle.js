@@ -24892,8 +24892,8 @@
 	    }, {
 	        key: 'setupProject',
 	        value: function setupProject(data) {
+	            this.uniqueID = data.project.projectData._id;
 	            console.log(data);
-	            this.uniqueID = data.project._id;
 	            this.setState({ code: data.project.projectData, projectName: data.project.projectData.projectName });
 	            // put a copy of project in client's db
 	            this.pdb.project.projectData = data.project.projectData;
@@ -24908,7 +24908,6 @@
 	    }, {
 	        key: 'projectChange',
 	        value: function projectChange(data) {
-	            console.log(data);
 	            this.setState({ code: data });
 	        }
 
@@ -24920,6 +24919,7 @@
 	    }, {
 	        key: 'handlePadChange',
 	        value: function handlePadChange(pads) {
+	            console.log(this.uniqueID);
 	            // loop through all pads and get their value, update the projectDoc
 	            for (var i = 0, l = pads.length; i < l; i++) {
 	                this.pdb.project.projectData.files[i].content = pads[i].getSession().getValue();
@@ -24928,7 +24928,8 @@
 	            if (this.state.projectName !== '') {
 	                // emit to server
 	                if (this.joinedRoom) {
-	                    socket.emit('codeChange', { id: this.pdb.project.projectData._id, project: this.pdb.project.projectData });
+	                    console.log("emitting: " + this.uniqueID);
+	                    socket.emit('codeChange', { id: this.uniqueID, project: this.pdb.project.projectData });
 	                }
 	                // should save existing project in local db
 	                this.pdb.upsertDoc();
@@ -25043,7 +25044,6 @@
 	    }, {
 	        key: 'openProject',
 	        value: function openProject(projectID) {
-	            console.log(projectID);
 	            this.pdb.findSingleDoc(projectID, this.loadProject);
 	        }
 
@@ -49610,7 +49610,6 @@
 	        key: 'findSingleDoc',
 	        value: function findSingleDoc(id, callback) {
 	            this.db.get(id).then(function (doc) {
-	                console.log(doc);
 	                //this.selectedProject = doc;
 	                callback(doc);
 	            }).catch(function (err) {
@@ -67218,16 +67217,6 @@
 	                _reactBootstrap.Navbar,
 	                { inverse: true, fluid: true, style: style.headerStyle },
 	                _react2.default.createElement(
-	                    _reactBootstrap.Navbar.Header,
-	                    null,
-	                    _react2.default.createElement(
-	                        _reactBootstrap.Navbar.Brand,
-	                        null,
-	                        'Code-Pad'
-	                    ),
-	                    _react2.default.createElement(_reactBootstrap.Navbar.Toggle, null)
-	                ),
-	                _react2.default.createElement(
 	                    _reactBootstrap.Navbar.Collapse,
 	                    null,
 	                    _react2.default.createElement(
@@ -67235,7 +67224,7 @@
 	                        null,
 	                        _react2.default.createElement(
 	                            _reactBootstrap.NavDropdown,
-	                            { eventKey: 1, title: 'File', id: 'basic-nav-dropdown' },
+	                            { style: style.menuItem, eventKey: 1, title: 'File', id: 'basic-nav-dropdown' },
 	                            _react2.default.createElement(
 	                                _reactBootstrap.MenuItem,
 	                                { eventKey: 1.1, onSelect: this.new },
@@ -67274,7 +67263,7 @@
 	                        ),
 	                        _react2.default.createElement(
 	                            _reactBootstrap.NavDropdown,
-	                            { eventKey: 2, title: 'Collaboration', id: 'basic-nav-dropdown' },
+	                            { style: style.menuItem, eventKey: 2, title: 'Collaboration', id: 'basic-nav-dropdown' },
 	                            _react2.default.createElement(
 	                                _reactBootstrap.MenuItem,
 	                                { eventKey: 2.1 },
@@ -67288,7 +67277,7 @@
 	                        ),
 	                        _react2.default.createElement(
 	                            _reactBootstrap.NavDropdown,
-	                            { eventKey: 3, title: 'Settings', id: 'basic-nav-dropdown' },
+	                            { style: style.menuItem, eventKey: 3, title: 'Settings', id: 'basic-nav-dropdown' },
 	                            _react2.default.createElement(
 	                                _reactBootstrap.MenuItem,
 	                                { eventKey: 3.1 },
@@ -67337,6 +67326,13 @@
 	Header.propTypes = {
 	    title: _react2.default.PropTypes.string.isRequired
 	};
+
+	//<Navbar.Header>
+	//    <Navbar.Brand>
+	//        Code-Pad
+	//    </Navbar.Brand>
+	//    <Navbar.Toggle />
+	//</Navbar.Header>
 
 /***/ },
 /* 574 */
@@ -67582,7 +67578,6 @@
 	        value: function updateEditorContent(editor, code) {
 	            this.silent = true;
 	            var cursor = editor.selection.getCursor();
-	            console.log(cursor);
 	            editor.setValue(code);
 
 	            editor.navigateTo(cursor);
@@ -91697,7 +91692,6 @@
 	        _this.jsfiles = [];
 	        // recreate the html files for the iframe
 	        _this.dom = new _htmlparser2.default.parseDOM(_this.props.code.files[0].content);
-	        console.log(_this.dom);
 	        return _this;
 	    }
 

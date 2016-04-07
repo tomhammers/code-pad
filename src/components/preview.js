@@ -12,7 +12,6 @@ export default class Preview extends Component {
         this.jsfiles = [];
         // recreate the html files for the iframe
         this.dom = new HTMLParser.parseDOM(this.props.code.files[0].content);
-        console.log(this.dom);
     }
 
     componentWillMount() {
