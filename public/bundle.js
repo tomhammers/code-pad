@@ -7967,6 +7967,10 @@
 	  }
 	};
 
+	function registerNullComponentID() {
+	  ReactEmptyComponentRegistry.registerNullComponentID(this._rootNodeID);
+	}
+
 	var ReactEmptyComponent = function (instantiate) {
 	  this._currentElement = null;
 	  this._rootNodeID = null;
@@ -7975,7 +7979,7 @@
 	assign(ReactEmptyComponent.prototype, {
 	  construct: function (element) {},
 	  mountComponent: function (rootID, transaction, context) {
-	    ReactEmptyComponentRegistry.registerNullComponentID(rootID);
+	    transaction.getReactMountReady().enqueue(registerNullComponentID, this);
 	    this._rootNodeID = rootID;
 	    return ReactReconciler.mountComponent(this._renderedComponent, rootID, transaction, context);
 	  },
@@ -18698,7 +18702,7 @@
 
 	'use strict';
 
-	module.exports = '0.14.7';
+	module.exports = '0.14.8';
 
 /***/ },
 /* 147 */
@@ -24748,7 +24752,11 @@
 
 	var _openModal2 = _interopRequireDefault(_openModal);
 
-	var _initialContent = __webpack_require__(641);
+	var _diffModal = __webpack_require__(641);
+
+	var _diffModal2 = _interopRequireDefault(_diffModal);
+
+	var _initialContent = __webpack_require__(642);
 
 	var _initialContent2 = _interopRequireDefault(_initialContent);
 
@@ -24759,6 +24767,7 @@
 	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
 	// react components that will be rendered
 
 
@@ -24785,18 +24794,19 @@
 	        _this.pdb.setupProjectDoc(_this.uniqueID, '', _initialContent2.default);
 
 	        _this.projects = [];
-	        _this.joinedRoom = false;
 	        // setting initial state for the first React render()
 	        _this.state = {
 	            title: 'Code-Pad',
 	            projectName: '',
 	            pageHeight: 0,
 	            code: _this.pdb.project.projectData,
+	            cursorPos: { row: 0, column: 0 },
 	            showSaveModal: false,
 	            showOpenModal: false,
 	            projectsFromDB: [],
-	            fileNames: ['index.html', 'script.js', 'style.css'],
-	            activeFile: 'HTML'
+	            activeFile: 'index.html',
+	            status: 'disconnected',
+	            offlineMode: false
 	        };
 
 	        _this.handlePadChange = _this.handlePadChange.bind(_this);
@@ -24811,7 +24821,12 @@
 	        _this.projectChange = _this.projectChange.bind(_this);
 	        _this.joinRoom = _this.joinRoom.bind(_this);
 	        _this.connect = _this.connect.bind(_this);
+	        _this.disconnect = _this.disconnect.bind(_this);
 	        _this.selectFile = _this.selectFile.bind(_this);
+	        _this.showOnline = _this.showOnline.bind(_this);
+	        _this.goOffline = _this.goOffline.bind(_this);
+	        _this.goOnline = _this.goOnline.bind(_this);
+	        _this.compareProjects = _this.compareProjects.bind(_this);
 	        return _this;
 	    }
 
@@ -24822,6 +24837,8 @@
 	            socket.on('disconnect', this.disconnect);
 	            socket.on('setupProject', this.setupProject);
 	            socket.on('projectChange', this.projectChange);
+	            socket.on('inRoom', this.showOnline);
+	            socket.on('latestProject', this.compareProjects);
 	        }
 	    }, {
 	        key: 'componentDidMount',
@@ -24850,6 +24867,25 @@
 	            }
 	            return id;
 	        }
+	    }, {
+	        key: 'showOnline',
+	        value: function showOnline() {
+	            this.setState({ status: 'connected' });
+	        }
+	    }, {
+	        key: 'goOffline',
+	        value: function goOffline() {
+	            this.setState({
+	                status: 'disconnected',
+	                offlineMode: true
+	            });
+	        }
+	    }, {
+	        key: 'goOnline',
+	        value: function goOnline() {
+	            // request latest project from the server
+	            socket.emit('requestLatestProject', { id: this.uniqueID });
+	        }
 
 	        /**
 	         * when user connects to socket.io server, if unique id was part of url will attempt to join 'room'
@@ -24858,7 +24894,7 @@
 	    }, {
 	        key: 'connect',
 	        value: function connect() {
-	            console.log('Connected! ' + socket.id);
+	            //this.setState({ status: 'connected' });
 	            if (this.uniqueID !== '') {
 	                // if ID in URL is not empty, attempt to connect to room on server
 	                this.joinRoom(this.uniqueID, null);
@@ -24866,7 +24902,9 @@
 	        }
 	    }, {
 	        key: 'disconnect',
-	        value: function disconnect() {}
+	        value: function disconnect() {
+	            this.setState({ status: 'disconnected' });
+	        }
 
 	        /**
 	         * Sends request to sever to join or create a socket.io room for project
@@ -24881,7 +24919,12 @@
 	                id: id,
 	                project: project
 	            });
-	            this.joinedRoom = true;
+	        }
+	    }, {
+	        key: 'compareProjects',
+	        value: function compareProjects(data) {
+	            console.log(data.project.projectData);
+	            console.log(this.state.code);
 	        }
 
 	        /**
@@ -24908,36 +24951,48 @@
 	    }, {
 	        key: 'projectChange',
 	        value: function projectChange(data) {
-	            this.setState({ code: data });
+	            if (!this.state.offlineMode) {
+	                this.setState({
+	                    code: data.code,
+	                    cursorPos: data.cursorPos,
+	                    activeFile: data.activeFile
+	                });
+	            }
 	        }
 
 	        /**
 	         * Whenever a user changes something in a pad
 	         * @param pads
+	         * @param cursorPos
 	         */
 
 	    }, {
 	        key: 'handlePadChange',
-	        value: function handlePadChange(pads) {
-	            console.log(this.uniqueID);
+	        value: function handlePadChange(pads, cursorPos) {
 	            // loop through all pads and get their value, update the projectDoc
 	            for (var i = 0, l = pads.length; i < l; i++) {
 	                this.pdb.project.projectData.files[i].content = pads[i].getSession().getValue();
 	            }
-
+	            // setState will cause React to re render all components
+	            this.setState({
+	                code: this.pdb.project.projectData,
+	                cursorPos: cursorPos
+	            });
+	            // if project was previously saved
 	            if (this.state.projectName !== '') {
-	                // emit to server
-	                if (this.joinedRoom) {
+	                // emit to server, if in online mode
+	                if (!this.state.offlineMode) {
 	                    console.log("emitting: " + this.uniqueID);
-	                    socket.emit('codeChange', { id: this.uniqueID, project: this.pdb.project.projectData });
+	                    socket.emit('codeChange', {
+	                        id: this.uniqueID,
+	                        project: this.pdb.project.projectData,
+	                        cursorPos: cursorPos,
+	                        activeFile: this.state.activeFile
+	                    });
 	                }
-	                // should save existing project in local db
+	                //  save existing project in local db
 	                this.pdb.upsertDoc();
 	            }
-	            // finally setState will cause React to re render all components
-	            this.setState({
-	                code: this.pdb.project.projectData
-	            });
 	        }
 
 	        /**
@@ -24951,7 +25006,6 @@
 	            this.pdb.upsertDoc();
 	            this.setState({ showSaveModal: false });
 	            // create a socket.io room on the server for this project
-	            console.log(this.pdb);
 	            this.joinRoom(this.uniqueID, this.pdb.project.projectData);
 	            // change the URL, this is now the project's unique URL(first 2 values dummy data)
 	            history.pushState({ "id": 1 }, "", this.uniqueID);
@@ -24964,9 +25018,6 @@
 	    }, {
 	        key: 'handleSave',
 	        value: function handleSave() {
-	            // should set or update data before putting to DB
-	            //this.pdb.setupProjectDoc(this.uniqueID, this.state.projectName);
-
 	            if (this.state.projectName !== '') {
 	                // should save existing document with no further input from user
 	                this.pdb.upsertDoc();
@@ -25104,7 +25155,10 @@
 	                    title: this.state.title,
 	                    onSave: this.handleSave,
 	                    onNew: this.newProject,
-	                    onOpen: this.viewProjects
+	                    onOpen: this.viewProjects,
+	                    status: this.state.status,
+	                    goOffline: this.goOffline,
+	                    goOnline: this.goOnline
 	                }),
 	                _react2.default.createElement(
 	                    _reactBootstrap.Row,
@@ -25113,10 +25167,12 @@
 	                        onSelectFile: this.selectFile,
 	                        fileNames: this.state.code.files,
 	                        activeFile: this.state.activeFile
+
 	                    }),
 	                    _react2.default.createElement(_pad2.default, {
 	                        onChange: this.handlePadChange,
 	                        code: this.state.code,
+	                        cursorPos: this.state.cursorPos,
 	                        height: this.state.pageHeight,
 	                        activePad: this.state.activeFile
 	                    }),
@@ -25126,7 +25182,7 @@
 	                    })
 	                ),
 	                _react2.default.createElement(_saveModal2.default, {
-	                    modalTitle: 'Save',
+	                    modalTitle: 'Project Name',
 	                    onChange: function onChange(event) {
 	                        return _this2.setState({ projectName: event });
 	                    },
@@ -25151,11 +25207,6 @@
 
 	    return App;
 	}(_react.Component);
-
-	//htmlCode={this.state.htmlcode}
-	//jsCode={this.state.jscode}
-	//cssCode={this.state.csscode}
-
 
 	exports.default = App;
 
@@ -62209,9 +62260,8 @@
 
 	'use strict';
 
-	var Project = function Project(files) {
+	var Project = function Project() {
 	    this.files = [];
-	    //this.loadFiles(files);
 	};
 
 	/**
@@ -62230,7 +62280,9 @@
 	        public: false,
 	        users: [{
 	            user: ''
-	        }]
+	        }],
+	        activeFile: 'index.html',
+	        cursorPos: { row: 0, column: 0 }
 	    };
 	};
 
@@ -67168,6 +67220,8 @@
 	        _this.whenSaved = _this.whenSaved.bind(_this);
 	        _this.new = _this.new.bind(_this);
 	        _this.load = _this.load.bind(_this);
+	        _this.goOffline = _this.goOffline.bind(_this);
+	        _this.goOnline = _this.goOnline.bind(_this);
 	        return _this;
 	    }
 
@@ -67187,6 +67241,16 @@
 	            this.props.onOpen();
 	        }
 	    }, {
+	        key: 'goOffline',
+	        value: function goOffline() {
+	            this.props.goOffline();
+	        }
+	    }, {
+	        key: 'goOnline',
+	        value: function goOnline() {
+	            this.props.goOnline();
+	        }
+	    }, {
 	        key: 'render',
 	        value: function render() {
 	            var style = {
@@ -67196,26 +67260,52 @@
 	                    borderBottom: '1px solid black',
 	                    color: '#BABABB'
 	                },
-	                logo: {
-	                    padding: '10px',
-	                    paddingTop: 0,
-	                    margin: 0
-	                },
+	                logo: {},
 	                menuItem: {
 	                    paddingLeft: '5px',
 	                    paddingRight: '5px'
 	                },
 	                connectionStatus: {
 	                    borderRadius: '50%',
-	                    width: '20px',
-	                    height: '20px',
-	                    background: 'red'
+	                    width: '15px',
+	                    height: '15px',
+	                    background: 'red',
+	                    margin: '5px',
+	                    marginTop: '15px'
 	                }
 	            };
+
+	            if (this.props.status === 'connected') {
+	                style.connectionStatus.background = 'green';
+	            }
+	            if (this.props.status === 'disconnected') {
+	                style.connectionStatus.background = 'red';
+	            }
+
+	            var tooltip = _react2.default.createElement(
+	                _reactBootstrap.Tooltip,
+	                { id: 'tooltip' },
+	                _react2.default.createElement(
+	                    'strong',
+	                    null,
+	                    'Holy guacamole!'
+	                ),
+	                ' Check this info.'
+	            );
 
 	            return _react2.default.createElement(
 	                _reactBootstrap.Navbar,
 	                { inverse: true, fluid: true, style: style.headerStyle },
+	                _react2.default.createElement(
+	                    _reactBootstrap.Navbar.Header,
+	                    null,
+	                    _react2.default.createElement(
+	                        _reactBootstrap.Navbar.Brand,
+	                        { style: style.logo },
+	                        'Code-Pad'
+	                    ),
+	                    _react2.default.createElement(_reactBootstrap.Navbar.Toggle, null)
+	                ),
 	                _react2.default.createElement(
 	                    _reactBootstrap.Navbar.Collapse,
 	                    null,
@@ -67238,7 +67328,7 @@
 	                            _react2.default.createElement(
 	                                _reactBootstrap.MenuItem,
 	                                { eventKey: 1.3, onSelect: this.whenSaved },
-	                                'Save As'
+	                                'Save'
 	                            ),
 	                            _react2.default.createElement(
 	                                _reactBootstrap.MenuItem,
@@ -67263,16 +67353,21 @@
 	                        ),
 	                        _react2.default.createElement(
 	                            _reactBootstrap.NavDropdown,
-	                            { style: style.menuItem, eventKey: 2, title: 'Collaboration', id: 'basic-nav-dropdown' },
+	                            { style: style.menuItem, eventKey: 2, title: 'Share', id: 'basic-nav-dropdown' },
 	                            _react2.default.createElement(
 	                                _reactBootstrap.MenuItem,
-	                                { eventKey: 2.1 },
+	                                { eventKey: 2.1, onSelect: this.whenSaved },
 	                                'Share'
 	                            ),
 	                            _react2.default.createElement(
 	                                _reactBootstrap.MenuItem,
-	                                { eventKey: 2.2 },
-	                                'Go offline'
+	                                { eventKey: 2.2, onSelect: this.goOffline },
+	                                'Go Offline'
+	                            ),
+	                            _react2.default.createElement(
+	                                _reactBootstrap.MenuItem,
+	                                { eventKey: 2.3, onSelect: this.goOnline },
+	                                'Go Online'
 	                            )
 	                        ),
 	                        _react2.default.createElement(
@@ -67298,6 +67393,7 @@
 	                    _react2.default.createElement(
 	                        _reactBootstrap.Nav,
 	                        { pullRight: true },
+	                        _react2.default.createElement(_reactBootstrap.Navbar.Text, { style: style.connectionStatus }),
 	                        _react2.default.createElement(
 	                            _reactBootstrap.NavItem,
 	                            { eventKey: 4, href: '#' },
@@ -67316,23 +67412,12 @@
 	    return Header;
 	}(_react.Component);
 
+	//<OverlayTrigger placement="left" overlay={tooltip}>
+	//    <Tooltip><strong>Holy guacamole!</strong> Check this info.</Tooltip>
+	//</OverlayTrigger>
+
+
 	exports.default = Header;
-
-
-	Header.defaultProps = {
-	    connected: 'false'
-	};
-
-	Header.propTypes = {
-	    title: _react2.default.PropTypes.string.isRequired
-	};
-
-	//<Navbar.Header>
-	//    <Navbar.Brand>
-	//        Code-Pad
-	//    </Navbar.Brand>
-	//    <Navbar.Toggle />
-	//</Navbar.Header>
 
 /***/ },
 /* 574 */
@@ -67376,10 +67461,10 @@
 
 	            return this.props.fileNames.map(function (fileName) {
 	                var style = {
-	                    paddingLeft: '15px',
-	                    marginTop: '5px',
+	                    paddingLeft: '5px',
+	                    paddingTop: '3px',
 	                    color: '#9d9d9d',
-	                    fontSize: '16px',
+	                    fontSize: '13px',
 	                    cursor: 'pointer',
 	                    backgroundColor: ''
 	                };
@@ -67409,13 +67494,6 @@
 	                outer: {
 	                    paddingRight: '0',
 	                    color: '#FFFFFF'
-	                },
-	                projectHeader: {
-	                    paddingLeft: '1px'
-	                },
-	                folder: {
-	                    paddingRight: '10px',
-	                    paddingLeft: '5px'
 	                }
 	            };
 
@@ -67558,11 +67636,10 @@
 	    }, {
 	        key: 'componentWillReceiveProps',
 	        value: function componentWillReceiveProps(nextProps) {
-
 	            // loop through all pads in project and update them if they are different
 	            for (var i = 0, l = this.pads.length; i < l; i++) {
 	                if (this.pads[i].getSession().getValue() !== nextProps.code.files[i].content) {
-	                    this.updateEditorContent(this.pads[i], nextProps.code.files[i].content);
+	                    this.updateEditorContent(this.pads[i], nextProps.code.files[i].content, nextProps.cursorPos);
 	                }
 	            }
 	        }
@@ -67571,16 +67648,15 @@
 	         * Updates editor content from external resource (local db or from server)
 	         * @param editor
 	         * @param code
+	         * @param cursor
 	         */
 
 	    }, {
 	        key: 'updateEditorContent',
-	        value: function updateEditorContent(editor, code) {
+	        value: function updateEditorContent(editor, code, cursor) {
 	            this.silent = true;
-	            var cursor = editor.selection.getCursor();
 	            editor.setValue(code);
-
-	            editor.navigateTo(cursor);
+	            editor.gotoLine(cursor.row + 1, cursor.column + 1);
 	            this.silent = false;
 	        }
 
@@ -67605,6 +67681,7 @@
 	            editor.getSession().on('change', function () {
 	                _this3.whenChanged(editor, codeType);
 	            });
+	            editor.moveCursorToPosition(this.props.cursorPos);
 	        }
 
 	        /**
@@ -67617,7 +67694,7 @@
 	        key: 'whenChanged',
 	        value: function whenChanged(editor, codeType) {
 	            if (this.props.onChange && !this.silent) {
-	                this.props.onChange(this.pads);
+	                this.props.onChange(this.pads, editor.getCursorPosition());
 	            }
 	        }
 	    }, {
@@ -101905,22 +101982,85 @@
 
 /***/ },
 /* 641 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _reactBootstrap = __webpack_require__(217);
+
+	var _reactBootstrap2 = _interopRequireDefault(_reactBootstrap);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var DiffModal = function (_Component) {
+	    _inherits(DiffModal, _Component);
+
+	    function DiffModal(props) {
+	        _classCallCheck(this, DiffModal);
+
+	        return _possibleConstructorReturn(this, Object.getPrototypeOf(DiffModal).call(this, props));
+	    }
+
+	    _createClass(DiffModal, [{
+	        key: 'render',
+	        value: function render() {
+	            return _react2.default.createElement(
+	                _reactBootstrap.Modal,
+	                null,
+	                _react2.default.createElement(
+	                    _reactBootstrap.Modal.Header,
+	                    null,
+	                    _react2.default.createElement(
+	                        _reactBootstrap.Modal.Title,
+	                        null,
+	                        'Accept Changes?'
+	                    )
+	                ),
+	                _react2.default.createElement(_reactBootstrap.Modal.Body, null),
+	                _react2.default.createElement(_reactBootstrap.Modal.Footer, null)
+	            );
+	        }
+	    }]);
+
+	    return DiffModal;
+	}(_react.Component);
+
+	exports.default = DiffModal;
+
+/***/ },
+/* 642 */
 /***/ function(module, exports) {
 
 	module.exports = {
 		"files": [
 			{
-				"fileName": "HTML",
+				"fileName": "index.html",
 				"fileType": "html",
 				"content": "<html>\n    <head>\n           </head>\n    <body>\n        <h2><center>Welcomde to Code-Pad</center></h2>\n    </body>\n</html>"
 			},
 			{
-				"fileName": "JS",
+				"fileName": "script.js",
 				"fileType": "javascript",
 				"content": "console.log('hello world');"
 			},
 			{
-				"fileName": "CSS",
+				"fileName": "style.css",
 				"fileType": "css",
 				"content": "body {\n                background-color: #363636;\n            color: white;\n                font-family: ‘Lucida Console’, Monaco, monospace;\n}"
 			}

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Navbar, Nav, NavItem, NavDropdown, MenuItem, Button } from 'react-bootstrap';
+import { Navbar, Nav, NavItem, NavDropdown, MenuItem, Button, Tooltip, OverlayTrigger } from 'react-bootstrap';
 
 export default class Header extends Component {
 
@@ -9,6 +9,8 @@ export default class Header extends Component {
         this.whenSaved = this.whenSaved.bind(this);
         this.new = this.new.bind(this);
         this.load = this.load.bind(this);
+        this.goOffline = this.goOffline.bind(this);
+        this.goOnline = this.goOnline.bind(this);
     }
 
     whenSaved() {
@@ -23,6 +25,14 @@ export default class Header extends Component {
         this.props.onOpen();
     }
 
+    goOffline() {
+        this.props.goOffline();
+    }
+
+    goOnline() {
+        this.props.goOnline();
+    }
+
     render() {
         let style = {
             headerStyle: {
@@ -31,48 +41,73 @@ export default class Header extends Component {
                 borderBottom: '1px solid black',
                 color: '#BABABB'
             },
-            logo: {
-                padding: '10px',
-                paddingTop: 0,
-                margin: 0
-            },
+            logo: {},
             menuItem: {
                 paddingLeft: '5px',
                 paddingRight: '5px'
             },
             connectionStatus: {
                 borderRadius: '50%',
-                width: '20px',
-                height: '20px',
-                background: 'red'
+                width: '15px',
+                height: '15px',
+                background: 'red',
+                margin: '5px',
+                marginTop: '15px'
             }
         };
 
+        if (this.props.status === 'connected') {
+            style.connectionStatus.background = 'green';
+        }
+        if (this.props.status === 'disconnected') {
+            style.connectionStatus.background = 'red';
+        }
+
+        const tooltip = (
+            <Tooltip id="tooltip"><strong>Holy guacamole!</strong> Check this info.</Tooltip>
+        );
+
         return (
+
             <Navbar inverse fluid style={style.headerStyle}>
 
+                <Navbar.Header>
+                    <Navbar.Brand style={style.logo}>
+                        Code-Pad
+                    </Navbar.Brand>
+                    <Navbar.Toggle />
+                </Navbar.Header>
                 <Navbar.Collapse>
                     <Nav>
                         <NavDropdown style={style.menuItem} eventKey={1} title="File" id="basic-nav-dropdown">
                             <MenuItem eventKey={1.1} onSelect={this.new}>New</MenuItem>
                             <MenuItem eventKey={1.2} onSelect={this.load}>Open</MenuItem>
-                            <MenuItem eventKey={1.3} onSelect={this.whenSaved}>Save As</MenuItem>
+                            <MenuItem eventKey={1.3} onSelect={this.whenSaved}>Save</MenuItem>
                             <MenuItem eventKey={1.4}>Fork</MenuItem>
                             <MenuItem eventKey={1.5}>Rename</MenuItem>
                             <MenuItem eventKey={1.6}>Delete</MenuItem>
                             <MenuItem eventKey={1.6}>Download</MenuItem>
                         </NavDropdown>
-                        <NavDropdown style={style.menuItem}eventKey={2} title="Collaboration" id="basic-nav-dropdown">
-                            <MenuItem eventKey={2.1}>Share</MenuItem>
-                            <MenuItem eventKey={2.2}>Go offline</MenuItem>
+                        <NavDropdown style={style.menuItem} eventKey={2} title="Share" id="basic-nav-dropdown">
+                            <MenuItem eventKey={2.1} onSelect={this.whenSaved}>
+                                Share
+                            </MenuItem>
+                            <MenuItem eventKey={2.2} onSelect={this.goOffline}>
+                                Go Offline
+                            </MenuItem>
+                            <MenuItem eventKey={2.3} onSelect={this.goOnline}>
+                                Go Online
+                            </MenuItem>
                         </NavDropdown>
-                        <NavDropdown style={style.menuItem}eventKey={3} title="Settings" id="basic-nav-dropdown">
+                        <NavDropdown style={style.menuItem} eventKey={3} title="Settings" id="basic-nav-dropdown">
                             <MenuItem eventKey={3.1}>Editor Settings</MenuItem>
                             <MenuItem eventKey={3.2}>Collaboration Settings</MenuItem>
                             <MenuItem eventKey={3.3}>User Settings</MenuItem>
                         </NavDropdown>
                     </Nav>
+
                     <Nav pullRight>
+                        <Navbar.Text style={style.connectionStatus}></Navbar.Text>
                         <NavItem eventKey={4} href="#"><Button bsStyle="primary">Sign In</Button></NavItem>
                     </Nav>
                 </Navbar.Collapse>
@@ -81,21 +116,12 @@ export default class Header extends Component {
     }
 }
 
-Header.defaultProps = {
-    connected: 'false'
-};
-
-Header.propTypes = {
-    title: React.PropTypes.string.isRequired
-};
+//<OverlayTrigger placement="left" overlay={tooltip}>
+//    <Tooltip><strong>Holy guacamole!</strong> Check this info.</Tooltip>
+//</OverlayTrigger>
 
 
-//<Navbar.Header>
-//    <Navbar.Brand>
-//        Code-Pad
-//    </Navbar.Brand>
-//    <Navbar.Toggle />
-//</Navbar.Header>
+
 
 
 

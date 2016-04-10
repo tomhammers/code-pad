@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import { Grid, Row } from 'react-bootstrap';
 import io from 'socket.io-client';
 import Pouch from '../pouch/pouchdb';
+
 // react components that will be rendered
 import Header from './../components/header';
 import FileTabs from './../components/file-tabs';
@@ -10,6 +11,7 @@ import Pad from './../components/pad';
 import Preview from './../components/preview';
 import SaveModal from './../components/save-modal';
 import OpenModal from './../components/open-modal';
+import DiffModal from './../components/diff-modal';
 
 import InitialContent from './initialContent.json';
 
@@ -31,18 +33,19 @@ export default class App extends Component {
         this.pdb.setupProjectDoc(this.uniqueID, '', InitialContent);
 
         this.projects = [];
-        this.joinedRoom = false;
         // setting initial state for the first React render()
         this.state = {
             title: 'Code-Pad',
             projectName: '',
             pageHeight: 0,
             code: this.pdb.project.projectData,
+            cursorPos: {row: 0, column: 0},
             showSaveModal: false,
             showOpenModal: false,
             projectsFromDB: [],
-            fileNames: ['index.html', 'script.js', 'style.css'],
-            activeFile: 'HTML'
+            activeFile: 'index.html',
+            status: 'disconnected',
+            offlineMode: false
         };
 
         this.handlePadChange = this.handlePadChange.bind(this);
@@ -57,7 +60,12 @@ export default class App extends Component {
         this.projectChange = this.projectChange.bind(this);
         this.joinRoom = this.joinRoom.bind(this);
         this.connect = this.connect.bind(this);
+        this.disconnect = this.disconnect.bind(this);
         this.selectFile = this.selectFile.bind(this);
+        this.showOnline = this.showOnline.bind(this);
+        this.goOffline = this.goOffline.bind(this);
+        this.goOnline = this.goOnline.bind(this);
+        this.compareProjects = this.compareProjects.bind(this);
     }
 
     componentWillMount() {
@@ -65,6 +73,8 @@ export default class App extends Component {
         socket.on('disconnect', this.disconnect);
         socket.on('setupProject', this.setupProject);
         socket.on('projectChange', this.projectChange);
+        socket.on('inRoom', this.showOnline);
+        socket.on('latestProject', this.compareProjects);
     }
 
     componentDidMount() {
@@ -90,11 +100,27 @@ export default class App extends Component {
         return id;
     }
 
+    showOnline() {
+        this.setState({ status: 'connected' });
+    }
+
+    goOffline() {
+        this.setState({
+            status: 'disconnected',
+            offlineMode: true
+        });
+    }
+
+    goOnline() {
+        // request latest project from the server
+        socket.emit('requestLatestProject', {id: this.uniqueID});
+    }
+
     /**
      * when user connects to socket.io server, if unique id was part of url will attempt to join 'room'
      */
     connect() {
-        console.log('Connected! ' + socket.id);
+        //this.setState({ status: 'connected' });
         if (this.uniqueID !== '') {
             // if ID in URL is not empty, attempt to connect to room on server
             this.joinRoom(this.uniqueID, null);
@@ -102,6 +128,7 @@ export default class App extends Component {
     }
 
     disconnect() {
+        this.setState({ status: 'disconnected' });
     }
 
     /**
@@ -114,7 +141,11 @@ export default class App extends Component {
             id: id,
             project: project
         });
-        this.joinedRoom = true;
+    }
+
+    compareProjects(data) {
+        console.log(data.project.projectData);
+        console.log(this.state.code);
     }
 
     /**
@@ -135,33 +166,45 @@ export default class App extends Component {
      * @param data
      */
     projectChange(data) {
-        this.setState({code: data});
+        if(!this.state.offlineMode) {
+            this.setState({
+                code: data.code,
+                cursorPos: data.cursorPos,
+                activeFile: data.activeFile
+            });
+        }
     }
 
     /**
      * Whenever a user changes something in a pad
      * @param pads
+     * @param cursorPos
      */
-    handlePadChange(pads) {
-        console.log(this.uniqueID);
+    handlePadChange(pads, cursorPos) {
         // loop through all pads and get their value, update the projectDoc
         for(let i = 0, l = pads.length; i < l; i++) {
             this.pdb.project.projectData.files[i].content = pads[i].getSession().getValue();
         }
-
+        // setState will cause React to re render all components
+        this.setState({
+            code: this.pdb.project.projectData,
+            cursorPos: cursorPos
+        });
+        // if project was previously saved
         if (this.state.projectName !== '') {
-            // emit to server
-            if (this.joinedRoom) {
+            // emit to server, if in online mode
+            if (!this.state.offlineMode) {
                 console.log("emitting: " + this.uniqueID);
-                socket.emit('codeChange', {id: this.uniqueID, project: this.pdb.project.projectData});
+                socket.emit('codeChange', {
+                    id: this.uniqueID,
+                    project: this.pdb.project.projectData,
+                    cursorPos: cursorPos,
+                    activeFile: this.state.activeFile
+                });
             }
-            // should save existing project in local db
+            //  save existing project in local db
             this.pdb.upsertDoc();
         }
-        // finally setState will cause React to re render all components
-        this.setState({
-            code: this.pdb.project.projectData
-        });
     }
 
     /**
@@ -172,7 +215,6 @@ export default class App extends Component {
         this.pdb.upsertDoc();
         this.setState({showSaveModal: false});
         // create a socket.io room on the server for this project
-        console.log(this.pdb);
         this.joinRoom(this.uniqueID, this.pdb.project.projectData);
         // change the URL, this is now the project's unique URL(first 2 values dummy data)
         history.pushState({"id": 1}, "", this.uniqueID);
@@ -182,9 +224,6 @@ export default class App extends Component {
      * normal save, if project is not defined then it shows the user a 'Save As' Modal
      */
     handleSave() {
-        // should set or update data before putting to DB
-        //this.pdb.setupProjectDoc(this.uniqueID, this.state.projectName);
-
         if (this.state.projectName !== '') {
             // should save existing document with no further input from user
             this.pdb.upsertDoc();
@@ -279,16 +318,21 @@ export default class App extends Component {
                     onSave={this.handleSave}
                     onNew={this.newProject}
                     onOpen={this.viewProjects}
+                    status={this.state.status}
+                    goOffline={this.goOffline}
+                    goOnline={this.goOnline}
                 />
                 <Row style={style.row}>
                     <FileTabs
                         onSelectFile={this.selectFile}
                         fileNames={this.state.code.files}
                         activeFile={this.state.activeFile}
+
                     />
                     <Pad
                         onChange={this.handlePadChange}
                         code={this.state.code}
+                        cursorPos={this.state.cursorPos}
                         height={this.state.pageHeight}
                         activePad={this.state.activeFile}
                     />
@@ -298,7 +342,7 @@ export default class App extends Component {
                     />
                 </Row>
                 <SaveModal
-                    modalTitle='Save'
+                    modalTitle='Project Name'
                     onChange={event => this.setState({ projectName: event })}
                     show={this.state.showSaveModal}
                     inputValue={this.state.projectName}
@@ -313,11 +357,8 @@ export default class App extends Component {
                     buttonClick={ event => this.setState({ showOpenModal: false }) }
                     selectProject={ this.openProject }
                 />
+
             </Grid>
         );
     }
 }
-
-//htmlCode={this.state.htmlcode}
-//jsCode={this.state.jscode}
-//cssCode={this.state.csscode}

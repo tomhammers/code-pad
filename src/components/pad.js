@@ -67,11 +67,10 @@ export default class Pad extends Component {
      * @param nextProps
      */
     componentWillReceiveProps(nextProps) {
-
         // loop through all pads in project and update them if they are different
         for (let i = 0, l = this.pads.length; i < l; i++) {
             if (this.pads[i].getSession().getValue() !== nextProps.code.files[i].content) {
-                this.updateEditorContent(this.pads[i], nextProps.code.files[i].content);
+                this.updateEditorContent(this.pads[i], nextProps.code.files[i].content, nextProps.cursorPos);
             }
         }
     }
@@ -80,13 +79,12 @@ export default class Pad extends Component {
      * Updates editor content from external resource (local db or from server)
      * @param editor
      * @param code
+     * @param cursor
      */
-    updateEditorContent(editor, code) {
+    updateEditorContent(editor, code, cursor) {
         this.silent = true;
-        let cursor = editor.selection.getCursor();
         editor.setValue(code);
-
-        editor.navigateTo(cursor);
+        editor.gotoLine(cursor.row + 1, cursor.column + 1);
         this.silent = false;
     }
 
@@ -106,6 +104,7 @@ export default class Pad extends Component {
         editor.getSession().on('change', () => {
             this.whenChanged(editor, codeType)
         });
+        editor.moveCursorToPosition(this.props.cursorPos);
     }
 
     /**
@@ -115,7 +114,7 @@ export default class Pad extends Component {
      */
     whenChanged(editor, codeType) {
         if (this.props.onChange && !this.silent) {
-            this.props.onChange(this.pads);
+            this.props.onChange(this.pads, editor.getCursorPosition());
         }
     }
 

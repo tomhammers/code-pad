@@ -1,17 +1,17 @@
 {
   "files":[
     {
-      "fileName": "HTML",
+      "fileName": "index.html",
       "fileType": "html",
       "content": "<html>\n    <head>\n           </head>\n    <body>\n        <h2><center>Welcomde to Code-Pad</center></h2>\n    </body>\n</html>"
     },
     {
-      "fileName": "JS",
+      "fileName": "script.js",
       "fileType": "javascript",
       "content": "console.log('hello world');"
     },
     {
-      "fileName": "CSS",
+      "fileName": "style.css",
       "fileType": "css",
       "content": "body {\n                background-color: #363636;\n            color: white;\n                font-family: ‘Lucida Console’, Monaco, monospace;\n}"
     }

@@ -7,10 +7,10 @@ export default class LeftSidebar extends Component {
 
         return this.props.fileNames.map((fileName) => {
             let style = {
-                paddingLeft: '15px',
-                marginTop: '5px',
+                paddingLeft: '5px',
+                paddingTop: '3px',
                 color: '#9d9d9d',
-                fontSize: '16px',
+                fontSize: '13px',
                 cursor: 'pointer',
                 backgroundColor: ''
             };
@@ -28,7 +28,6 @@ export default class LeftSidebar extends Component {
                 >
                     {fileName.fileName}
                 </li>
-
             );
         });
     }
@@ -39,13 +38,6 @@ export default class LeftSidebar extends Component {
             outer: {
                 paddingRight: '0',
                 color: '#FFFFFF'
-            },
-            projectHeader: {
-                paddingLeft: '1px'
-            },
-            folder: {
-                paddingRight: '10px',
-                paddingLeft: '5px'
             }
         };
 

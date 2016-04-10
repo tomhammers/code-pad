@@ -1,6 +1,5 @@
-var Project = function(files) {
+var Project = function() {
     this.files = [];
-    //this.loadFiles(files);
 };
 
 /**
@@ -21,7 +20,9 @@ Project.prototype.setProjectDoc = function(id, projectName, files) {
             {
                 user: ''
             }
-        ]
+        ],
+        activeFile: 'index.html',
+        cursorPos: {row: 0, column: 0}
     };
 };
 
