@@ -80,7 +80,6 @@ export default class Preview extends Component {
     }
 
     populateSandbox() {
-        // get all css files
         for (let i = 0, l = this.props.code.files.length; i < l; i++) {
             if (this.props.code.files[i].fileType === 'html') {
                 this.htmlfiles.push(this.props.code.files[i].content);
@@ -93,15 +92,6 @@ export default class Preview extends Component {
             }
         }
 
-
-        //let css = '' +
-        //    '<style type="text/css">' +
-        //    this.cssfiles[0] +
-        //    '</style>';
-        //let js = '' +
-        //        '<script>' +
-        //        this.props.jsCode +
-        //        '</script>';
         let doc = this.sandbox.contentWindow.document;
         doc.open();
         for (let i = 0, l = this.htmlfiles.length; i < l; i++) {
@@ -113,9 +103,7 @@ export default class Preview extends Component {
         for (let i = 0, l = this.jsfiles.length; i < l; i++) {
             doc.write(`<script>${this.jsfiles[i]}</script>`);
         }
-        //doc.write(this.props.htmlCode);
-        //doc.write(css);
-        //doc.write(js);
+
         doc.close();
 
         this.htmlfiles = [];

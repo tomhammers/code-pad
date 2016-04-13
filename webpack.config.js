@@ -11,10 +11,11 @@ module.exports = {
     },
     module: {
         loaders: [
-            {
-                test: /\.json$/,
-                loader: 'json'
-            },
+            { test: /\.json$/, loader: 'json'},
+            { test: /\.useable\.css$/, loader: "style/useable!css" },
+            { test: /\.css$/, loader: "style-loader!css-loader" },
+            { test: /\.png$/, loader: "url-loader?limit=100000" },
+            { test: /\.jpg$/, loader: "file-loader" },
             {
                 test: /\.jsx?$/,
                 loader: 'babel-loader',

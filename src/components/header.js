@@ -92,10 +92,11 @@ export default class Header extends Component {
                             <MenuItem eventKey={2.1} onSelect={this.whenSaved}>
                                 Share
                             </MenuItem>
-                            <MenuItem eventKey={2.2} onSelect={this.goOffline}>
+
+                            <MenuItem disabled={this.props.connectionStatus !== false} eventKey={2.2} onSelect={this.goOffline}>
                                 Go Offline
                             </MenuItem>
-                            <MenuItem eventKey={2.3} onSelect={this.goOnline}>
+                            <MenuItem disabled={this.props.connectionStatus === false} eventKey={2.3} onSelect={this.goOnline}>
                                 Go Online
                             </MenuItem>
                         </NavDropdown>

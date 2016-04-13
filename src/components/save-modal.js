@@ -25,7 +25,7 @@ export default class SaveModal extends Component {
             <Modal show={this.props.show} bsSize="small">
 
                 <Modal.Header closeButton>
-                    <Modal.Title>Save As:</Modal.Title>
+                    <Modal.Title>Give Project a Name:</Modal.Title>
                 </Modal.Header>
 
                 <Modal.Body>

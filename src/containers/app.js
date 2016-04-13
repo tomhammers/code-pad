@@ -1,6 +1,9 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import { Grid, Row } from 'react-bootstrap';
+import Alert from 'react-s-alert';
+import 'react-s-alert/dist/s-alert-default.css';
+import 'react-s-alert/dist/s-alert-css-effects/slide.css';
 import io from 'socket.io-client';
 import Pouch from '../pouch/pouchdb';
 
@@ -26,7 +29,7 @@ export default class App extends Component {
         // attempt to get uniqueID from URL
         this.uniqueID = window.location.href.split("/").pop();
         // if didn't find one set a new one
-        if(this.uniqueID === '') {
+        if (this.uniqueID === '') {
             this.uniqueID = this.generateUniqueID(10);
         }
         // set the project up with default values
@@ -39,13 +42,15 @@ export default class App extends Component {
             projectName: '',
             pageHeight: 0,
             code: this.pdb.project.projectData,
-            cursorPos: {row: 0, column: 0},
+            serverCode: { files: [{ content: "" }] },
+            cursorPos: { row: 0, column: 0 },
             showSaveModal: false,
             showOpenModal: false,
+            showDiffModal: false,
             projectsFromDB: [],
             activeFile: 'index.html',
             status: 'disconnected',
-            offlineMode: false
+            offlineMode: true
         };
 
         this.handlePadChange = this.handlePadChange.bind(this);
@@ -66,6 +71,10 @@ export default class App extends Component {
         this.goOffline = this.goOffline.bind(this);
         this.goOnline = this.goOnline.bind(this);
         this.compareProjects = this.compareProjects.bind(this);
+        this.closeDiffModal = this.closeDiffModal.bind(this);
+        this.patchServerCode = this.patchServerCode.bind(this);
+        this.pushToServer = this.pushToServer.bind(this);
+        this.forkProject = this.forkProject.bind(this);
     }
 
     componentWillMount() {
@@ -101,7 +110,10 @@ export default class App extends Component {
     }
 
     showOnline() {
-        this.setState({ status: 'connected' });
+        this.setState({
+            status: 'connected',
+            offlineMode: false
+        });
     }
 
     goOffline() {
@@ -113,7 +125,11 @@ export default class App extends Component {
 
     goOnline() {
         // request latest project from the server
-        socket.emit('requestLatestProject', {id: this.uniqueID});
+        if (this.state.projectName !== '') {
+            socket.emit('requestLatestProject', { id: this.uniqueID });
+        } else {
+            this.handleSave();
+        }
     }
 
     /**
@@ -141,22 +157,34 @@ export default class App extends Component {
             id: id,
             project: project
         });
-    }
-
-    compareProjects(data) {
-        console.log(data.project.projectData);
-        console.log(this.state.code);
+        // todo: alert doesn't work yet, low priority
+        Alert.info('Test', {
+            position: 'top-left',
+            effect: 'slide',
+            timeout: 'none'
+        });
     }
 
     /**
-     * Handle response from socket.io server, sets the editor up with latest project from server
+     * Opens Modal so user can view differences between projects
+     * @param data
+     */
+    compareProjects(data) {
+        this.setState({
+            showDiffModal: true,
+            serverCode: data.project
+        });
+    }
+
+    /**
+     * Handle response from socket.io server when joining existing project
      * @param data
      */
     setupProject(data) {
+        // setting up data response from server
         this.uniqueID = data.project.projectData._id;
-        console.log(data);
-        this.setState({code: data.project.projectData, projectName: data.project.projectData.projectName});
-        // put a copy of project in client's db
+        this.setState({ code: data.project.projectData, projectName: data.project.projectData.projectName });
+        // put a copy of project in client's db for offline use
         this.pdb.project.projectData = data.project.projectData;
         this.pdb.upsertDoc();
     }
@@ -166,7 +194,7 @@ export default class App extends Component {
      * @param data
      */
     projectChange(data) {
-        if(!this.state.offlineMode) {
+        if (!this.state.offlineMode) {
             this.setState({
                 code: data.code,
                 cursorPos: data.cursorPos,
@@ -182,7 +210,7 @@ export default class App extends Component {
      */
     handlePadChange(pads, cursorPos) {
         // loop through all pads and get their value, update the projectDoc
-        for(let i = 0, l = pads.length; i < l; i++) {
+        for (let i = 0, l = pads.length; i < l; i++) {
             this.pdb.project.projectData.files[i].content = pads[i].getSession().getValue();
         }
         // setState will cause React to re render all components
@@ -213,11 +241,11 @@ export default class App extends Component {
     createNewDoc() {
         this.pdb.setupProjectDoc(this.uniqueID, this.state.projectName, this.state.code);
         this.pdb.upsertDoc();
-        this.setState({showSaveModal: false});
         // create a socket.io room on the server for this project
         this.joinRoom(this.uniqueID, this.pdb.project.projectData);
         // change the URL, this is now the project's unique URL(first 2 values dummy data)
-        history.pushState({"id": 1}, "", this.uniqueID);
+        history.pushState({ "id": 1 }, "", this.uniqueID);
+        this.setState({ showSaveModal: false, offlineMode: false });
     }
 
     /**
@@ -229,7 +257,7 @@ export default class App extends Component {
             this.pdb.upsertDoc();
         } else {
             // else show modal so user can name the project
-            this.setState({showSaveModal: true});
+            this.setState({ showSaveModal: true });
         }
     }
 
@@ -237,7 +265,7 @@ export default class App extends Component {
      * reset everything to default
      */
     newProject() {
-        this.setState({projectName: '', code: this.initialCode});
+        this.setState({ projectName: '', code: this.initialCode });
         // need a new ID now
         this.uniqueID = this.generateUniqueID(10);
     }
@@ -284,7 +312,7 @@ export default class App extends Component {
             showOpenModal: false
         });
         // change URL to match project ID (first two values are dummy data)
-        history.pushState({"id": 1}, "", this.uniqueID);
+        history.pushState({ "id": 1 }, "", this.uniqueID);
         // now join / create a socket.io room
         this.joinRoom(this.uniqueID, proj);
     }
@@ -294,10 +322,46 @@ export default class App extends Component {
      * @param fileName
      */
     selectFile(fileName) {
-        console.log(fileName);
         this.setState({
             activeFile: fileName
         });
+    }
+
+    /**
+     * patches server code to local code, after a user has come back online
+     */
+    patchServerCode() {
+        this.setState({ code: this.state.serverCode, offlineMode: false, status: 'connected' });
+        this.closeDiffModal();
+    }
+
+    pushToServer() {
+        socket.emit('codeChange', {
+            id: this.uniqueID,
+            project: this.pdb.project.projectData,
+            cursorPos: this.state.cursorPos,
+            activeFile: this.state.activeFile
+        });
+        this.setState({ offlineMode: false, status: 'connected' });
+        this.closeDiffModal();
+    }
+
+    forkProject() {
+        this.setState({ 
+            offlineMode: false, 
+            status: 'connected',
+            projectName: ''
+        });
+        socket.emit('leave room', {id: this.uniqueID});
+        this.uniqueID = this.generateUniqueID(10);
+        // handle save as if new project
+        this.handleSave();
+        console.log(this.state.projectName);
+        this.closeDiffModal();
+    }
+
+    closeDiffModal() {
+        this.setState({ showDiffModal: false })
     }
 
     render() {
@@ -321,34 +385,35 @@ export default class App extends Component {
                     status={this.state.status}
                     goOffline={this.goOffline}
                     goOnline={this.goOnline}
-                />
+                    connectionStatus={this.state.offlineMode}
+                    />
                 <Row style={style.row}>
                     <FileTabs
                         onSelectFile={this.selectFile}
                         fileNames={this.state.code.files}
                         activeFile={this.state.activeFile}
 
-                    />
+                        />
                     <Pad
                         onChange={this.handlePadChange}
                         code={this.state.code}
                         cursorPos={this.state.cursorPos}
                         height={this.state.pageHeight}
                         activePad={this.state.activeFile}
-                    />
+                        />
                     <Preview
                         code={this.state.code}
                         height={this.state.pageHeight}
-                    />
+                        />
                 </Row>
                 <SaveModal
                     modalTitle='Project Name'
-                    onChange={event => this.setState({ projectName: event })}
+                    onChange={event => this.setState({ projectName: event }) }
                     show={this.state.showSaveModal}
                     inputValue={this.state.projectName}
                     buttonTitle='Save'
                     buttonClick={ this.createNewDoc }
-                />
+                    />
                 <OpenModal
                     modalTitle='Open Project'
                     show={this.state.showOpenModal}
@@ -356,7 +421,16 @@ export default class App extends Component {
                     projects={this.state.projectsFromDB}
                     buttonClick={ event => this.setState({ showOpenModal: false }) }
                     selectProject={ this.openProject }
-                />
+                    />
+                <DiffModal
+                    show={this.state.showDiffModal}
+                    code={this.state.code.files}
+                    serverCode={this.state.serverCode.files}
+                    close={this.closeDiffModal}
+                    applyServerChanges={this.patchServerCode}
+                    pushToServer={this.pushToServer}
+                    forkProject={this.forkProject}
+                    />
 
             </Grid>
         );
