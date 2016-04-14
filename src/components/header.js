@@ -11,6 +11,7 @@ export default class Header extends Component {
         this.load = this.load.bind(this);
         this.goOffline = this.goOffline.bind(this);
         this.goOnline = this.goOnline.bind(this);
+        this.fork = this.fork.bind(this);
     }
 
     whenSaved() {
@@ -23,6 +24,10 @@ export default class Header extends Component {
 
     load() {
         this.props.onOpen();
+    }
+    
+    fork() {
+        this.props.fork();
     }
 
     goOffline() {
@@ -83,16 +88,14 @@ export default class Header extends Component {
                             <MenuItem eventKey={1.1} onSelect={this.new}>New</MenuItem>
                             <MenuItem eventKey={1.2} onSelect={this.load}>Open</MenuItem>
                             <MenuItem eventKey={1.3} onSelect={this.whenSaved}>Save</MenuItem>
-                            <MenuItem eventKey={1.4}>Fork</MenuItem>
-                            <MenuItem eventKey={1.5}>Rename</MenuItem>
-                            <MenuItem eventKey={1.6}>Delete</MenuItem>
-                            <MenuItem eventKey={1.6}>Download</MenuItem>
+                            <MenuItem eventKey={1.4} onSelect={this.fork}>Fork</MenuItem>
+                            <MenuItem eventKey={1.5}>Delete Project</MenuItem>
+                            <MenuItem eventKey={1.6}>Download File</MenuItem>
                         </NavDropdown>
                         <NavDropdown style={style.menuItem} eventKey={2} title="Share" id="basic-nav-dropdown">
                             <MenuItem eventKey={2.1} onSelect={this.whenSaved}>
                                 Share
                             </MenuItem>
-
                             <MenuItem disabled={this.props.connectionStatus !== false} eventKey={2.2} onSelect={this.goOffline}>
                                 Go Offline
                             </MenuItem>
@@ -116,10 +119,6 @@ export default class Header extends Component {
         );
     }
 }
-
-//<OverlayTrigger placement="left" overlay={tooltip}>
-//    <Tooltip><strong>Holy guacamole!</strong> Check this info.</Tooltip>
-//</OverlayTrigger>
 
 
 

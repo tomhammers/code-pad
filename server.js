@@ -4,28 +4,32 @@ var app = express();
 var port = Number(process.env.PORT || 3000);
 var server = app.listen(port);
 var io = require('socket.io').listen(server);
-
+// sets up the project for each individual room
 var ProjectRoom = require('./room/room');
 
 
 // store all projects in an array, one for each room
 var projects = [];
-// grab this from the URL (on a unique URL visit
-var projectID;
 // store socket ids in here
 var connections = [];
 // an array of all room ids
 var rooms = [];
 
+// set the "view" using ejs template engine
+app.set('view engine', 'ejs');
+// on a http request, serve users with all content in the public directory
 app.use(express.static('./public'));
-
-// handle requests with a unique URL
-app.get('/:room([A-Za-z0-9]{10})', function(req, res) {
-    // get roomID from URL on this route
-    projectID = req.params.room;
-    res.sendFile(__dirname + '/public/index.html');
+// accept requests on base URL
+app.get('/pad', function (req, res) {
+    res.render('pad');
 });
 
+// accept requests with a unique URL
+app.get('/pad/:room([A-Za-z0-9]{10})', function(req, res) {
+    res.render('pad');
+});
+
+// handle and coomunicate events with individual sockets
 io.sockets.on('connection', function(socket) {
     connections.push(socket);
     console.log("Connected: " + connections.length + " sockets connected");
@@ -108,7 +112,7 @@ io.sockets.on('connection', function(socket) {
     socket.on('requestLatestProject', function(data) {
         socket.emit('latestProject', { project: rooms[data.id].project.projectData });
     });
-
+    // 
     socket.on('leave room', function(data) {
         console.log("Client leaving room: " + data.id)
         socket.leave(data.id);

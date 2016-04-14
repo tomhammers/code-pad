@@ -25,11 +25,14 @@ export default class DiffModal extends Component {
         return this.props.code.map((file, i) => {
             if (this.props.serverCode[i] !== undefined) {
                 return (
-                    <Diff
-                        inputA={file.content}
-                        inputB={this.props.serverCode[i].content}
-                        type="chars"
-                    />
+                    <div>
+                        {this.props.serverCode[i].fileName}
+                        <Diff
+                            inputA={file.content}
+                            inputB={this.props.serverCode[i].content}
+                            type="chars"
+                        />
+                    </div>
                 );
             }
         });
@@ -52,9 +55,13 @@ export default class DiffModal extends Component {
     }
 
     render() {
+        const style = {
+            modal: {
+                color: 'black'
+            }
+        }
         return (
-            <Modal bsSize="large" show={this.props.show}>
-
+            <Modal style={style.modal} bsSize="large" show={this.props.show}>
                 <Modal.Header>
                     <Modal.Title>Review Changes</Modal.Title>
                 </Modal.Header>
@@ -68,14 +75,12 @@ export default class DiffModal extends Component {
                         <MenuItem eventKey="3" onSelect={this.forkProject}>Fork Project</MenuItem>
                         <MenuItem eventKey="4" onSelect={this.close} >Stay Offline</MenuItem>
                     </DropdownButton>
-                    <br/>
+                    <p>Server Copy: </p>
                     {this.setUpDiffs()}
-
                 </Modal.Body>
 
                 <Modal.Footer>
                 </Modal.Footer>
-
             </Modal>
         );
     }

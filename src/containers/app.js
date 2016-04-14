@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import { Grid, Row } from 'react-bootstrap';
+import _ from 'lodash';
 import Alert from 'react-s-alert';
 import 'react-s-alert/dist/s-alert-default.css';
 import 'react-s-alert/dist/s-alert-css-effects/slide.css';
@@ -78,6 +79,7 @@ export default class App extends Component {
     }
 
     componentWillMount() {
+        // listen for server events and call the corrosponding method
         socket.on('connect', this.connect);
         socket.on('disconnect', this.disconnect);
         socket.on('setupProject', this.setupProject);
@@ -171,8 +173,20 @@ export default class App extends Component {
      */
     compareProjects(data) {
         this.setState({
-            showDiffModal: true,
             serverCode: data.project
+        }, function() {
+            // only open if project is different to server's copy
+            if(!(_.isEqual(this.state.code.files, this.state.serverCode.files))) {
+                this.setState({
+                    showDiffModal: true
+                });
+            } else {
+                // if project is the same, just put the user online
+                this.setState({
+                    offlineMode: false,
+                    status: 'connected'
+                });
+            }
         });
     }
 
@@ -347,16 +361,16 @@ export default class App extends Component {
     }
 
     forkProject() {
-        this.setState({ 
-            offlineMode: false, 
+        socket.emit('leave room', { id: this.uniqueID });
+        this.setState({
+            offlineMode: false,
             status: 'connected',
             projectName: ''
-        });
-        socket.emit('leave room', {id: this.uniqueID});
-        this.uniqueID = this.generateUniqueID(10);
-        // handle save as if new project
-        this.handleSave();
-        console.log(this.state.projectName);
+        }, function() {
+            this.uniqueID = this.generateUniqueID(10);
+            // handle save as if new project
+            this.handleSave();
+        }.bind(this));
         this.closeDiffModal();
     }
 
@@ -382,6 +396,7 @@ export default class App extends Component {
                     onSave={this.handleSave}
                     onNew={this.newProject}
                     onOpen={this.viewProjects}
+                    fork={this.forkProject}
                     status={this.state.status}
                     goOffline={this.goOffline}
                     goOnline={this.goOnline}

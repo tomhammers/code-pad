@@ -3,7 +3,7 @@
     {
       "fileName": "index.html",
       "fileType": "html",
-      "content": "<html>\n    <head>\n           </head>\n    <body>\n        <h2><center>Welcomde to Code-Pad</center></h2>\n    </body>\n</html>"
+      "content": "<html>\n    <head>\n       </head>\n    <body>\n        <h2><center>Welcomde to Code-Pad</center></h2>\n    </body>\n</html>"
     },
     {
       "fileName": "script.js",
