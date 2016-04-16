@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Navbar, Nav, NavItem, NavDropdown, MenuItem, Button, Tooltip, OverlayTrigger } from 'react-bootstrap';
+import { Navbar, Nav, NavItem, NavDropdown, MenuItem, Button, Tooltip, OverlayTrigger, DropdownMenu } from 'react-bootstrap';
 
 export default class Header extends Component {
 
@@ -25,7 +25,7 @@ export default class Header extends Component {
     load() {
         this.props.onOpen();
     }
-    
+
     fork() {
         this.props.fork();
     }
@@ -68,17 +68,13 @@ export default class Header extends Component {
             style.connectionStatus.background = 'red';
         }
 
-        const tooltip = (
-            <Tooltip id="tooltip"><strong>Holy guacamole!</strong> Check this info.</Tooltip>
-        );
-
         return (
 
             <Navbar inverse fluid style={style.headerStyle}>
 
                 <Navbar.Header>
                     <Navbar.Brand style={style.logo}>
-                        Code-Pad
+                        Express Code
                     </Navbar.Brand>
                     <Navbar.Toggle />
                 </Navbar.Header>
@@ -89,8 +85,6 @@ export default class Header extends Component {
                             <MenuItem eventKey={1.2} onSelect={this.load}>Open</MenuItem>
                             <MenuItem eventKey={1.3} onSelect={this.whenSaved}>Save</MenuItem>
                             <MenuItem eventKey={1.4} onSelect={this.fork}>Fork</MenuItem>
-                            <MenuItem eventKey={1.5}>Delete Project</MenuItem>
-                            <MenuItem eventKey={1.6}>Download File</MenuItem>
                         </NavDropdown>
                         <NavDropdown style={style.menuItem} eventKey={2} title="Share" id="basic-nav-dropdown">
                             <MenuItem eventKey={2.1} onSelect={this.whenSaved}>

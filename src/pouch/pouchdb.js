@@ -30,7 +30,7 @@ export default class Pouch {
 
     getDocs(callback) {
         this.db.allDocs({
-           include_docs: true
+            include_docs: true
         }).then((result) => {
             this.dbContents = result;
             callback();
@@ -41,8 +41,22 @@ export default class Pouch {
 
     findSingleDoc(id, callback) {
         this.db.get(id).then(function (doc) {
-            //this.selectedProject = doc;
             callback(doc);
+        }).catch(function (err) {
+            console.log(err);
+        });
+    }
+    
+    /**
+     * Not yet used in the project
+     */
+    deleteDoc(id) {
+        this.db.get(this.project.projectData).then(function (doc) {
+            console.log(doc);
+            return this.db.remove(doc._id, doc._rev);
+        }).then(function (result) {
+            // handle result
+            console.log(result);
         }).catch(function (err) {
             console.log(err);
         });

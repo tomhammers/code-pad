@@ -1,23 +1,23 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
-import { Grid, Row } from 'react-bootstrap';
+import { Grid, Row, Col } from 'react-bootstrap';
 import _ from 'lodash';
-import Alert from 'react-s-alert';
-import 'react-s-alert/dist/s-alert-default.css';
-import 'react-s-alert/dist/s-alert-css-effects/slide.css';
 import io from 'socket.io-client';
 import Pouch from '../pouch/pouchdb';
+import Parser from '../parser/project-parser.js';
 
 // react components that will be rendered
 import Header from './../components/header';
 import FileTabs from './../components/file-tabs';
 import Pad from './../components/pad';
+import Hub from './../components/hub';
 import Preview from './../components/preview';
 import SaveModal from './../components/save-modal';
 import OpenModal from './../components/open-modal';
 import DiffModal from './../components/diff-modal';
 
 import InitialContent from './initialContent.json';
+import Libraries from './../components/libraries.json';
 
 const socket = io();
 
@@ -25,6 +25,7 @@ export default class App extends Component {
     constructor(props) {
         super(props);
         this.pdb = new Pouch();
+        this.parser = new Parser();
         // create local DB if one doesn't exist (couch ignores otherwise)
         this.pdb.createDB('projects');
         // attempt to get uniqueID from URL
@@ -76,6 +77,7 @@ export default class App extends Component {
         this.patchServerCode = this.patchServerCode.bind(this);
         this.pushToServer = this.pushToServer.bind(this);
         this.forkProject = this.forkProject.bind(this);
+        this.insertLibrary = this.insertLibrary.bind(this);
     }
 
     componentWillMount() {
@@ -159,12 +161,6 @@ export default class App extends Component {
             id: id,
             project: project
         });
-        // todo: alert doesn't work yet, low priority
-        Alert.info('Test', {
-            position: 'top-left',
-            effect: 'slide',
-            timeout: 'none'
-        });
     }
 
     /**
@@ -174,9 +170,9 @@ export default class App extends Component {
     compareProjects(data) {
         this.setState({
             serverCode: data.project
-        }, function() {
+        }, function () {
             // only open if project is different to server's copy
-            if(!(_.isEqual(this.state.code.files, this.state.serverCode.files))) {
+            if (!(_.isEqual(this.state.code.files, this.state.serverCode.files))) {
                 this.setState({
                     showDiffModal: true
                 });
@@ -366,7 +362,7 @@ export default class App extends Component {
             offlineMode: false,
             status: 'connected',
             projectName: ''
-        }, function() {
+        }, function () {
             this.uniqueID = this.generateUniqueID(10);
             // handle save as if new project
             this.handleSave();
@@ -377,8 +373,13 @@ export default class App extends Component {
     closeDiffModal() {
         this.setState({ showDiffModal: false })
     }
+    
+    insertLibrary(index) {
+        this.parser.insertLibrary(index, this.state.code)
+    }
 
     render() {
+        let previewHeight = this.state.pageHeight / 100 * 60;
         let style = {
             container: {
                 paddingRight: 0,
@@ -386,6 +387,10 @@ export default class App extends Component {
             },
             row: {
                 height: this.state.pageHeight
+            },
+            hub: {
+                height: this.state.pageHeight - previewHeight,
+                borderTop: '1px solid black'
             }
         };
         return (
@@ -397,6 +402,7 @@ export default class App extends Component {
                     onNew={this.newProject}
                     onOpen={this.viewProjects}
                     fork={this.forkProject}
+                    deleteProject={this.deleteProject}
                     status={this.state.status}
                     goOffline={this.goOffline}
                     goOnline={this.goOnline}
@@ -407,7 +413,6 @@ export default class App extends Component {
                         onSelectFile={this.selectFile}
                         fileNames={this.state.code.files}
                         activeFile={this.state.activeFile}
-
                         />
                     <Pad
                         onChange={this.handlePadChange}
@@ -416,10 +421,19 @@ export default class App extends Component {
                         height={this.state.pageHeight}
                         activePad={this.state.activeFile}
                         />
-                    <Preview
-                        code={this.state.code}
-                        height={this.state.pageHeight}
-                        />
+                    <Col lg={6}>
+                        <Row>
+                            <Preview
+                                code={this.state.code}
+                                height={previewHeight}
+                                />
+                        </Row>
+                        <Row style={style.hub} className="hub">
+                            <Hub 
+                                 insertLibrary={this.insertLibrary}
+                            />
+                        </Row>
+                    </Col>
                 </Row>
                 <SaveModal
                     modalTitle='Project Name'

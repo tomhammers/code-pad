@@ -97,8 +97,9 @@ export default class Pad extends Component {
     setupEditor(editor, codeType, code) {
         editor.$blockScrolling = Infinity;
         editor.setFontSize(14);
-        editor.setTheme('ace/theme/tomorrow_night_eighties');
         editor.setShowPrintMargin(false);
+        editor.setHighlightActiveLine(true);
+        editor.setTheme('ace/theme/tomorrow_night_eighties');
         editor.getSession().setMode(`ace/mode/${codeType}`);
         editor.getSession().setValue(code);
         editor.getSession().on('change', () => {

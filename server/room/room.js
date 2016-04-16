@@ -1,4 +1,4 @@
-var ProjectDoc = require('../universal/projectDoc');
+var ProjectDoc = require('../../universal/projectDoc');
 
 var Room = function Room(data) {
     this.clients = [];

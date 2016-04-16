@@ -127,7 +127,7 @@ export default class Preview extends Component {
         };
 
         return (
-            <Col lg={6} style={style.iframeParent}>
+            <Col lg={12} style={style.iframeParent}>
                 <iframe ref="iframe" style={style.iframeStyle}>
                 </iframe>
             </Col>
