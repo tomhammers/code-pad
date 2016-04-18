@@ -25,7 +25,7 @@ export default class DiffModal extends Component {
         return this.props.code.map((file, i) => {
             if (this.props.serverCode[i] !== undefined) {
                 return (
-                    <div>
+                    <div key={i}>
                         {this.props.serverCode[i].fileName}
                         <Diff
                             inputA={file.content}

@@ -9,6 +9,7 @@ var Room = function Room(data) {
     // user who has current write access
     this.socketEditing = '';
     this.timer = null;
+    this.chatMessages = [];
 };
 
 Room.prototype.addClient = function(socketID) {

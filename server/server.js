@@ -41,28 +41,28 @@ io.sockets.on('connection', function(socket) {
     });
 
     socket.on('joinRoom', function(data) {
+        var clientsInRoom = [];
         // OPEN / unique URL / user goes offline -> online, project exists on server
         if (data.id in rooms) {  // room key exists, therefore project data exists on server too
-            //console.log('block one');
             socket.join(data.id);
-            rooms[data.id].addClient(socket);
+            rooms[data.id].addClient(socket.id);
             // send client project data
             socket.emit('setupProject', { project: rooms[data.id].project });
             socket.emit('inRoom');
+            socket.emit('chatInfo', {users: rooms[data.id].clients});
         }
         // SAVE AS / OPEN, project does not exist on server (later - check DB too)
         // room does not exist, did the client send a project in the joinRoom request?
         else if (data.project !== null) { // project data was sent by client, set up a new room
-            //console.log('block two');
             var room = new ProjectRoom(data.project);
             room.addClient(socket.id);
             rooms[data.id] = room; // add key value pair to array
             socket.join(data.id);
             socket.emit('inRoom');
+            socket.emit('chatInfo', {users: rooms[data.id].clients});
         }
         // unique URL but no matching key, project doesn't exist anywhere
         else { // at this stage there is not much we can do
-            //console.log('block three');
             // this could happen if project owner sets up project -> room, at a later date room no longer exists
             //console.log("project doesn't exist on client or server");
             // later - make request to DB to look for project
@@ -71,6 +71,7 @@ io.sockets.on('connection', function(socket) {
 
     // a client emitted a code change
     socket.on('codeChange', function(data) {
+        console.log("No of clients in Room: " + rooms[data.id].clients.length);
         // if project is open
         if (rooms[data.id].projectLocked === false) {
             // lock the project to the current socket
@@ -117,5 +118,10 @@ io.sockets.on('connection', function(socket) {
         console.log("Client leaving room: " + data.id)
         socket.leave(data.id);
     });
+    
+    //  socket.on('setupChat', function(data) {
+    //      console.log(rooms[data.id]);
+    //     socket.emit('chatInfo', {users: rooms[data.id].clients});
+    // });
 });
 

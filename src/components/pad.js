@@ -129,7 +129,7 @@ export default class Pad extends Component {
         };
 
         return (
-            <Col lg={5} id="pad" style={style.padParent}>
+            <Col lg={6} id="pad" style={style.padParent}>
                 {this.setUpDom()}
             </Col>
         );
