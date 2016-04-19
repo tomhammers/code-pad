@@ -48,7 +48,8 @@ export default class Hub extends Component {
         
         let style = {
             outer: {
-                paddingLeft: "0px"
+                paddingLeft: "0px",
+                height: "100%"
             },
             qrcode: {
                 padding: "15px"
@@ -59,7 +60,7 @@ export default class Hub extends Component {
         };
         return (
             <Col style={style.outer} lg={12}>
-                <Tabs defaultActiveKey={1}>
+                <Tabs style={style.outer} defaultActiveKey={1}>
 
                     <Tab eventKey={1} title={<Glyphicon glyph="book" />}>
                         <h4 style={style.header}>Add Libraries</h4>
@@ -67,7 +68,7 @@ export default class Hub extends Component {
                         {this.mapLibraries() }
                     </Tab>
 
-                    <Tab eventKey={2} title={<Glyphicon glyph="comment" />}>
+                    <Tab eventKey={2} style={style.outer} title={<Glyphicon glyph="comment" />}>
                         <ChatBox socket={this.props.socket} id={this.props.id}/>
                     </Tab>
 
