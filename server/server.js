@@ -1,10 +1,15 @@
 "use strict";
 var express = require('express');
 var app = express();
-var path = require('path');
-var port = Number(process.env.PORT || 3000);
-var server = app.listen(port);
+
+var server = require('http').createServer(app),
+//var server = app.listen(port);
 var io = require('socket.io').listen(server);
+
+var path = require('path');
+//var port = Number(process.env.PORT || 3000);
+
+server.listen(process.env.PORT || 3000);
 
 // handle all socket.io connections in this module
 var Socket = require('./socket/handle-socket-events');
