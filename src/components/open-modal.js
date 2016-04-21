@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import ReactBootstrap, { Modal } from 'react-bootstrap';
+import { Modal } from 'react-bootstrap';
 
 export default class OpenModal extends Component {
 
