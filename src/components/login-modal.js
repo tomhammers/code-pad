@@ -22,7 +22,6 @@ export default class Login extends Component {
 
                         <Button
                             bsStyle="primary"
-                            onClick={}
                             >
                             Login
                         </Button>

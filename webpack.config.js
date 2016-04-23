@@ -19,16 +19,12 @@ module.exports = {
             {
                 test: /\.jsx?$/,
                 loader: 'babel-loader',
-                exclude: [/node_modules/, /pouch__all_dbs__/, /_replicator/, /_users/],
+                exclude: [/node_modules/],
                 query: {
                     cacheDirectory: true,
                     presets: ['react', 'es2015']
                 }
             }
         ]
-    },
-    devServer: {
-        historyApiFallback: true,
-        contentBase: './public'
-  }
+    }
 };
