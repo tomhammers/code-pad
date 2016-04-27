@@ -1,13 +1,17 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { Route, IndexRoute } from 'react-router';
-import App from './containers/app';
+import { Provider } from 'react-redux';
+import { createStore, applyMiddleware } from 'redux';
+import ReduxPromise from 'redux-promise'
+
+import App from './components/app';
+import reducers from './reducers';
+
+const createStoreWithMiddleware = applyMiddleware(ReduxPromise)(createStore);
+//let store = createStore(reducers)
 
 ReactDOM.render(
-    <App style={style}/>,
-    document.getElementById('app')
-);
-
-let style = {
-  height: '100%'
-};
+  <Provider store={createStoreWithMiddleware(reducers)}>
+    <App />
+  </Provider>
+  , document.getElementById('app'));

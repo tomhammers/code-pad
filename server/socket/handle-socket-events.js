@@ -59,7 +59,6 @@ Socket.prototype.handleConnections = function (socket) {
 
     // a client emitted a code change
     socket.on('codeChange', function (data) {
-        console.log("No of clients in Room: " + rooms[data.id].clients.length);
         // if project is open
         if (rooms[data.id].projectLocked === false) {
             // lock the project to the current socket
@@ -92,7 +91,6 @@ Socket.prototype.handleConnections = function (socket) {
         // only other scenario should be socket attempting edit not matching one with write access
         if (rooms[data.id].projectLocked && rooms[data.id].socketEditing !== socket.id) {
             // reject change and clear their attempted edit to the document
-            console.log(socket.id + " does not have write access");
             socket.emit('projectChange', { code: rooms[data.id].project.projectData, cursorPos: data.cursorPos, activeFile: data.activeFile });
         }
     });

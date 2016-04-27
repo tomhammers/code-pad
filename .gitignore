@@ -1,9 +1,3 @@
-.vscode
 /node_modules
+bundle.js
 npm-debug.log
-.DS_Store
-/*.env
-accessDB.txt
-databaseSchema.json
-log.txt
-commands.txt

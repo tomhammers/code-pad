@@ -1,24 +1,35 @@
 {
-  "engines": {
-    "node": "5.5.0"
-  },
-  "name": "code-pad",
+  "name": "redux-simple-starter",
   "version": "1.0.0",
-  "description": "HTML5, CSS3 and JS editor with collaboration",
+  "description": "Simple starter package for Redux with React and Babel support",
   "main": "index.js",
+  "repository": "git@github.com:StephenGrider/ReduxSimpleStarter.git",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "prestart": "webpack",
     "start": "node server/server.js",
-    "github": "git push origin master",
-    "ds": "node ./node_modules/webpack-dev-server/bin/webpack-dev-server.js"
+    "start-dev": "node ./node_modules/webpack-dev-server/bin/webpack-dev-server.js",
+    "test": "mocha --compilers js:babel-core/register --require ./test/test_helper.js --recursive ./test",
+    "test:watch": "npm run test -- --watch"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/tomhammers/code-pad.git"
-  },
-  "author": "Tom Kerr",
+  "author": "",
   "license": "ISC",
+  "devDependencies": {
+    "babel-core": "^6.2.1",
+    "babel-loader": "^6.2.0",
+    "babel-preset-es2015": "^6.1.18",
+    "babel-preset-stage-1": "^6.1.18",
+    "babel-preset-react": "^6.1.18",
+    "css-loader": "^0.23.1",
+    "chai": "^3.5.0",
+    "chai-jquery": "^2.0.0",
+    "jsdom": "^8.1.0",
+    "json-loader": "^0.5.4",
+    "mocha": "^2.4.5",
+    "react-addons-test-utils": "^0.14.7",
+    "style-loader": "^0.13.1",
+    "webpack": "^1.12.9",
+    "webpack-dev-server": "^1.14.0"
+  },
   "dependencies": {
     "brace": "^0.7.0",
     "codemirror": "^5.13.2",
@@ -38,27 +49,15 @@
     "react-bootstrap": "^0.28.3",
     "react-diff": "0.0.6",
     "react-dom": "^0.14.8",
+    "react-redux": "^4.0.0",
     "react-router": "^2.0.0",
     "react-s-alert": "^1.1.1",
     "react-toggle-display": "^2.0.2",
+    "redux": "^3.0.4",
+    "redux-promise": "^0.5.3",
     "share": "^0.6.3",
     "socket-pouch": "^1.0.1",
     "socket.io": "^1.4.5",
     "socket.io-client": "^1.4.5"
-  },
-  "devDependencies": {
-    "babel-core": "^6.5.2",
-    "babel-loader": "^6.2.2",
-    "babel-preset-es2015": "^6.5.0",
-    "babel-preset-react": "^6.5.0",
-    "css-loader": "^0.23.1",
-    "json-loader": "^0.5.4",
-    "node-babel": "^0.1.2",
-    "style-loader": "^0.13.1",
-    "webpack": "^1.12.13"
-  },
-  "bugs": {
-    "url": "https://github.com/tomhammers/code-pad/issues"
-  },
-  "homepage": "https://github.com/tomhammers/code-pad#readme"
+  }
 }

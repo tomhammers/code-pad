@@ -15,12 +15,10 @@ server.listen(process.env.PORT || 3000);
 var Socket = require('./socket/handle-socket-events');
 var socket = new Socket();
 
-// handles routes
-var pad = require('../routes/pad');
-
-// tell express to set up the ejs view engine
-app.set('views', path.join(__dirname, '../views'));
 app.set('view engine', 'ejs');
+
+// handles routes
+var pad = require('./routes/pad');
 
 // on a http request, serve users with all content in the public directory
 app.use(express.static('./public'));

@@ -39,7 +39,6 @@ export default class OpenModal extends Component {
 
 
     render() {
-
         let style = {
             listitems: {
                 cursor: 'pointer'
@@ -50,7 +49,7 @@ export default class OpenModal extends Component {
             <Modal show={this.props.show}>
 
                 <Modal.Header>
-                    <Modal.Title>{ this.props.modalTitle }</Modal.Title>
+                    <Modal.Title>Choose Project</Modal.Title>
                 </Modal.Header>
 
                 <Modal.Body>
@@ -79,4 +78,6 @@ export default class OpenModal extends Component {
     }
 
 }
+
+
 

@@ -3,7 +3,7 @@ var ProjectDoc = require('../../universal/projectDoc');
 var Room = function Room(data) {
     this.clients = [];
     this.project = new ProjectDoc();
-    this.projectData = this.project.setProjectDoc(data._id, data.projectName, data);
+    this.projectData = this.project.setProjectDoc(data._id, data.projectName, data.files);
     this.cursorPosition = {};
     this.projectLocked = false;
     // user who has current write access

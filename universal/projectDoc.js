@@ -10,11 +10,10 @@ var Project = function() {
  * @param files
  */
 Project.prototype.setProjectDoc = function(id, projectName, files) {
-    console.log(files);
     this.projectData = {
         _id: id,
         projectName: projectName,
-        files: files.files,
+        files: files,
         public: false,
         users: [
             {
