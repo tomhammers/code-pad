@@ -1,9 +1,12 @@
 {
-  "name": "redux-simple-starter",
-  "version": "1.0.0",
-  "description": "Simple starter package for Redux with React and Babel support",
+  "name": "Codous",
+  "version": "0.0.1",
+  "description": "HTML5, CSS3 and JS editor with collaboration",
   "main": "index.js",
-  "repository": "git@github.com:StephenGrider/ReduxSimpleStarter.git",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tomhammers/code-pad.git"
+  },
   "scripts": {
     "prestart": "webpack",
     "start": "node server/server.js",
@@ -27,7 +30,6 @@
     "mocha": "^2.4.5",
     "react-addons-test-utils": "^0.14.7",
     "style-loader": "^0.13.1",
-    "webpack": "^1.12.9",
     "webpack-dev-server": "^1.14.0"
   },
   "dependencies": {
@@ -58,6 +60,7 @@
     "share": "^0.6.3",
     "socket-pouch": "^1.0.1",
     "socket.io": "^1.4.5",
-    "socket.io-client": "^1.4.5"
+    "socket.io-client": "^1.4.5",
+    "webpack": "^1.12.9"
   }
 }
