@@ -4,12 +4,14 @@ import { bindActionCreators } from 'redux';
 import { codeChange } from '../actions/index';
 
 import Ace from 'brace';
+Ace.config.set('basePath', '/libs/ace');
 import { Col } from 'react-bootstrap';
 import ToggleDisplay from'react-toggle-display';
 
 import 'brace/mode/javascript';
 import 'brace/mode/html';
 import 'brace/mode/css';
+
 import 'brace/theme/tomorrow';
 import 'brace/theme/tomorrow_night_eighties';
 
@@ -60,12 +62,13 @@ class Pad extends Component {
     * @param nextProps
     */
     componentWillReceiveProps(nextProps) {
-        // loop through all pads in project and update them if they are different
-        
+        console.log(nextProps.editorSettings);
+        // loop through all pads in project and update them if they are different        
         for (let i = 0, l = this.pads.length; i < l; i++) {
-            console.log("got some new stuff!");
+            this.pads[i].setFontSize(parseInt(nextProps.editorSettings.fontSize));
+            this.pads[i].setTheme(nextProps.editorSettings.theme);
             if (this.pads[i].getSession().getValue() !== nextProps.files[i].content) {
-                this.updateEditorContent(this.pads[i], nextProps.files[i].content);
+                this.updateEditorContent(this.pads[i], nextProps.files[i].content, nextProps.cursorPos);
             }
         }
     }
@@ -76,10 +79,11 @@ class Pad extends Component {
      * @param code
      * @param cursor
      */
-    updateEditorContent(editor, code) {
+    updateEditorContent(editor, code, cursor) {
         this.silent = true;
+        console.log(cursor);
         editor.setValue(code);
-        //editor.gotoLine(cursor.row + 1, cursor.column + 1);
+        editor.gotoLine(cursor.row + 1, cursor.column + 1);
         this.silent = false;
     }
 
@@ -90,21 +94,27 @@ class Pad extends Component {
     * @param code
     */
     setupEditor(editor, codeType, code, fileName) {
+        
         editor.$blockScrolling = Infinity;
-        editor.setFontSize(14);
+        editor.setFontSize(this.props.editorSettings.fontSize);
         editor.setShowPrintMargin(false);
         editor.setHighlightActiveLine(true);
-        editor.setTheme('ace/theme/tomorrow_night_eighties');
+        editor.setTheme(this.props.editorSettings.theme);
         editor.getSession().setMode(`ace/mode/${codeType}`);
         editor.getSession().setValue(code);
         editor.getSession().on('change', () => {
             this.whenChanged(editor, fileName)
         });
-        //editor.moveCursorToPosition(this.props.cursorPos);
+        editor.moveCursorToPosition(this.props.cursorPos);
     }
 
+    /**
+    * Will call parent method when user makes changes on editor, pass editor object and codetype string
+    * @param editor
+    * @param codeType
+    */
     whenChanged(editor, fileName) {
-        this.props.codeChange(editor.getSession().getValue(), fileName);
+        this.props.codeChange(editor.getSession().getValue(), fileName, editor.getCursorPosition());
         this.props.onChange(this.pads);
     }
 
@@ -129,7 +139,9 @@ class Pad extends Component {
 function mapStateToProps(state) {
     return {
         files: state.files,
-        activeFile: state.activeFile
+        cursorPos: state.cursorPos,
+        activeFile: state.activeFile,
+        editorSettings: state.editorSettings
     };
 }
 /**

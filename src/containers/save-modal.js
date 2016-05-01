@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import ReactBootstrap, { Modal, Input, Button } from 'react-bootstrap';
+import ReactBootstrap, { Modal, FormControl, Button } from 'react-bootstrap';
 
 import { showSaveModal, saveProject } from '../actions/index';
 
@@ -38,7 +38,7 @@ class SaveModal extends Component {
                 </Modal.Header>
 
                 <Modal.Body>
-                    <Input key="1asd"
+                    <FormControl key="1asd"
                            type="text"
                            value={this.props.inputValue}
                            onChange={this.whenChanged}

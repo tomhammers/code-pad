@@ -147,7 +147,7 @@ class App extends Component {
   * @param pads
   * @param cursorPos
   */
-  handlePadChange(pads, cursorPos) {
+  handlePadChange(pads) {
     if (this.props.projectName !== '') {
       // loop through all pads and get their value, update the projectDoc
       for (let i = 0, l = pads.length; i < l; i++) {
@@ -166,6 +166,7 @@ class App extends Component {
       }
     }
   }
+  
   /**
   * Send code change to server
   */
@@ -173,14 +174,18 @@ class App extends Component {
     socket.emit('codeChange', {
       id: this.uniqueID,
       project: this.pdb.project.projectData,
-      //cursorPos: this.state.cursorPos,
+      cursorPos: this.props.cursorPos,
       activeFile: this.props.activeFile
     });
   }
-
+  
+  /**
+   * incoming changes from socket.io
+   */
   projectChange(data) {
     if (!this.props.offlineMode) {
       this.props.updateCode(data.code.files, data.code.projectName);
+      console.log(data.cursorPos);
     }
   }
 
@@ -234,11 +239,15 @@ class App extends Component {
   * @param index
   */
   insertLibrary(index) {
-    this.parser.insertLibrary(index, this.props.files, changeState.bind(this));
-    function changeState(code) {
-      this.pdb.project.projectData = code;
+    // make a copy BY VALUE as we can't mutate the props
+    let code = JSON.parse(JSON.stringify(this.props.files));
+    // this new copy can now be passed to the parser
+    this.parser.insertLibrary(index, code, changeState.bind(this));
+    // callback called once parser has finished
+    function changeState(code) { 
       this.props.updateCode(code, this.props.projectName);
       if (this.props.projectName !== '' && this.props.offlineMode !== true) {
+        this.pdb.project.projectData.files = code;
         this.emitCodeChange();
       }
     }
@@ -322,8 +331,10 @@ class App extends Component {
 
 // applications state to props, look in reducer/index; files will be found there
 function mapStateToProps(state) {
+  
   return {
     activeFile: state.activeFile,
+    cursorPos: state.cursorPos,
     files: state.files,
     projectName: state.projectName,
     offlineMode: state.offlineMode,

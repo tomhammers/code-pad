@@ -1,7 +1,7 @@
-export function codeChange(code, fileName) {
+export function codeChange(code, fileName, cursor) {
     return {
         type: 'CODE_CHANGED',
-        payload: [code, fileName]
+        payload: [code, fileName, cursor]
     };
 }
 
@@ -55,10 +55,24 @@ export function showSaveModal() {
     };
 }
 // user opens app from unique URL
-export function updateCode(code, projectName) {
+export function updateCode(code, projectName, cursor) {
     return {
         type: 'UPDATE_CODE',
         payload: [code, projectName]  
+    };
+}
+
+export function updateFontSize(fontSize) {
+    return {
+        type: 'UPDATE_FONT_SIZE',
+        payload: fontSize
+    };
+}
+
+export function updateTheme(themeName) {
+    return {
+        type: 'UPDATE_THEME',
+        payload: themeName
     };
 }
 

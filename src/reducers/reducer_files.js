@@ -29,9 +29,8 @@ export default function (state = initialFiles, action) {
             }
             return files.concat([]);
         // external change to code (database or socket.io)    
-        case 'UPDATE_CODE':
-            console.log(action.payload[0]);
-            return action.payload[0]
+        case 'UPDATE_CODE':  
+            return action.payload[0];
         // file -> new 
         case 'NEW_PROJECT':
             return initialFiles;

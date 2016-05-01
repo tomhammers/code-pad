@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Row, Col, Input, Button, Panel, Glyphicon } from 'react-bootstrap';
+import { Row, Col, FormControl, Button, Panel, Glyphicon } from 'react-bootstrap';
 
 
 export default class ChatBox extends Component {
@@ -167,7 +167,7 @@ export default class ChatBox extends Component {
                             <div id="chatMessages">
                                 {this.printMessages() }
 
-                                <Input
+                                <FormControl
                                     style={style.input}
                                     type="text"
                                     value={this.state.chatInput}

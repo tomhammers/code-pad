@@ -8,6 +8,7 @@ import App from './components/app';
 import reducers from './reducers';
 
 const createStoreWithMiddleware = applyMiddleware(ReduxPromise)(createStore);
+window.devToolsExtension ? window.devToolsExtension() : DevTools.instrument()
 //let store = createStore(reducers)
 
 ReactDOM.render(

@@ -67,6 +67,7 @@ Socket.prototype.handleConnections = function (socket) {
             rooms[data.id].cursorPosition = data.cursorPos;
             // todo: send message to lock other clients pads
             // send changes to all clients other then sender
+            console.log(data.cursorPos);
             socket.broadcast.to(data.id).emit('projectChange', { code: data.project, cursorPos: data.cursorPos, activeFile: data.activeFile });
             // update project data in room
             rooms[data.id].project.projectData = data.project;
@@ -78,6 +79,7 @@ Socket.prototype.handleConnections = function (socket) {
         // if project is locked, socket attempting edit must match one with write access
         if (rooms[data.id].projectLocked && rooms[data.id].socketEditing === socket.id) {
             // send changes to all clients other then sender
+            console.log(data.cursorPos);
             socket.broadcast.to(data.id).emit('projectChange', { code: data.project, cursorPos: data.cursorPos, activeFile: data.activeFile });
             // update project data in room
             rooms[data.id].project.projectData = data.project;

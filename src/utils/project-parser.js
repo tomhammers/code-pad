@@ -11,10 +11,6 @@ export default class Parser {
         this.insertCDN = this.insertCDN.bind(this);
     }
 
-    setupParser() {
-
-    }
-
     /**
      * finds index.html and inserts library after the head tag
      * @param code
@@ -24,7 +20,7 @@ export default class Parser {
         this.findMatchingCDN(index);
         this.findIndexHTML(code);
 
-        this.insertCDN(returnNewCode);
+        this.insertCDN(returnNewCode.bind(this));
         function returnNewCode(newHTML) {
             for (let i = 0, l = code.length; i < l; i++) {
                 if (code[i].fileName === "index.html") {
