@@ -1,7 +1,7 @@
-export function codeChange(code, fileName, cursor) {
+export function codeChange(code, fileName) {
     return {
         type: 'CODE_CHANGED',
-        payload: [code, fileName, cursor]
+        payload: [code, fileName]
     };
 }
 
@@ -54,11 +54,26 @@ export function showSaveModal() {
         type: 'SHOW_SAVE_MODAL'  
     };
 }
+
+export function toggleActiveLine(active) {
+    return {
+        type: 'TOGGLE_ACTIVE_LINE',
+        payload: active  
+    };
+}
+
 // user opens app from unique URL
-export function updateCode(code, projectName, cursor) {
+export function updateCode(code, projectName) {
     return {
         type: 'UPDATE_CODE',
         payload: [code, projectName]  
+    };
+}
+
+export function updateCursor(cursor) {
+    return {
+        type: 'UPDATE_CURSOR',
+        payload: cursor
     };
 }
 

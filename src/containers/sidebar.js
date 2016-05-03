@@ -10,26 +10,26 @@ class LeftSidebar extends Component {
         return this.props.files.map((file) => {
             let style = {
                 paddingLeft: '5px',
-                paddingTop: '3px',
-                color: '#9d9d9d',
+                color: '#BABABB',
                 fontSize: '13px',
                 cursor: 'pointer',
-                backgroundColor: ''
+                backgroundColor: '#363636',
+                border: "none"
             };
             if (this.props.activeFile === file.fileName) {
                 style.backgroundColor = "#152B39"
             } else {
-                style.backgroundColor = ""
+                style.backgroundColor = "#363636"
             }
             return (
-                <li
+                <ListGroupItem
                     style={style}
                     key={file.fileName}
                     onClick={ () => this.props.selectFile(file.fileName) }
                     className="active filesHover"
                     >
                     {file.fileName}
-                </li>
+                </ListGroupItem>
             );
         });
     }
@@ -45,9 +45,9 @@ class LeftSidebar extends Component {
         return (
             <Col lg={1} style={style.outer}>
                 <div>
-                    <ul>
+                    <ListGroup>
                         {this.renderFileList() }
-                    </ul>
+                    </ListGroup>
                 </div>
 
             </Col>

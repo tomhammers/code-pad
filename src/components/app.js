@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { updateCode, saveProject, showDiffModal, showSaveModal, goOnline, goOffline } from '../actions/index';
+import { updateCode, saveProject, selectFile, showDiffModal, showSaveModal, goOnline, goOffline, updateCursor } from '../actions/index';
 import { Grid, Row, Col } from 'react-bootstrap';
 import _ from 'lodash';
 import Header from '../containers/header';
@@ -147,14 +147,14 @@ class App extends Component {
   * @param pads
   * @param cursorPos
   */
-  handlePadChange(pads) {
+  handlePadChange(pads, cursorPos) {
     if (this.props.projectName !== '') {
       // loop through all pads and get their value, update the projectDoc
       for (let i = 0, l = pads.length; i < l; i++) {
         this.pdb.project.projectData.files[i].content = pads[i].getSession().getValue();
       }
       // setState will cause React to re render all components
-      // this.setState({ code: this.pdb.project.projectData, cursorPos: cursorPos });
+      //this.setState({ cursorPos: cursorPos });
       // if project was previously saved
       if (this.props.projectName !== '') {
         // emit to server, if in online mode
@@ -166,11 +166,12 @@ class App extends Component {
       }
     }
   }
-  
+
   /**
   * Send code change to server
   */
   emitCodeChange() {
+    console.log(this.props.cursorPos);
     socket.emit('codeChange', {
       id: this.uniqueID,
       project: this.pdb.project.projectData,
@@ -178,14 +179,15 @@ class App extends Component {
       activeFile: this.props.activeFile
     });
   }
-  
+
   /**
    * incoming changes from socket.io
    */
   projectChange(data) {
     if (!this.props.offlineMode) {
-      this.props.updateCode(data.code.files, data.code.projectName);
-      console.log(data.cursorPos);
+      this.props.updateCursor(data.cursorPos);
+      this.props.updateCode(data.code.files, data.code.projectName);  
+      this.props.selectFile(data.activeFile);
     }
   }
 
@@ -244,7 +246,7 @@ class App extends Component {
     // this new copy can now be passed to the parser
     this.parser.insertLibrary(index, code, changeState.bind(this));
     // callback called once parser has finished
-    function changeState(code) { 
+    function changeState(code) {
       this.props.updateCode(code, this.props.projectName);
       if (this.props.projectName !== '' && this.props.offlineMode !== true) {
         this.pdb.project.projectData.files = code;
@@ -283,6 +285,9 @@ class App extends Component {
         paddingRight: 0,
         paddingLeft: 0
       },
+      header: {
+        paddingLeft: "0px"
+      },
       row: {
         height: this.state.pageHeight
       },
@@ -302,10 +307,9 @@ class App extends Component {
           goOffline={ event => this.props.goOffline() }
           goOnline={this.goOnline}
           />
-        <Row>
+        <Row id="fullScreen">
           <SideBar />
-          <Pad height={this.state.pageHeight} onChange={this.handlePadChange} />
-
+            <Pad height={this.state.pageHeight} onChange={this.handlePadChange} />
           <Col lg={5}>
             <Row>
               <Preview height={previewHeight} />
@@ -331,7 +335,7 @@ class App extends Component {
 
 // applications state to props, look in reducer/index; files will be found there
 function mapStateToProps(state) {
-  
+
   return {
     activeFile: state.activeFile,
     cursorPos: state.cursorPos,
@@ -351,8 +355,10 @@ function mapDispatchToProps(dispatch) {
     goOffline: goOffline,
     updateCode: updateCode,
     saveProject: saveProject,
+    selectFile: selectFile,
     showDiffModal: showDiffModal,
-    showSaveModal: showSaveModal
+    showSaveModal: showSaveModal,
+    updateCursor: updateCursor
   }, dispatch)
 }
 // produces a container (is aware of state)

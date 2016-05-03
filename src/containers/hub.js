@@ -60,7 +60,8 @@ export default class Hub extends Component {
         padding: "15px"
       },
       header: {
-        marginLeft: "5px"
+        marginLeft: "5px",
+        color: "#f9f7f7"
       },
       tab: {
         color: "#BABABB"
@@ -70,18 +71,18 @@ export default class Hub extends Component {
       <Col style={style.outer} lg={12}>
         <Tabs style={style.outer} defaultActiveKey={1}>
 
-          <Tab key={1} eventKey={1} title={<Glyphicon glyph="cog" />}>
-            <Settings />
-          </Tab>
-
-          <Tab key={2} eventKey={2} style={style.outer} title={<Glyphicon glyph="comment" />}>
-            <ChatBox socket={this.props.socket} id={this.props.id}/>
-          </Tab>
-
-          <Tab key={3} eventKey={3} title={<Glyphicon glyph="book" />}>
+          <Tab key={1} eventKey={1} title={<Glyphicon glyph="book" />}>
             <h4 style={style.header}>Add Libraries</h4>
             <hr />
             {this.mapLibraries() }
+          </Tab>
+
+          <Tab key={2} eventKey={2} title={<Glyphicon glyph="cog" />}>
+            <Settings />
+          </Tab>
+
+          <Tab key={3} eventKey={3} style={style.outer} title={<Glyphicon glyph="comment" />}>
+            <ChatBox socket={this.props.socket} id={this.props.id}/>
           </Tab>
 
           <Tab key={4} eventKey={4} title={<Glyphicon glyph="qrcode" />}>

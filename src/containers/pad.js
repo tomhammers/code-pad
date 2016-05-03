@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { codeChange } from '../actions/index';
+import { codeChange, updateCursor } from '../actions/index';
 
 import Ace from 'brace';
 Ace.config.set('basePath', '/libs/ace');
@@ -62,13 +62,13 @@ class Pad extends Component {
     * @param nextProps
     */
     componentWillReceiveProps(nextProps) {
-        console.log(nextProps.editorSettings);
         // loop through all pads in project and update them if they are different        
         for (let i = 0, l = this.pads.length; i < l; i++) {
             this.pads[i].setFontSize(parseInt(nextProps.editorSettings.fontSize));
-            this.pads[i].setTheme(nextProps.editorSettings.theme);
+            this.pads[i].setHighlightActiveLine(nextProps.activeLine);
+            // this.pads[i].setTheme(nextProps.editorSettings.theme);
             if (this.pads[i].getSession().getValue() !== nextProps.files[i].content) {
-                this.updateEditorContent(this.pads[i], nextProps.files[i].content, nextProps.cursorPos);
+                this.updateEditorContent(this.pads[i], nextProps.files[i].content, this.props.cursorPos);
             }
         }
     }
@@ -81,9 +81,11 @@ class Pad extends Component {
      */
     updateEditorContent(editor, code, cursor) {
         this.silent = true;
-        console.log(cursor);
         editor.setValue(code);
-        editor.gotoLine(cursor.row + 1, cursor.column + 1);
+        console.log(this.props.cursorPos);
+        editor.gotoLine(this.props.cursorPos.row + 1, this.props.cursorPos.column);
+        //this.props.updateCursor(cursor);
+        //this.props.codeChange(editor.getSession().getValue(), "", cursor);
         this.silent = false;
     }
 
@@ -94,17 +96,19 @@ class Pad extends Component {
     * @param code
     */
     setupEditor(editor, codeType, code, fileName) {
-        
         editor.$blockScrolling = Infinity;
         editor.setFontSize(this.props.editorSettings.fontSize);
         editor.setShowPrintMargin(false);
-        editor.setHighlightActiveLine(true);
+        editor.setHighlightActiveLine(this.props.activeLine);
         editor.setTheme(this.props.editorSettings.theme);
         editor.getSession().setMode(`ace/mode/${codeType}`);
         editor.getSession().setValue(code);
-        editor.getSession().on('change', () => {
-            this.whenChanged(editor, fileName)
-        });
+        // editor.getSession().on('change', () => {
+        //     this.whenChanged(editor, fileName)
+        // });
+        editor.container.addEventListener('keyup', (e) => {
+            this.whenChanged(editor, fileName);
+        })
         editor.moveCursorToPosition(this.props.cursorPos);
     }
 
@@ -114,7 +118,8 @@ class Pad extends Component {
     * @param codeType
     */
     whenChanged(editor, fileName) {
-        this.props.codeChange(editor.getSession().getValue(), fileName, editor.getCursorPosition());
+        this.props.codeChange(editor.getSession().getValue(), fileName);
+        this.props.updateCursor(editor.getCursorPosition());
         this.props.onChange(this.pads);
     }
 
@@ -138,8 +143,9 @@ class Pad extends Component {
 // applications state to props, look in reducer/index; files will be found there
 function mapStateToProps(state) {
     return {
-        files: state.files,
+        activeLine: state.activeLine,
         cursorPos: state.cursorPos,
+        files: state.files,
         activeFile: state.activeFile,
         editorSettings: state.editorSettings
     };
@@ -150,7 +156,7 @@ function mapStateToProps(state) {
  */
 function mapDispatchToProps(dispatch) {
     // when selectBook is called, result should be passed to reducers
-    return bindActionCreators({ codeChange: codeChange }, dispatch)
+    return bindActionCreators({ codeChange: codeChange, updateCursor: updateCursor }, dispatch)
 }
 // produces a container (is aware of state)
 export default connect(mapStateToProps, mapDispatchToProps)(Pad);

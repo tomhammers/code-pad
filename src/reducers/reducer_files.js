@@ -3,7 +3,7 @@ const initialFiles = [
     {
         fileName: "index.html",
         fileType: "html",
-        content: "<html>\n    <head>\n    </head>\n    <body>\n        <h2><center>Welcomde to Code-Pad</center></h2>\n    </body>\n</html>"
+        content: "<html>\n    <head>\n    </head>\n    <body>\n        <h2><center>Welcome to Code Pad</center></h2>\n    </body>\n</html>"
     },
     {
         fileName: "script.js",
@@ -13,7 +13,7 @@ const initialFiles = [
     {
         fileName: "style.css",
         fileType: "css",
-        content: "body {\n        background-color: #363636;\n        color: white;\n        font-family: ‘Lucida Console’, Monaco, monospace;\n}"
+        content: "body {\n    background-color: #363636;\n    color: #f9f7f7;\n    font-family: Tahoma, Geneva, sans-serif;\n}"
     }
 ];
 
