@@ -8,6 +8,7 @@ import EditorSettings from './reducer_editor_settings';
 import Files from './reducer_files';
 import OfflineMode from './reducer_offline_mode';
 import ShowDiffModal from './reducer_diff_modal';
+import ShowGutter from './reducer_show_gutter';
 import ShowOpenModal from './reducer_open_modal';
 import ShowSaveModal from './reducer_save_modal';
 import ProjectName from './reducer_project_name';
@@ -24,6 +25,7 @@ const rootReducer = combineReducers({
   projectName: ProjectName,
   showDiffModal:  ShowDiffModal,
   showOpenModal: ShowOpenModal,
+  showGutter: ShowGutter,
   showSaveModal: ShowSaveModal
 });
 

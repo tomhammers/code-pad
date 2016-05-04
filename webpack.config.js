@@ -1,8 +1,8 @@
 module.exports = {
   entry: './src/index.js',
-    output: {
-        filename: 'public/bundle.js'
-    },
+  output: {
+    filename: 'public/bundle.js'
+  },
   module: {
     loaders: [
       { test: /\.json$/, loader: 'json' },
@@ -24,8 +24,16 @@ module.exports = {
   resolve: {
     extensions: ['', '.js', '.jsx']
   },
+  externals: {
+    'cheerio': 'window',
+    'react/lib/ExecutionEnvironment': true,
+    'react/lib/ReactContext': true,
+  },
   devServer: {
+    hot: true,
+    inline: true,
+    port: 7700,
     historyApiFallback: true,
     contentBase: './public'
-  }
+  },
 };

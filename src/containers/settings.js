@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { toggleActiveLine, updateFontSize, updateTheme } from '../actions/index';
+import { toggleActiveLine, toggleGutter, updateFontSize, updateTheme } from '../actions/index';
 import { Checkbox, FormControl, FormGroup, ControlLabel, DropdownButton, MenuItem, Panel, Col, Row } from 'react-bootstrap';
 
 class Settings extends Component {
@@ -9,9 +9,11 @@ class Settings extends Component {
         super(props);
 
         this.state = {
-            activeLineChecked: true
+            activeLineChecked: true,
+            gutterChecked: true
         }
         this.activeLine = this.activeLine.bind(this);
+        this.gutter = this.gutter.bind(this);
     }
 
     activeLine() {
@@ -19,7 +21,15 @@ class Settings extends Component {
         this.setState({
             activeLineChecked: checked
         });
-        this.props.toggleActiveLine(checked);     
+        this.props.toggleActiveLine(checked);
+    }
+
+    gutter() {
+        let checked = this.state.gutterChecked === true ? false : true;
+        this.setState({
+            gutterChecked: checked
+        });
+        this.props.toggleGutter(checked);
     }
 
     updateFontSize(event) {
@@ -47,9 +57,10 @@ class Settings extends Component {
 
     render() {
         let style = {
-            editorSettings : {
-              marginLeft: "5px",
-              marginTop: "5px"
+            editorSettings: {
+                marginLeft: "5px",
+                marginTop: "5px",
+                fontSize: "12px"
             },
             labels: {
             },
@@ -73,6 +84,9 @@ class Settings extends Component {
                         <Checkbox checked={this.state.activeLineChecked} onChange={this.activeLine}>
                             Highlight Active Line
                         </Checkbox>
+                        <Checkbox checked={this.state.gutterChecked} onChange={this.gutter}>
+                            Show Gutter
+                        </Checkbox>
                     </Panel>
                 </Col>
             </Row>
@@ -92,10 +106,11 @@ function mapStateToProps(state) {
  */
 function mapDispatchToProps(dispatch) {
     // when selectBook is called, result should be passed to reducers
-    return bindActionCreators({ 
+    return bindActionCreators({
         toggleActiveLine: toggleActiveLine,
-        updateFontSize: updateFontSize, 
-        updateTheme: updateTheme 
+        toggleGutter: toggleGutter,
+        updateFontSize: updateFontSize,
+        updateTheme: updateTheme
     }, dispatch)
 }
 // produces a container (is aware of state)

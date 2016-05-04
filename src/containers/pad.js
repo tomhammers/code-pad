@@ -28,8 +28,7 @@ class Pad extends Component {
         let style = {
             pad: {
                 height: this.props.height,
-                borderRight: 'thin solid black',
-                borderLeft: 'thin solid black'
+
             }
         };
         return this.props.files.map((file) => {
@@ -62,10 +61,12 @@ class Pad extends Component {
     * @param nextProps
     */
     componentWillReceiveProps(nextProps) {
-        // loop through all pads in project and update them if they are different        
+        console.log(nextProps.showGutter);
+        // loop through all pads, update them with latest props      
         for (let i = 0, l = this.pads.length; i < l; i++) {
             this.pads[i].setFontSize(parseInt(nextProps.editorSettings.fontSize));
             this.pads[i].setHighlightActiveLine(nextProps.activeLine);
+            this.pads[i].renderer.setShowGutter(nextProps.showGutter);
             // this.pads[i].setTheme(nextProps.editorSettings.theme);
             if (this.pads[i].getSession().getValue() !== nextProps.files[i].content) {
                 this.updateEditorContent(this.pads[i], nextProps.files[i].content, this.props.cursorPos);
@@ -127,7 +128,9 @@ class Pad extends Component {
         let style = {
             padParent: {
                 height: this.props.height,
-                paddingLeft: '2px',
+                borderRight: 'thin solid black',
+                borderLeft: 'thin solid black',
+                paddingLeft: '0px',
                 paddingRight: 0
             }
         };
@@ -147,7 +150,8 @@ function mapStateToProps(state) {
         cursorPos: state.cursorPos,
         files: state.files,
         activeFile: state.activeFile,
-        editorSettings: state.editorSettings
+        editorSettings: state.editorSettings,
+        showGutter: state.showGutter
     };
 }
 /**

@@ -5,6 +5,7 @@ import { updateCode, saveProject, selectFile, showDiffModal, showSaveModal, goOn
 import { Grid, Row, Col } from 'react-bootstrap';
 import _ from 'lodash';
 import Header from '../containers/header';
+import Menu from '../containers/menu';
 import SideBar from '../containers/sidebar';
 import Pad from '../containers/pad';
 import Preview from './preview';
@@ -186,7 +187,7 @@ class App extends Component {
   projectChange(data) {
     if (!this.props.offlineMode) {
       this.props.updateCursor(data.cursorPos);
-      this.props.updateCode(data.code.files, data.code.projectName);  
+      this.props.updateCode(data.code.files, data.code.projectName);
       this.props.selectFile(data.activeFile);
     }
   }
@@ -294,22 +295,26 @@ class App extends Component {
       hub: {
         height: this.state.pageHeight - previewHeight,
         borderTop: '1px solid black'
-      }
+      },
     };
 
     return (
       <Grid fluid style={style.container}>
         <Header
+          style={style.header}
+          connectionStatus={this.props.offlineMode}
+
+          />
+        <Menu
           onNew={this.newProject}
           onOpen={ event => this.pdb.getDocs(this.storeProjects) }
           fork={this.forkProject}
-          connectionStatus={this.props.offlineMode}
           goOffline={ event => this.props.goOffline() }
           goOnline={this.goOnline}
           />
-        <Row id="fullScreen">
+        <Row>
           <SideBar />
-            <Pad height={this.state.pageHeight} onChange={this.handlePadChange} />
+          <Pad height={this.state.pageHeight} onChange={this.handlePadChange} />
           <Col lg={5}>
             <Row>
               <Preview height={previewHeight} />

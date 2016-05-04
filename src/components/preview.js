@@ -81,7 +81,7 @@ class Preview extends Component {
 // applications state to props, look in reducer/index; files will be found there
 function mapStateToProps(state) {
     return {
-        files: state.files,
+        files: state.files
     };
 }
 

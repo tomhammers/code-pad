@@ -62,6 +62,13 @@ export function toggleActiveLine(active) {
     };
 }
 
+export function toggleGutter(active) {
+    return {
+        type: 'TOGGLE_GUTTER',
+        payload: active  
+    };
+}
+
 // user opens app from unique URL
 export function updateCode(code, projectName) {
     return {
