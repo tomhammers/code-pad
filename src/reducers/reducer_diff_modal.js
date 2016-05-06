@@ -2,6 +2,9 @@
 export default function(state = false, action) {
     switch(action.type) {
         
+        case 'CLOSE_DIFF_MODAL':
+        return false
+        
         case 'SHOW_DIFF_MODAL':
         return true
         

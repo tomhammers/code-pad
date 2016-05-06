@@ -1,3 +1,15 @@
+export function closeDiffModal() {
+    return {
+        type: 'CLOSE_DIFF_MODAL'
+    };
+}
+
+export function closeSaveModal() {
+    return {
+        type: 'HIDE_SAVE_MODAL'
+    };
+}
+
 export function codeChange(code, fileName) {
     return {
         type: 'CODE_CHANGED',

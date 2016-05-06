@@ -210,7 +210,7 @@ class App extends Component {
     if (this.props.projectName !== '') {
       socket.emit('requestLatestProject', { id: this.uniqueID });
     } else { // this project hasn't even been saved!
-      this.saveProject();
+      this.props.showSaveModal();
     }
   }
 
@@ -303,7 +303,6 @@ class App extends Component {
         <Header
           style={style.header}
           connectionStatus={this.props.offlineMode}
-
           />
         <Menu
           onNew={this.newProject}
@@ -311,6 +310,7 @@ class App extends Component {
           fork={this.forkProject}
           goOffline={ event => this.props.goOffline() }
           goOnline={this.goOnline}
+          connectionStatus={this.props.offlineMode}
           />
         <Row>
           <SideBar />
@@ -325,7 +325,12 @@ class App extends Component {
           </Col>
         </Row>
         <SaveModal save={this.saveProject}/>
-        <OpenModal show={this.state.showOpenModal} projects={this.projects} selectProject={this.openProject}/>
+        <OpenModal
+          onClose={ event => this.setState({showOpenModal: false})}
+          show={this.state.showOpenModal}
+          projects={this.projects}
+          selectProject={this.openProject}
+          />
         <DiffModal
           serverCode={this.state.serverCode}
           close={event => this.setState({ showDiffModal: false }) }

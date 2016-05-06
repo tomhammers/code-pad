@@ -3,20 +3,25 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import ReactBootstrap, { Modal, FormControl, Button } from 'react-bootstrap';
 
-import { showSaveModal, saveProject } from '../actions/index';
+import { closeSaveModal, showSaveModal, saveProject } from '../actions/index';
 
 
 class SaveModal extends Component {
 
     constructor(props) {
         super(props);
-        
+
         this.state = {
             saveInput: ''
         };
 
+        this.close = this.close.bind(this);
         this.handleClick = this.handleClick.bind(this);
         this.whenChanged = this.whenChanged.bind(this);
+    }
+
+    close() {
+        this.props.closeSaveModal();
     }
 
     handleClick() {
@@ -26,23 +31,23 @@ class SaveModal extends Component {
     }
 
     whenChanged(event) {
-        this.setState({ saveInput: event.target.value });      
+        this.setState({ saveInput: event.target.value });
     }
 
     render() {
         return (
-            <Modal show={this.props.show} bsSize="small">
+            <Modal show={this.props.show} bsSize="small" onHide={this.close}>
 
                 <Modal.Header closeButton>
-                    <Modal.Title>Give Project a Name:</Modal.Title>
+                    <Modal.Title>Give Project a Name: </Modal.Title>
                 </Modal.Header>
 
                 <Modal.Body>
                     <FormControl key="1asd"
-                           type="text"
-                           value={this.props.inputValue}
-                           onChange={this.whenChanged}
-                    />
+                        type="text"
+                        value={this.props.inputValue}
+                        onChange={this.whenChanged}
+                        />
                 </Modal.Body>
 
                 <Modal.Footer>
@@ -72,10 +77,11 @@ function mapStateToProps(state) {
  */
 function mapDispatchToProps(dispatch) {
     // when selectBook is called, result should be passed to reducers
-    return bindActionCreators({ 
-           saveProject: saveProject
-     }, 
-     dispatch)
+    return bindActionCreators({
+        closeSaveModal: closeSaveModal,
+        saveProject: saveProject
+    },
+        dispatch)
 }
 // produces a container (is aware of state)
 // promote booklist to container - needs to know about dispatch method

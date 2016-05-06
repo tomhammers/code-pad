@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { goOnline, updateCode } from '../actions/index';
+import { closeDiffModal, goOnline, updateCode } from '../actions/index';
 import ReactBootstrap, { Modal, DropdownButton, MenuItem } from 'react-bootstrap';
 import Diff from 'react-diff';
 
@@ -17,6 +17,10 @@ class DiffModal extends Component {
         this.acceptServerChanges = this.acceptServerChanges.bind(this);
         this.pushChangesToServer = this.pushChangesToServer.bind(this);
         this.forkProject = this.forkProject.bind(this);
+    }
+    
+    close() {
+        this.props.closeDiffModal();
     }
 
     setUpDiffs() {
@@ -50,10 +54,6 @@ class DiffModal extends Component {
         this.props.forkProject();
     }
 
-    close() {
-        this.props.close();
-    }
-
     render() {
         const style = {
             modal: {
@@ -61,8 +61,8 @@ class DiffModal extends Component {
             }
         }
         return (
-            <Modal style={style.modal} bsSize="large" show={this.props.show}>
-                <Modal.Header>
+            <Modal style={style.modal} bsSize="large" show={this.props.show} onHide={this.close}>
+                <Modal.Header closeButton>
                     <Modal.Title>Review Changes</Modal.Title>
                 </Modal.Header>
 
@@ -100,7 +100,7 @@ function mapStateToProps(state) {
  * dispatch takes all actions and makes sure they are passed to all the reducers
  */
 function mapDispatchToProps(dispatch) {
-    return bindActionCreators({ updateCode: updateCode, goOnline: goOnline }, 
+    return bindActionCreators({ updateCode: updateCode, goOnline: goOnline, closeDiffModal: closeDiffModal }, 
      dispatch)
 }
 // produces a container (is aware of state)

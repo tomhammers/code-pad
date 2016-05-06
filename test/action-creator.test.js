@@ -3,6 +3,13 @@ import * as actions from '../src/actions/index';
 
 describe('Actions', () => {
 
+    it('should create a HIDE_SAVE_MODAL action', () => {
+        const expectedAction = {
+            type: 'HIDE_SAVE_MODAL'
+        };
+        expect(actions.closeSaveModal()).to.eql(expectedAction);
+    });
+
     it('should create a CODE_CHANGED action', () => {
         const code = "alert('Hello World')"
         const file = "script.js"

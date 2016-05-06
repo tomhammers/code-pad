@@ -76,7 +76,7 @@ class Menu extends Component {
 
         NewTab.document.close();
     }
-    
+
     openDevTools() {
         console.profile();
     }
@@ -84,12 +84,12 @@ class Menu extends Component {
     render() {
         let style = {
             buttons: {
-                backgroundColor: "#e5e0e0",
+                backgroundColor: "#e0e0e0",
                 border: "none",
                 fontSize: "12px"
             },
             outer: {
-                backgroundColor: "#e5e0e0",
+                backgroundColor: "#e0e0e0",
                 color: "black"
             }
         }
@@ -99,7 +99,11 @@ class Menu extends Component {
                     <DropdownButton style={style.buttons} bsStyle="default" bsSize="small" title="File">
                         <MenuItem eventKey={1.1} onSelect={this.new}>New</MenuItem>
                         <MenuItem eventKey={1.2} onSelect={this.open}>Open</MenuItem>
-                        <MenuItem eventKey={1.3} onSelect={this.props.showSaveModal}>Save</MenuItem>
+                        <MenuItem
+                            eventKey={1.3}
+                            onSelect={this.props.projectName === '' ? this.props.showSaveModal : null}>
+                            Save
+                        </MenuItem>
                         <MenuItem eventKey={1.4} onSelect={this.fork}>Fork</MenuItem>
                     </DropdownButton>
 
@@ -130,7 +134,8 @@ class Menu extends Component {
 
 function mapStateToProps(state) {
     return {
-        files: state.files
+        files: state.files,
+        projectName: state.projectName
     };
 }
 

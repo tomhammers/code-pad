@@ -7,6 +7,9 @@ export default function(state = false, action) {
         
         case 'SAVE_PROJECT':
         return false
+        
+        case 'HIDE_SAVE_MODAL':
+        return false
     }
     return state;
 }

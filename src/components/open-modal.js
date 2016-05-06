@@ -9,13 +9,18 @@ export default class OpenModal extends Component {
         this.state = {
             projectItems: ''
         };
-
+        
+        this.close = this.close.bind(this);
         this.whenClicked = this.whenClicked.bind(this);
         this.setProjectItems = this.setProjectItems.bind(this);
     }
 
     componentWillUnmount() {
 
+    }
+    
+    close() {
+        this.props.onClose();
     }
 
     whenClicked(projectID) {
@@ -46,9 +51,9 @@ export default class OpenModal extends Component {
         };
 
         return (
-            <Modal show={this.props.show}>
+            <Modal show={this.props.show} onHide={this.close}>
 
-                <Modal.Header>
+                <Modal.Header closeButton>
                     <Modal.Title>Choose Project</Modal.Title>
                 </Modal.Header>
 
