@@ -2,6 +2,9 @@
 var express = require('express');
 var app = express();
 
+var PouchDB = require('pouchdb');
+app.use('/db', require('express-pouchdb')(PouchDB));
+
 var server = require('http').createServer(app);
 //var server = app.listen(port);
 var io = require('socket.io').listen(server);

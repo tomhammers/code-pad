@@ -4,6 +4,12 @@ export function closeDiffModal() {
     };
 }
 
+export function closeOpenServerProjectsModal() {
+    return {
+        type: 'CLOSE_OPEN_SERVER_PROJECTS_MODAL'
+    };
+}
+
 export function closeSaveModal() {
     return {
         type: 'HIDE_SAVE_MODAL'
@@ -14,6 +20,12 @@ export function codeChange(code, fileName) {
     return {
         type: 'CODE_CHANGED',
         payload: [code, fileName]
+    };
+}
+
+export function generateProjectId() {
+    return {
+        type: 'GENERATE_PROJECT_ID'
     };
 }
 
@@ -49,6 +61,13 @@ export function selectFile(fileName) {
     };
 }
 
+export function setProjectId(id) {
+    return {
+        type: 'SET_PROJECT_ID',
+        payload: id  
+    };
+}
+
 export function showDiffModal() {
     return {
         type: 'SHOW_DIFF_MODAL'  
@@ -58,6 +77,12 @@ export function showDiffModal() {
 export function showOpenModal() {
     return {
         type: 'SHOW_OPEN_MODAL'  
+    };
+}
+
+export function showOpenServerProjModal() {
+    return {
+        type: 'SHOW_OPEN_SERVER_PROJECTS_MODAL'  
     };
 }
 

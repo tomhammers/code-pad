@@ -43,6 +43,7 @@
   },
   "dependencies": {
     "brace": "^0.7.0",
+    "cloudant": "^1.4.1",
     "codemirror": "^5.13.2",
     "diffsync": "^2.1.2",
     "ejs": "^2.4.1",

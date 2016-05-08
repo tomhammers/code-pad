@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { updateCode, saveProject, selectFile, showDiffModal, showSaveModal, goOnline, goOffline, updateCursor } from '../actions/index';
+import { generateProjectId, updateCode, saveProject, selectFile, setProjectId, showDiffModal,
+  showSaveModal, goOnline, goOffline, updateCursor } from '../actions/index';
 import { Grid, Row, Col } from 'react-bootstrap';
 import _ from 'lodash';
 import Header from '../containers/header';
@@ -28,11 +29,9 @@ class App extends Component {
     // create local DB if one doesn't exist (pouch ignores otherwise)
     this.pdb.createDB('projects');
 
-    this.uniqueID = window.location.href.split("/").pop();
-    // if didn't find one set a new one
-    if (this.uniqueID === '') {
-      this.uniqueID = this.generateUniqueID(10);
-    }
+    const id = window.location.href.split("/").pop();
+    if (id !== '') this.props.setProjectId(id);
+    if (id === '') this.props.generateProjectId();
 
     this.state = {
       pageHeight: 0,
@@ -55,24 +54,12 @@ class App extends Component {
     this.storeProjects = this.storeProjects.bind(this);
     this.goOnline = this.goOnline.bind(this);
   }
-  /**
-  * generate a uniqueID for each project
-  * @param length
-  * @returns {string}
-  */
-  generateUniqueID(length) {
-    const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    let id = '';
-    for (let i = 0; i < length; i++) {
-      id += chars.charAt(Math.floor(Math.random() * 62));
-    }
-    return id;
-  }
 
   newProject() {
-    socket.emit('leave room', { id: this.uniqueID });
-    this.uniqueID = this.generateUniqueID(10);
-    history.pushState({ "id": 1 }, "", this.uniqueID);
+    socket.emit('leave room', { id: this.props.projectId });
+    //this.uniqueID = this.generateUniqueID(10);
+    this.props.generateProjectId();
+    history.pushState({ "id": 1 }, "", this.props.projectId);
   }
   /**
   * find project in db using ID, and pass a callback to handle the response
@@ -89,36 +76,35 @@ class App extends Component {
   loadProject(proj) {
     this.pdb.project.projectData = proj;
     // proj is response from pouchdb, set up project in editor
-    this.uniqueID = proj._id;
+    //this.uniqueID = proj._id;
+    this.props.setProjectId(proj._id);
     // setting state will force a render
     this.setState({ showOpenModal: false });
     this.props.updateCode(proj.files, proj.projectName);
 
     // change URL to match project ID (first two values are dummy data)
-    history.pushState({ "id": 1 }, "", this.uniqueID);
+    history.pushState({ "id": 1 }, "", this.props.projectId);
     // now join / create a socket.io room
-    this.joinRoom(this.uniqueID, proj);
+    this.joinRoom(this.props.projectId, proj);
   }
 
   saveProject() {
-    setTimeout(
-      () => {
-        this.pdb.setupProjectDoc(this.uniqueID, this.props.projectName, this.props.files);
-        this.pdb.upsertDoc();
-        this.joinRoom(this.uniqueID, this.pdb.project.projectData);
-        // change the URL, this is now the project's unique URL(first 2 values dummy data)
-        history.pushState({ "id": 1 }, "", this.uniqueID);
-      }
-      , 50);
+    setTimeout(() => {
+      this.pdb.setupProjectDoc(this.props.projectId, this.props.projectName, this.props.files);
+      this.pdb.upsertDoc();
+      this.joinRoom(this.props.projectId, this.pdb.project.projectData);
+      // change the URL, this is now the project's unique URL(first 2 values dummy data)
+      history.pushState({ "id": 1 }, "", this.props.projectId);
+    }, 50);
   }
 
   /**
   * take the projects content and make a new project out of it
   */
   forkProject() {
-    socket.emit('leave room', { id: this.uniqueID });
-    this.props.saveProject('');
-    this.uniqueID = this.generateUniqueID(10);
+    socket.emit('leave room', { id: this.props.projectId });
+    //this.props.saveProject('');
+    this.props.generateProjectId();
     // handle save as if new project
     this.props.showSaveModal();
 
@@ -135,8 +121,9 @@ class App extends Component {
   }
 
   setupProject(data) {
+    console.log(data);
     // setting up data response from server
-    this.uniqueID = data.project.projectData._id;
+    this.props.setProjectId(data.project.projectData._id);
     //this.setState({ code: data.project.projectData, projectName: data.project.projectData.projectName });
     this.props.updateCode(data.project.projectData.files, data.project.projectData.projectName);
     // put a copy in clients local DB for offline use
@@ -155,7 +142,6 @@ class App extends Component {
         this.pdb.project.projectData.files[i].content = pads[i].getSession().getValue();
       }
       // setState will cause React to re render all components
-      //this.setState({ cursorPos: cursorPos });
       // if project was previously saved
       if (this.props.projectName !== '') {
         // emit to server, if in online mode
@@ -172,9 +158,8 @@ class App extends Component {
   * Send code change to server
   */
   emitCodeChange() {
-    console.log(this.props.cursorPos);
     socket.emit('codeChange', {
-      id: this.uniqueID,
+      id: this.props.projectId,
       project: this.pdb.project.projectData,
       cursorPos: this.props.cursorPos,
       activeFile: this.props.activeFile
@@ -208,7 +193,7 @@ class App extends Component {
   goOnline() {
     // request latest project from the server
     if (this.props.projectName !== '') {
-      socket.emit('requestLatestProject', { id: this.uniqueID });
+      socket.emit('requestLatestProject', { id: this.props.projectId });
     } else { // this project hasn't even been saved!
       this.props.showSaveModal();
     }
@@ -256,12 +241,16 @@ class App extends Component {
     }
   }
 
+  fetchServerProjects() {
+    console.log("called");
+  }
+
   /**
   * React cycle, before the DOM is rendered
   */
   componentWillMount() {
     // listen for server events and call the corrosponding method
-    socket.on('connect', () => { if (this.uniqueID !== '') this.joinRoom(this.uniqueID, null) });
+    socket.on('connect', () => { if (this.props.projectId !== '') this.joinRoom(this.props.projectId, null) });
     socket.on('disconnect', () => { this.setState({ status: 'disconnected' }) });
     socket.on('setupProject', this.setupProject);
     socket.on('projectChange', this.projectChange);
@@ -307,10 +296,13 @@ class App extends Component {
         <Menu
           onNew={this.newProject}
           onOpen={ event => this.pdb.getDocs(this.storeProjects) }
+          onOpenServerProjects={this.fetchServerProjects}
+          onServerLoad={this.saveProject}
           fork={this.forkProject}
           goOffline={ event => this.props.goOffline() }
           goOnline={this.goOnline}
           connectionStatus={this.props.offlineMode}
+          socket={socket}
           />
         <Row>
           <SideBar />
@@ -326,11 +318,12 @@ class App extends Component {
         </Row>
         <SaveModal save={this.saveProject}/>
         <OpenModal
-          onClose={ event => this.setState({showOpenModal: false})}
+          onClose={ event => this.setState({ showOpenModal: false }) }
           show={this.state.showOpenModal}
           projects={this.projects}
           selectProject={this.openProject}
           />
+
         <DiffModal
           serverCode={this.state.serverCode}
           close={event => this.setState({ showDiffModal: false }) }
@@ -350,6 +343,7 @@ function mapStateToProps(state) {
     activeFile: state.activeFile,
     cursorPos: state.cursorPos,
     files: state.files,
+    projectId: state.projectId,
     projectName: state.projectName,
     offlineMode: state.offlineMode,
     showOpenModal: state.showOpenModal
@@ -361,11 +355,13 @@ function mapStateToProps(state) {
  */
 function mapDispatchToProps(dispatch) {
   return bindActionCreators({
+    generateProjectId: generateProjectId,
     goOnline: goOnline,
     goOffline: goOffline,
     updateCode: updateCode,
     saveProject: saveProject,
     selectFile: selectFile,
+    setProjectId: setProjectId,
     showDiffModal: showDiffModal,
     showSaveModal: showSaveModal,
     updateCursor: updateCursor

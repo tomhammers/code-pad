@@ -61,7 +61,6 @@ class Pad extends Component {
     * @param nextProps
     */
     componentWillReceiveProps(nextProps) {
-        console.log(nextProps.showGutter);
         // loop through all pads, update them with latest props      
         for (let i = 0, l = this.pads.length; i < l; i++) {
             this.pads[i].setFontSize(parseInt(nextProps.editorSettings.fontSize));

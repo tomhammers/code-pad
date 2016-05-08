@@ -1,8 +1,10 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { newProject, showSaveModal, showOpenModal } from '../actions/index';
+import { newProject, showOpenServerProjModal, showSaveModal, showOpenModal } from '../actions/index';
 import { ButtonToolbar, Button, DropdownButton, SplitButton, MenuItem} from 'react-bootstrap';
+
+import OpenServerModal from '../components/open-server-modal';
 
 class Menu extends Component {
 
@@ -13,12 +15,25 @@ class Menu extends Component {
         this.cssfiles = [];
         this.jsfiles = [];
 
+        this.state = {
+            serverProjects: []
+        }
+
         this.new = this.new.bind(this);
         this.open = this.open.bind(this);
         this.fork = this.fork.bind(this);
         this.goOffline = this.goOffline.bind(this);
         this.goOnline = this.goOnline.bind(this);
         this.openNewTab = this.openNewTab.bind(this);
+        this.openServerProjects = this.openServerProjects.bind(this);
+    }
+
+    componentWillMount() {
+        this.props.socket.on('serverProjects', (data) => {
+            console.log(data);
+            this.setState({ serverProjects: data.projects });
+            //this.props.showOpenServerProjModal();
+        });
     }
 
     new() {
@@ -33,6 +48,11 @@ class Menu extends Component {
     open() {
         this.props.showOpenModal();
         this.props.onOpen();
+    }
+
+    openServerProjects() {
+        this.props.socket.emit('requestProjects');   
+        this.props.showOpenServerProjModal();
     }
 
     goOffline() {
@@ -98,13 +118,14 @@ class Menu extends Component {
                 <ButtonToolbar>
                     <DropdownButton style={style.buttons} bsStyle="default" bsSize="small" title="File">
                         <MenuItem eventKey={1.1} onSelect={this.new}>New</MenuItem>
-                        <MenuItem eventKey={1.2} onSelect={this.open}>Open</MenuItem>
+                        <MenuItem eventKey={1.2} onSelect={this.open}>Open Local Project</MenuItem>
+                        <MenuItem eventKey={1.3} onSelect={this.openServerProjects}>Open Server Project</MenuItem>
                         <MenuItem
-                            eventKey={1.3}
+                            eventKey={1.4}
                             onSelect={this.props.projectName === '' ? this.props.showSaveModal : null}>
                             Save
                         </MenuItem>
-                        <MenuItem eventKey={1.4} onSelect={this.fork}>Fork</MenuItem>
+                        <MenuItem eventKey={1.5} onSelect={this.fork}>Fork</MenuItem>
                     </DropdownButton>
 
                     <DropdownButton style={style.buttons} bsStyle="default" bsSize="small" title="Share">
@@ -127,6 +148,8 @@ class Menu extends Component {
 
                     </DropdownButton>
                 </ButtonToolbar>
+                <OpenServerModal projects={this.state.serverProjects} onServerLoad={this.props.onServerLoad}/>
+
             </div>
         );
     }
@@ -135,7 +158,8 @@ class Menu extends Component {
 function mapStateToProps(state) {
     return {
         files: state.files,
-        projectName: state.projectName
+        projectName: state.projectName,
+        showOpenServerProjectsModal: state.showOpenServerProjectsModal
     };
 }
 
@@ -144,7 +168,8 @@ function mapDispatchToProps(dispatch) {
     return bindActionCreators({
         newProject: newProject,
         showOpenModal: showOpenModal,
-        showSaveModal: showSaveModal
+        showSaveModal: showSaveModal,
+        showOpenServerProjModal: showOpenServerProjModal
     }, dispatch)
 }
 

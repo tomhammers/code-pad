@@ -12,7 +12,6 @@ export default class OpenModal extends Component {
         
         this.close = this.close.bind(this);
         this.whenClicked = this.whenClicked.bind(this);
-        this.setProjectItems = this.setProjectItems.bind(this);
     }
 
     componentWillUnmount() {
@@ -26,22 +25,6 @@ export default class OpenModal extends Component {
     whenClicked(projectID) {
         this.props.selectProject(projectID);
     }
-
-
-    setProjectItems() {
-        this.props.projects.map((project, i) => {
-            return (
-                <li
-                    key={i}
-                    onClick={ () => this.whenClicked(project._id) }
-                    className="list-group-item"
-                >
-                    {project.projectName}
-                </li>
-            );
-        });
-    }
-
 
     render() {
         let style = {
