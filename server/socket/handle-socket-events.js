@@ -137,7 +137,20 @@ Socket.prototype.handleConnections = function (socket) {
 
     // when a user comes back online, send the servers latest project
     socket.on('requestLatestProject', function (data) {
-        socket.emit('latestProject', { project: rooms[data.id].project.projectData });
+        if (data.id in rooms) {
+            socket.emit('latestProject', { project: rooms[data.id].project.projectData });
+        } else {
+            cloudant.findProject(data.id, handleResponse);
+            function handleResponse(doc) {
+                if (doc !== undefined) {
+                    var room = new ProjectRoom(data.id, doc);
+                    room.addClient(socket.id);
+                    rooms[data.id] = room; // add key value pair to array
+                    socket.join(data.id);
+                    socket.emit('latestProject', { project: rooms[data.id].project });
+                }
+            }
+        }
     });
 
     socket.on('requestProjects', function (data) {
@@ -148,7 +161,7 @@ Socket.prototype.handleConnections = function (socket) {
         }
     });
     // 
-    socket.on('leave room', function () {
+    socket.on('leave room', function (data) {
         console.log("Client leaving room: " + data.id)
         socket.leave(data.id);
     });

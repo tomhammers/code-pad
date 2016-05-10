@@ -1,23 +1,23 @@
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
+import React, { Component }   from 'react';
+import { connect }            from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { generateProjectId, updateCode, saveProject, selectFile, setProjectId, showDiffModal,
-  showSaveModal, goOnline, goOffline, updateCursor } from '../actions/index';
-import { Grid, Row, Col } from 'react-bootstrap';
-import _ from 'lodash';
-import Header from '../containers/header';
-import Menu from '../containers/menu';
-import SideBar from '../containers/sidebar';
-import Pad from '../containers/pad';
-import Preview from './preview';
-import Hub from '../containers/hub';
-import SaveModal from '../containers/save-modal';
-import OpenModal from '../components/open-modal';
-import DiffModal from '../containers/diff-modal';
+import { closeDiffModal, generateProjectId, updateCode, saveProject, selectFile, setProjectId, showDiffModal,
+  showSaveModal, startStreamingEditor, stopStreamingEditor, goOnline, goOffline, updateCursor } from '../actions/index';
+import { Grid, Row, Col }     from 'react-bootstrap';
+import _                      from 'lodash';
+import Header                 from '../components/header';
+import Menu                   from '../components/menu';
+import SideBar                from '../components/sidebar';
+import Pad                    from '../components/pad';
+import Preview                from './preview';
+import Hub                    from '../components/hub';
+import SaveModal              from '../components/save-modal';
+import OpenModal              from '../components/open-modal';
+import DiffModal              from '../components/diff-modal';
 
-import Pouch from '../utils/pouchdb';
-import Parser from '../utils/project-parser.js';
-import io from 'socket.io-client';
+import Pouch                  from '../utils/pouchdb';
+import Parser                 from '../utils/project-parser.js';
+import io                     from 'socket.io-client';
 const socket = io();
 
 class App extends Component {
@@ -28,9 +28,10 @@ class App extends Component {
     this.parser = new Parser();
     // create local DB if one doesn't exist (pouch ignores otherwise)
     this.pdb.createDB('projects');
-
+    // look at the URL and attempt to extract project ID
     const id = window.location.href.split("/").pop();
     if (id !== '') this.props.setProjectId(id);
+    // if project ID not present, set up a new one
     if (id === '') this.props.generateProjectId();
 
     this.state = {
@@ -40,24 +41,29 @@ class App extends Component {
       showOpenModal: false
     };
 
-    this.compareProjects = this.compareProjects.bind(this);
-    this.insertLibrary = this.insertLibrary.bind(this);
-    this.newProject = this.newProject.bind(this);
-    this.openProject = this.openProject.bind(this);
-    this.loadProject = this.loadProject.bind(this);
-    this.pushToServer = this.pushToServer.bind(this);
-    this.saveProject = this.saveProject.bind(this);
-    this.forkProject = this.forkProject.bind(this);
-    this.setupProject = this.setupProject.bind(this);
-    this.handlePadChange = this.handlePadChange.bind(this);
-    this.projectChange = this.projectChange.bind(this);
-    this.storeProjects = this.storeProjects.bind(this);
-    this.goOnline = this.goOnline.bind(this);
+    this.compareProjects        = this.compareProjects.bind(this);
+    this.onDisconnect           = this.onDisconnect.bind(this);
+    this.insertLibrary          = this.insertLibrary.bind(this);
+    this.forkProject            = this.forkProject.bind(this);
+    this.handlePadChange        = this.handlePadChange.bind(this);
+    this.loadProject            = this.loadProject.bind(this);
+    this.newProject             = this.newProject.bind(this);
+    this.onConnect              = this.onConnect.bind(this);
+    this.openProject            = this.openProject.bind(this);
+    this.projectChange          = this.projectChange.bind(this);
+    this.pushToServer           = this.pushToServer.bind(this);
+    this.saveProject            = this.saveProject.bind(this);
+    this.setupProject           = this.setupProject.bind(this);
+    this.startStreamingEditor   = this.startStreamingEditor.bind(this);
+    this.stopStramingEditor     = this.stopStramingEditor.bind(this);
+    this.storeProjects          = this.storeProjects.bind(this);
   }
-
+  /**
+   * File -> New
+   */
   newProject() {
     socket.emit('leave room', { id: this.props.projectId });
-    //this.uniqueID = this.generateUniqueID(10);
+    this.props.stopStreamingEditor();
     this.props.generateProjectId();
     history.pushState({ "id": 1 }, "", this.props.projectId);
   }
@@ -76,7 +82,7 @@ class App extends Component {
   loadProject(proj) {
     this.pdb.project.projectData = proj;
     // proj is response from pouchdb, set up project in editor
-    //this.uniqueID = proj._id;
+    this.props.startStreamingEditor();
     this.props.setProjectId(proj._id);
     // setting state will force a render
     this.setState({ showOpenModal: false });
@@ -87,8 +93,12 @@ class App extends Component {
     // now join / create a socket.io room
     this.joinRoom(this.props.projectId, proj);
   }
-
-  saveProject() {
+  /**
+   * After user has given project a name 
+   * If project exists, this gets called on editor change
+   */
+  saveProject() { 
+    this.props.startStreamingEditor();
     setTimeout(() => {
       this.pdb.setupProjectDoc(this.props.projectId, this.props.projectName, this.props.files);
       this.pdb.upsertDoc();
@@ -97,20 +107,19 @@ class App extends Component {
       history.pushState({ "id": 1 }, "", this.props.projectId);
     }, 50);
   }
-
   /**
   * take the projects content and make a new project out of it
   */
   forkProject() {
+    // TODO: handle user closing save modal ie they don't actually fork
     socket.emit('leave room', { id: this.props.projectId });
-    //this.props.saveProject('');
+    this.props.stopStreamingEditor();
     this.props.generateProjectId();
     // handle save as if new project
     this.props.showSaveModal();
 
-    this.setState({ showDiffModal: false });
+    this.props.closeDiffModal();
   }
-
   /**
   * Sends request to sever to join or create a socket.io room for project, optionally send project
   * @param id
@@ -119,9 +128,11 @@ class App extends Component {
   joinRoom(id, project) {
     socket.emit('joinRoom', { id: id, project: project });
   }
-
+  /**
+   * on response to socket.io event 'setupProject', sets up application to match server's version of project
+   */
   setupProject(data) {
-    console.log(data);
+    this.props.startStreamingEditor();
     // setting up data response from server
     this.props.setProjectId(data.project.projectData._id);
     //this.setState({ code: data.project.projectData, projectName: data.project.projectData.projectName });
@@ -145,7 +156,7 @@ class App extends Component {
       // if project was previously saved
       if (this.props.projectName !== '') {
         // emit to server, if in online mode
-        if (!this.props.offlineMode) {
+        if (this.props.editorStreaming) {
           this.emitCodeChange();
         }
         //  save existing project in local db
@@ -153,7 +164,6 @@ class App extends Component {
       }
     }
   }
-
   /**
   * Send code change to server
   */
@@ -162,21 +172,20 @@ class App extends Component {
       id: this.props.projectId,
       project: this.pdb.project.projectData,
       cursorPos: this.props.cursorPos,
-      activeFile: this.props.activeFile
+      activeFile: this.props.activeFile,
+      streamingMode: this.props.editorStreaming
     });
   }
-
   /**
    * incoming changes from socket.io
    */
   projectChange(data) {
-    if (!this.props.offlineMode) {
+    if (this.props.editorStreaming) {
       this.props.updateCursor(data.cursorPos);
       this.props.updateCode(data.code.files, data.code.projectName);
       this.props.selectFile(data.activeFile);
     }
   }
-
   /**
   * (file -> open) this is called once pouch has retrieved docs from the DB, store all project names locally
   */
@@ -186,11 +195,10 @@ class App extends Component {
     }
     this.setState({ projectsFromDB: this.projects, showOpenModal: true });
   }
-
   /**
   * When user goes online, either checks for existing project or set a new one up
   */
-  goOnline() {
+  startStreamingEditor() {
     // request latest project from the server
     if (this.props.projectName !== '') {
       socket.emit('requestLatestProject', { id: this.props.projectId });
@@ -198,10 +206,14 @@ class App extends Component {
       this.props.showSaveModal();
     }
   }
+  
+  stopStramingEditor() {
+    this.props.stopStreamingEditor();
+  }
 
   pushToServer() {
     this.emitCodeChange();
-    this.props.goOnline();
+    this.props.startStreamingEditor();
   }
 
   /**
@@ -217,7 +229,7 @@ class App extends Component {
         this.props.showDiffModal();
       } else {
         // if project is the same, just put the user online
-        this.props.goOnline();
+        this.props.startStreamingEditor();
       }
     });
   }
@@ -245,13 +257,29 @@ class App extends Component {
     console.log("called");
   }
 
+  onConnect() {
+    console.log("connected");
+    this.props.goOnline();
+    if (this.props.projectId !== '') {
+      this.joinRoom(this.props.projectId, null)
+    }
+    if (this.props.projectName !== '') {
+      socket.emit('requestLatestProject', { id: this.props.projectId });
+    }
+  }
+  
+  onDisconnect() {
+    this.props.goOffline();
+    console.log("disconnected!!!");
+  }
+
   /**
   * React cycle, before the DOM is rendered
   */
   componentWillMount() {
     // listen for server events and call the corrosponding method
-    socket.on('connect', () => { if (this.props.projectId !== '') this.joinRoom(this.props.projectId, null) });
-    socket.on('disconnect', () => { this.setState({ status: 'disconnected' }) });
+    socket.on('connect', this.onConnect);
+    socket.on('disconnect', this.onDisconnect);
     socket.on('setupProject', this.setupProject);
     socket.on('projectChange', this.projectChange);
     socket.on('inRoom', () => { this.props.goOnline() });
@@ -291,7 +319,6 @@ class App extends Component {
       <Grid fluid style={style.container}>
         <Header
           style={style.header}
-          connectionStatus={this.props.offlineMode}
           />
         <Menu
           onNew={this.newProject}
@@ -299,9 +326,8 @@ class App extends Component {
           onOpenServerProjects={this.fetchServerProjects}
           onServerLoad={this.saveProject}
           fork={this.forkProject}
-          goOffline={ event => this.props.goOffline() }
-          goOnline={this.goOnline}
-          connectionStatus={this.props.offlineMode}
+          stopStramingEditor={this.stopStramingEditor}
+          startStreamingEditor={this.startStreamingEditor}
           socket={socket}
           />
         <Row>
@@ -336,12 +362,12 @@ class App extends Component {
 }
 
 
-// applications state to props, look in reducer/index; files will be found there
+// applications (redux) state to props, look in reducers/index;
 function mapStateToProps(state) {
-
   return {
     activeFile: state.activeFile,
     cursorPos: state.cursorPos,
+    editorStreaming: state.editorStreaming,
     files: state.files,
     projectId: state.projectId,
     projectName: state.projectName,
@@ -355,6 +381,7 @@ function mapStateToProps(state) {
  */
 function mapDispatchToProps(dispatch) {
   return bindActionCreators({
+    closeDiffModal: closeDiffModal,
     generateProjectId: generateProjectId,
     goOnline: goOnline,
     goOffline: goOffline,
@@ -364,6 +391,8 @@ function mapDispatchToProps(dispatch) {
     setProjectId: setProjectId,
     showDiffModal: showDiffModal,
     showSaveModal: showSaveModal,
+    startStreamingEditor: startStreamingEditor,
+    stopStreamingEditor: stopStreamingEditor,
     updateCursor: updateCursor
   }, dispatch)
 }

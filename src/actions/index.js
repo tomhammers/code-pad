@@ -86,6 +86,18 @@ export function showOpenServerProjModal() {
     };
 }
 
+export function startStreamingEditor() {
+    return {
+        type: 'START_STREAMING_EDITOR'  
+    };
+}
+
+export function stopStreamingEditor() {
+    return {
+        type: 'STOP_STREAMING_EDITOR'  
+    };
+}
+
 export function showSaveModal() {
     return {
         type: 'SHOW_SAVE_MODAL'  
