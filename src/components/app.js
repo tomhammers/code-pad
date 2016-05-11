@@ -35,28 +35,29 @@ class App extends Component {
     if (id === '') this.props.generateProjectId();
 
     this.state = {
+      loading: true,
       pageHeight: 0,
       projectsFromDB: [],
       serverCode: { files: [{ content: "" }] },
       showOpenModal: false
     };
 
-    this.compareProjects        = this.compareProjects.bind(this);
-    this.onDisconnect           = this.onDisconnect.bind(this);
-    this.insertLibrary          = this.insertLibrary.bind(this);
-    this.forkProject            = this.forkProject.bind(this);
-    this.handlePadChange        = this.handlePadChange.bind(this);
-    this.loadProject            = this.loadProject.bind(this);
-    this.newProject             = this.newProject.bind(this);
-    this.onConnect              = this.onConnect.bind(this);
-    this.openProject            = this.openProject.bind(this);
-    this.projectChange          = this.projectChange.bind(this);
-    this.pushToServer           = this.pushToServer.bind(this);
-    this.saveProject            = this.saveProject.bind(this);
-    this.setupProject           = this.setupProject.bind(this);
-    this.startStreamingEditor   = this.startStreamingEditor.bind(this);
-    this.stopStramingEditor     = this.stopStramingEditor.bind(this);
-    this.storeProjects          = this.storeProjects.bind(this);
+    this.compareProjects = this.compareProjects.bind(this);
+    this.onDisconnect = this.onDisconnect.bind(this);
+    this.insertLibrary = this.insertLibrary.bind(this);
+    this.forkProject = this.forkProject.bind(this);
+    this.handlePadChange = this.handlePadChange.bind(this);
+    this.loadProject = this.loadProject.bind(this);
+    this.newProject = this.newProject.bind(this);
+    this.onConnect = this.onConnect.bind(this);
+    this.openProject = this.openProject.bind(this);
+    this.projectChange = this.projectChange.bind(this);
+    this.pushToServer = this.pushToServer.bind(this);
+    this.saveProject = this.saveProject.bind(this);
+    this.setupProject = this.setupProject.bind(this);
+    this.startStreamingEditor = this.startStreamingEditor.bind(this);
+    this.stopStramingEditor = this.stopStramingEditor.bind(this);
+    this.storeProjects = this.storeProjects.bind(this);
   }
   /**
    * File -> New
@@ -97,7 +98,7 @@ class App extends Component {
    * After user has given project a name 
    * If project exists, this gets called on editor change
    */
-  saveProject() { 
+  saveProject() {
     this.props.startStreamingEditor();
     setTimeout(() => {
       this.pdb.setupProjectDoc(this.props.projectId, this.props.projectName, this.props.files);
@@ -206,7 +207,7 @@ class App extends Component {
       this.props.showSaveModal();
     }
   }
-  
+
   stopStramingEditor() {
     this.props.stopStreamingEditor();
   }
@@ -267,7 +268,7 @@ class App extends Component {
       socket.emit('requestLatestProject', { id: this.props.projectId });
     }
   }
-  
+
   onDisconnect() {
     this.props.goOffline();
     console.log("disconnected!!!");
@@ -277,6 +278,7 @@ class App extends Component {
   * React cycle, before the DOM is rendered
   */
   componentWillMount() {
+
     // listen for server events and call the corrosponding method
     socket.on('connect', this.onConnect);
     socket.on('disconnect', this.onDisconnect);
@@ -290,10 +292,15 @@ class App extends Component {
   * React cycle, after the DOM is rendered
   */
   componentDidMount() {
+    window.addEventListener("load", function () {
+      var load_screen = document.getElementById("load_screen");
+      load_screen.parentNode.removeChild(load_screen);
+    });
     // get the window height - header height
     let fullPageHeight = document.getElementById('app').offsetHeight;
     let headerHeight = document.getElementsByClassName('navbar')[0].offsetHeight;
-    this.setState({ pageHeight: fullPageHeight - headerHeight });
+    let menubar = document.getElementsByClassName('btn-toolbar')[0].offsetHeight;
+    this.setState({ pageHeight: fullPageHeight - headerHeight - menubar - 5 });
   }
 
   render() {
@@ -316,47 +323,49 @@ class App extends Component {
     };
 
     return (
-      <Grid fluid style={style.container}>
-        <Header
-          style={style.header}
-          />
-        <Menu
-          onNew={this.newProject}
-          onOpen={ event => this.pdb.getDocs(this.storeProjects) }
-          onOpenServerProjects={this.fetchServerProjects}
-          onServerLoad={this.saveProject}
-          fork={this.forkProject}
-          stopStramingEditor={this.stopStramingEditor}
-          startStreamingEditor={this.startStreamingEditor}
-          socket={socket}
-          />
-        <Row>
-          <SideBar />
-          <Pad height={this.state.pageHeight} onChange={this.handlePadChange} />
-          <Col lg={5}>
-            <Row>
-              <Preview height={previewHeight} />
-            </Row>
-            <Row style={style.hub} className="hub">
-              <Hub socket={socket} insertLibrary={this.insertLibrary}/>
-            </Row>
-          </Col>
-        </Row>
-        <SaveModal save={this.saveProject}/>
-        <OpenModal
-          onClose={ event => this.setState({ showOpenModal: false }) }
-          show={this.state.showOpenModal}
-          projects={this.projects}
-          selectProject={this.openProject}
-          />
+        <Grid fluid style={style.container}>
 
-        <DiffModal
-          serverCode={this.state.serverCode}
-          close={event => this.setState({ showDiffModal: false }) }
-          pushToServer={this.pushToServer}
-          forkProject={this.forkProject}
-          />
-      </Grid>
+          <Header
+            style={style.header}
+            />
+          <Menu
+            className="menubar"
+            onNew={this.newProject}
+            onOpen={ event => this.pdb.getDocs(this.storeProjects) }
+            onOpenServerProjects={this.fetchServerProjects}
+            onServerLoad={this.saveProject}
+            fork={this.forkProject}
+            stopStramingEditor={this.stopStramingEditor}
+            startStreamingEditor={this.startStreamingEditor}
+            socket={socket}
+            />
+          <Row>
+            <SideBar />
+            <Pad height={this.state.pageHeight} onChange={this.handlePadChange} />
+            <Col lg={5}>
+              <Row>
+                <Preview height={previewHeight} />
+              </Row>
+              <Row style={style.hub} className="hub">
+                <Hub socket={socket} insertLibrary={this.insertLibrary}/>
+              </Row>
+            </Col>
+          </Row>
+          <SaveModal save={this.saveProject}/>
+          <OpenModal
+            onClose={ event => this.setState({ showOpenModal: false }) }
+            show={this.state.showOpenModal}
+            projects={this.projects}
+            selectProject={this.openProject}
+            />
+
+          <DiffModal
+            serverCode={this.state.serverCode}
+            close={event => this.setState({ showDiffModal: false }) }
+            pushToServer={this.pushToServer}
+            forkProject={this.forkProject}
+            />
+        </Grid>
     );
   }
 }

@@ -8,9 +8,9 @@
     "url": "git+https://github.com/tomhammers/code-pad.git"
   },
   "scripts": {
-    "prestart": "webpack",
+    "prestart": "webpack -p",
     "start": "node server/server.js",
-    "dev:hot": "webpack-dev-server --hot --inline --progress --colors --watch --display-error-details --display-cached --content-base ./",
+    "dev:hot": "node ./node_modules/webpack-dev-server/bin/webpack-dev-server.js",
     "test": "mocha --require test/test-helper.js --compilers js:babel-register --recursive",
     "test:watch": "npm run test -- --watch"
   },

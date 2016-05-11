@@ -24,14 +24,14 @@ class Pad extends Component {
     /**
     * Set up the right amount of dom nodes for each file to hold a pad (each node needs a unique name)
     */
-    setUpDom() {
+    setUpDom(files) {
         let style = {
             pad: {
                 height: this.props.height,
 
             }
         };
-        return this.props.files.map((file) => {
+        return files.map((file) => {
             return (
                 <ToggleDisplay key={file.fileName} show={this.props.activeFile === file.fileName}>
                     <div
@@ -61,6 +61,17 @@ class Pad extends Component {
     * @param nextProps
     */
     componentWillReceiveProps(nextProps) {
+        // check for adding / removing files
+        if (this.props.files.length !== nextProps.files.length) {
+            this.setUpDom(nextProps.files);
+            setTimeout(() => {
+                for (let i = 0, l = nextProps.files.length; i < l; i++) {
+                    this.pads[i] = Ace.edit(nextProps.files[i].fileName);
+                    this.setupEditor(this.pads[i], nextProps.files[i].fileType, nextProps.files[i].content, nextProps.files[i].fileName);
+                }
+            }, 500)
+
+        }
         // loop through all pads, update them with latest props      
         for (let i = 0, l = this.pads.length; i < l; i++) {
             this.pads[i].setFontSize(parseInt(nextProps.editorSettings.fontSize));
@@ -126,7 +137,7 @@ class Pad extends Component {
     render() {
         let style = {
             padParent: {
-                height: this.props.height,
+                height: this.props.height + 5,
                 borderRight: 'thin solid black',
                 borderLeft: 'thin solid black',
                 paddingLeft: '0px',
@@ -136,7 +147,7 @@ class Pad extends Component {
 
         return (
             <Col lg={6} id="pad" style={style.padParent}>
-                {this.setUpDom() }
+                {this.setUpDom(this.props.files) }
             </Col>
         );
     }

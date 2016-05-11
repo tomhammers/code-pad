@@ -1,3 +1,10 @@
+export function addFile(filename, fileType) {
+    return {
+        type: 'ADD_FILE',
+        payload: [filename, fileType]
+    };
+}
+
 export function closeDiffModal() {
     return {
         type: 'CLOSE_DIFF_MODAL'

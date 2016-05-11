@@ -95,6 +95,9 @@ class Menu extends Component {
         }
 
         NewTab.document.close();
+        this.htmlfiles = [];
+        this.cssfiles = [];
+        this.jsfiles = [];
     }
 
     openDevTools() {

@@ -3,7 +3,7 @@ const initialFiles = [
     {
         fileName: "index.html",
         fileType: "html",
-        content: "<html>\n    <head>\n    </head>\n    <body>\n        <h2><center>Welcome to Code Pad</center></h2>\n    </body>\n</html>"
+        content: "<html>\n    <head>\n        <link rel=\"stylesheet\" href=\"style.css\">\n    </head>\n    <body>\n        <h1><center>Welcome to Code Pad</center></h1>\n        <script src=\"script.js\"></script>\n    </body>\n</html>"
     },
     {
         fileName: "script.js",
@@ -18,8 +18,17 @@ const initialFiles = [
 ];
 
 export default function (state = initialFiles, action) {
-    let files = JSON.parse(JSON.stringify(initialFiles));
+    let files = JSON.parse(JSON.stringify(state));
     switch (action.type) {
+        case 'ADD_FILE':
+        let tempObj = {
+            fileName: action.payload[0],
+            fileType: action.payload[1],
+            content: ""
+        }
+        files.push(tempObj);
+        return files.concat([]);
+        
         // user making changes locally
         case 'CODE_CHANGED':
             for (let i = 0, l = files.length; i < l; i++) {
