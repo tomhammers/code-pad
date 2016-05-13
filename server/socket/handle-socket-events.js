@@ -13,30 +13,6 @@ var messages = [];
 
 var Socket = function Socket() { }
 
-// var upsertProject = function (id, project) {
-//     pdb.upsert(id, (doc) => {
-//         return project;
-//     });
-// }
-
-// var findProject = function (id, callback) {
-//     pdb.get(id).then(function (doc) {
-//         callback(doc);
-//     }).catch(function (err) {
-//         console.log(err);
-//     });
-// }
-
-// var getDocs = function (callback) {
-//     pdb.allDocs({
-//         include_docs: true
-//     }).then((result) => {
-//         callback(result);
-//     }).catch((error) => {
-//         console.log(error);
-//     });
-// }
-
 /**
  * Handles events made by each individual socket
  */

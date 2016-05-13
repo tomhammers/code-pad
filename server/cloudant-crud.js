@@ -1,5 +1,6 @@
 var Cloudant = require('cloudant');
-var cloudant = Cloudant({ account: 'code-pad', password: 'supersecret' });
+var Credentials = require('../config');
+var cloudant = Cloudant({ account: Credentials.user, password: Credentials.password });
 var projectsdb = cloudant.db.use('projects')
 
 var Cloudant = function Cloudant() {

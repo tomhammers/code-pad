@@ -1,6 +1,5 @@
 /node_modules
-bundle.js
 npm-debug.log
-/public/bundle.js
 log.txt
+config.js
 
