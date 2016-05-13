@@ -35,6 +35,8 @@ body {
 }
 .navbar {min-height:28px !important;}
 
+.closeButton:hover { background-color: red }
+
 .btn-group-sm {margin-left: 0 !important;}
 
 .highlight:hover {
@@ -43,6 +45,7 @@ body {
 
 .filesHover:hover {
     background-color: #4d4d4d;
+    border: none;
 }
 
 .ace_gutter-layer {
@@ -53,6 +56,7 @@ body {
     height: 75%;
 }
 
+/* Loading Screen Styles */
 div#load_screen {
     opacity: 1;
     position: fixed;

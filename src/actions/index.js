@@ -30,6 +30,13 @@ export function codeChange(code, fileName) {
     };
 }
 
+export function deleteFile(fileName) {
+    return {
+        type: 'DELETE_FILE',
+        payload: fileName
+    };
+}
+
 export function generateProjectId() {
     return {
         type: 'GENERATE_PROJECT_ID'

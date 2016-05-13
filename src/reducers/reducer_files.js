@@ -37,9 +37,21 @@ export default function (state = initialFiles, action) {
                 }
             }
             return files.concat([]);
+            
+        case 'DELETE_FILE':
+            let fileIndexToDelete = -1;
+            for(let i = 0, l = files.length; i < l; i++) {
+                if (files[i].fileName === action.payload) {
+                    fileIndexToDelete = i;
+                }
+            }
+            files.splice(fileIndexToDelete, 1);
+            return files;
+        
         // external change to code (database or socket.io)    
         case 'UPDATE_CODE':  
             return action.payload[0];
+            
         // file -> new 
         case 'NEW_PROJECT':
             return initialFiles;

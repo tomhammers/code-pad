@@ -1,15 +1,25 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { addFile, selectFile } from '../actions/index';
+import { addFile, deleteFile, selectFile } from '../actions/index';
 import { bindActionCreators } from 'redux';
 import { Button, Col, Glyphicon, ListGroup, ListGroupItem } from 'react-bootstrap';
 
 class LeftSidebar extends Component {
-    
+
+    deleteFile() {
+        // if the ok button is clicked, result will be true
+        var result = confirm("Are you sure you want to delete this file?");
+        // if user clicked 'Ok'        
+        if (result) {
+            console.log("user clicked ok");
+            this.props.deleteFile(this.props.activeFile);         
+        } 
+    }
+
     handleAddFileButtonClick() {
         var filePrompt = prompt("Enter FileName");
-        console.log(filePrompt);   
-        if(filePrompt.endsWith('.js')) {
+        console.log(filePrompt);
+        if (filePrompt.endsWith('.js')) {
             this.props.addFile(filePrompt, 'javascript');
         }
         else if (filePrompt.endsWith('.css')) {
@@ -33,7 +43,9 @@ class LeftSidebar extends Component {
             let closeButton = {
                 float: 'right',
                 textAlign: 'right',
-                backgroundColor: '#363636'
+                color: 'red'
+            }
+            let fileName = {
             }
             if (this.props.activeFile === file.fileName) {
                 style.backgroundColor = "#152B39"
@@ -48,7 +60,7 @@ class LeftSidebar extends Component {
                     className="active filesHover"
                     >
                     {file.fileName}
-                    <Glyphicon style={closeButton} glyph="remove"/>
+                    <Glyphicon onClick={ event => this.deleteFile() } style={closeButton} glyph="remove"/>
                 </ListGroupItem>
             );
         });
@@ -73,7 +85,7 @@ class LeftSidebar extends Component {
                         {this.renderFileList() }
                     </ListGroup>
                     <Button
-                        bsStyle="success"
+                        bsStyle="default"
                         bsSize="small"
                         style={style.button}
                         onClick={this.handleAddFileButtonClick.bind(this) }
@@ -99,7 +111,7 @@ function mapStateToProps(state) {
  * dispatch takes all actions and makes sure they are passed to all the reducers
  */
 function mapDispatchToProps(dispatch) {
-    return bindActionCreators({ addFile: addFile, selectFile: selectFile }, dispatch)
+    return bindActionCreators({ addFile: addFile, deleteFile: deleteFile, selectFile: selectFile }, dispatch)
 }
 // produces a container (is aware of state)
 export default connect(mapStateToProps, mapDispatchToProps)(LeftSidebar);

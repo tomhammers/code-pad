@@ -169,6 +169,7 @@ class App extends Component {
   * Send code change to server
   */
   emitCodeChange() {
+    console.log("emitting");
     socket.emit('codeChange', {
       id: this.props.projectId,
       project: this.pdb.project.projectData,
@@ -303,6 +304,25 @@ class App extends Component {
     this.setState({ pageHeight: fullPageHeight - headerHeight - menubar - 5 });
   }
 
+  componentWillReceiveProps(nextProps) {
+    // check project has been setup / saved before doing anything (checks object is empty)
+
+    if (this.props.files.length !== nextProps.files.length) {
+      // update files (if true)
+      this.pdb.project.projectData.files = nextProps.files;
+
+      if (this.props.projectName !== '') {
+        // emit to server, if in streaming mode
+        if (this.props.editorStreaming) {
+          this.emitCodeChange();
+        }
+        //  save existing project in local db
+        this.pdb.upsertDoc();
+      }
+    }
+
+  }
+
   render() {
     let previewHeight = this.state.pageHeight / 100 * 60;
     let style = {
@@ -323,49 +343,49 @@ class App extends Component {
     };
 
     return (
-        <Grid fluid style={style.container}>
+      <Grid fluid style={style.container}>
 
-          <Header
-            style={style.header}
-            />
-          <Menu
-            className="menubar"
-            onNew={this.newProject}
-            onOpen={ event => this.pdb.getDocs(this.storeProjects) }
-            onOpenServerProjects={this.fetchServerProjects}
-            onServerLoad={this.saveProject}
-            fork={this.forkProject}
-            stopStramingEditor={this.stopStramingEditor}
-            startStreamingEditor={this.startStreamingEditor}
-            socket={socket}
-            />
-          <Row>
-            <SideBar />
-            <Pad height={this.state.pageHeight} onChange={this.handlePadChange} />
-            <Col lg={5}>
-              <Row>
-                <Preview height={previewHeight} />
-              </Row>
-              <Row style={style.hub} className="hub">
-                <Hub socket={socket} insertLibrary={this.insertLibrary}/>
-              </Row>
-            </Col>
-          </Row>
-          <SaveModal save={this.saveProject}/>
-          <OpenModal
-            onClose={ event => this.setState({ showOpenModal: false }) }
-            show={this.state.showOpenModal}
-            projects={this.projects}
-            selectProject={this.openProject}
-            />
+        <Header
+          style={style.header}
+          />
+        <Menu
+          className="menubar"
+          onNew={this.newProject}
+          onOpen={ event => this.pdb.getDocs(this.storeProjects) }
+          onOpenServerProjects={this.fetchServerProjects}
+          onServerLoad={this.saveProject}
+          fork={this.forkProject}
+          stopStramingEditor={this.stopStramingEditor}
+          startStreamingEditor={this.startStreamingEditor}
+          socket={socket}
+          />
+        <Row>
+          <SideBar />
+          <Pad height={this.state.pageHeight} onChange={this.handlePadChange} />
+          <Col lg={5}>
+            <Row>
+              <Preview height={previewHeight} />
+            </Row>
+            <Row style={style.hub} className="hub">
+              <Hub socket={socket} insertLibrary={this.insertLibrary}/>
+            </Row>
+          </Col>
+        </Row>
+        <SaveModal save={this.saveProject}/>
+        <OpenModal
+          onClose={ event => this.setState({ showOpenModal: false }) }
+          show={this.state.showOpenModal}
+          projects={this.projects}
+          selectProject={this.openProject}
+          />
 
-          <DiffModal
-            serverCode={this.state.serverCode}
-            close={event => this.setState({ showDiffModal: false }) }
-            pushToServer={this.pushToServer}
-            forkProject={this.forkProject}
-            />
-        </Grid>
+        <DiffModal
+          serverCode={this.state.serverCode}
+          close={event => this.setState({ showDiffModal: false }) }
+          pushToServer={this.pushToServer}
+          forkProject={this.forkProject}
+          />
+      </Grid>
     );
   }
 }

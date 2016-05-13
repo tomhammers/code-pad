@@ -63,25 +63,31 @@ class Pad extends Component {
     componentWillReceiveProps(nextProps) {
         // check for adding / removing files
         if (this.props.files.length !== nextProps.files.length) {
+            this.pads = [];
             this.setUpDom(nextProps.files);
             setTimeout(() => {
                 for (let i = 0, l = nextProps.files.length; i < l; i++) {
                     this.pads[i] = Ace.edit(nextProps.files[i].fileName);
                     this.setupEditor(this.pads[i], nextProps.files[i].fileType, nextProps.files[i].content, nextProps.files[i].fileName);
                 }
-            }, 500)
+            }, 1)
 
         }
-        // loop through all pads, update them with latest props      
+        // loop through all pads, update them with latest props  
+        // need a bit of time for the DOM to update, there is probably a better solution
+
         for (let i = 0, l = this.pads.length; i < l; i++) {
             this.pads[i].setFontSize(parseInt(nextProps.editorSettings.fontSize));
             this.pads[i].setHighlightActiveLine(nextProps.activeLine);
             this.pads[i].renderer.setShowGutter(nextProps.showGutter);
             // this.pads[i].setTheme(nextProps.editorSettings.theme);
-            if (this.pads[i].getSession().getValue() !== nextProps.files[i].content) {
-                this.updateEditorContent(this.pads[i], nextProps.files[i].content, this.props.cursorPos);
-            }
+            //setTimeout(() => {
+                if (this.pads[i].getSession().getValue() !== nextProps.files[i].content) {
+                    this.updateEditorContent(this.pads[i], nextProps.files[i].content, this.props.cursorPos);
+                }
+            //}, 1)
         }
+
     }
 
     /**

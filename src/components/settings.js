@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { toggleActiveLine, toggleGutter, updateFontSize, updateTheme } from '../actions/index';
-import { Checkbox, FormControl, FormGroup, ControlLabel, DropdownButton, MenuItem, Panel, Col, Row } from 'react-bootstrap';
+import { Checkbox, FormControl, FormGroup, ControlLabel, DropdownButton, MenuItem, Panel, Col, Row, Tabs, Tab, Nav, NavItem } from 'react-bootstrap';
 
 class Settings extends Component {
     constructor(props) {
@@ -55,6 +55,10 @@ class Settings extends Component {
 
     render() {
         let style = {
+            cols: {
+                paddingLeft: "0",
+                paddingRight: "0"  
+            },
             editorSettings: {
                 marginLeft: "5px",
                 marginTop: "5px",
@@ -68,26 +72,48 @@ class Settings extends Component {
         }
 
         return (
-            <Row>
-                <Col style={style.editorSettings} lg={4}>
-                    <Panel header="Editor Settings">
+            <Tab.Container id="left-tabs-example" defaultActiveKey="first">
+                <Row className="clearfix">
+                    <Col sm={4} style={style.cols}>
+                        <Nav bsStyle="pills" stacked>
+                            <NavItem eventKey="first">
+                                Editor Settings
 
-                        <FormGroup inline controlId="formControlsSelect">
-                            Font Size
-                            <FormControl defaultValue={14} onChange={this.updateFontSize.bind(this) } componentClass="select">
-                                {this.populateFontSizeOptions() }
-                            </FormControl>
 
-                        </FormGroup>
-                        <Checkbox checked={this.state.activeLineChecked} onChange={this.activeLine}>
-                            Highlight Active Line
-                        </Checkbox>
-                        <Checkbox checked={this.state.gutterChecked} onChange={this.gutter}>
-                            Show Gutter
-                        </Checkbox>
-                    </Panel>
-                </Col>
-            </Row>
+                            </NavItem>
+                            <NavItem eventKey="second">
+                                Tab 2
+                            </NavItem>
+                        </Nav>
+                    </Col>
+                    <Col sm={8} style={style.cols}>
+                        <Tab.Content animation>
+                            <Tab.Pane eventKey="first">
+
+                                <Panel>
+
+                                    <FormGroup inline controlId="formControlsSelect">
+                                        Font Size
+                                        <FormControl defaultValue={14} onChange={this.updateFontSize.bind(this) } componentClass="select">
+                                            {this.populateFontSizeOptions() }
+                                        </FormControl>
+
+                                    </FormGroup>
+                                    <Checkbox checked={this.state.activeLineChecked} onChange={this.activeLine}>
+                                        Highlight Active Line
+                                    </Checkbox>
+                                    <Checkbox checked={this.state.gutterChecked} onChange={this.gutter}>
+                                        Show Gutter
+                                    </Checkbox>
+                                </Panel>
+                            </Tab.Pane>
+                            <Tab.Pane eventKey="second">
+                                Tab 2 content
+                            </Tab.Pane>
+                        </Tab.Content>
+                    </Col>
+                </Row>
+            </Tab.Container>
         );
     }
 }
@@ -113,3 +139,25 @@ function mapDispatchToProps(dispatch) {
 }
 // produces a container (is aware of state)
 export default connect(mapStateToProps, mapDispatchToProps)(Settings);
+
+
+
+                                //     <Col style={style.editorSettings} lg={4}>
+                                //         <Panel header="Editor Settings">
+
+                                //             <FormGroup inline controlId="formControlsSelect">
+                                //                 Font Size
+                                //                 <FormControl defaultValue={14} onChange={this.updateFontSize.bind(this) } componentClass="select">
+                                //                     {this.populateFontSizeOptions() }
+                                //                 </FormControl>
+
+                                //             </FormGroup>
+                                //             <Checkbox checked={this.state.activeLineChecked} onChange={this.activeLine}>
+                                //                 Highlight Active Line
+                                //             </Checkbox>
+                                //             <Checkbox checked={this.state.gutterChecked} onChange={this.gutter}>
+                                //                 Show Gutter
+                                //             </Checkbox>
+                                //         </Panel>
+                                //     </Col>
+                                // </Row>
