@@ -59,11 +59,7 @@ class Preview extends Component {
                 this.htmlfiles.push(this.props.files[i].content);
             }
         }
-
-
     }
-
-
 
     populateSandbox() {
         let doc = this.sandbox.contentWindow.document;

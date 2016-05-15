@@ -3,11 +3,28 @@ import * as actions from '../../src/actions/index';
 
 describe('Actions', () => {
 
-    it('should create a HIDE_SAVE_MODAL action', () => {
+    it('should create an ADD_FILE action', () => {
+        const fileName = 'index.html';
+        const fileType = 'html';
         const expectedAction = {
-            type: 'HIDE_SAVE_MODAL'
+            type: 'ADD_FILE',
+            payload: [fileName, fileType]
         };
-        expect(actions.closeSaveModal()).to.eql(expectedAction);
+        expect(actions.addFile(fileName, fileType)).to.eql(expectedAction);
+    });
+
+    it('should create a CLOSE_DIFF_MODAL action', () => {
+        const expectedAction = {
+            type: 'CLOSE_DIFF_MODAL'
+        };
+        expect(actions.closeDiffModal()).to.eql(expectedAction);
+    });
+
+    it('should create a CLOSE_OPEN_SERVER_PROJECTS_MODAL action', () => {
+        const expectedAction = {
+            type: 'CLOSE_OPEN_SERVER_PROJECTS_MODAL'
+        };
+        expect(actions.closeOpenServerProjectsModal()).to.eql(expectedAction);
     });
 
     it('should create a CODE_CHANGED action', () => {
@@ -19,6 +36,31 @@ describe('Actions', () => {
             payload: [code, file]
         };
         expect(actions.codeChange(code, file)).to.eql(expectedAction);
+    });
+
+    it('should create a DELETE_FILE action', () => {
+        const fileName = 'index.html'
+        const expectedAction = {
+            type: 'DELETE_FILE',
+            payload: fileName
+        };
+        expect(actions.deleteFile(fileName)).to.eql(expectedAction);
+    });
+
+    it('should create a FILE_SELECTED action', () => {
+        const filename = "index.html"
+        const expectedAction = {
+            type: 'FILE_SELECTED',
+            payload: filename
+        };
+        expect(actions.selectFile(filename)).to.eql(expectedAction);
+    });
+
+    it('should create a GENERATE_PROJECT_ID action', () => {
+        const expectedAction = {
+            type: 'GENERATE_PROJECT_ID'
+        };
+        expect(actions.generateProjectId()).to.eql(expectedAction);
     });
 
     it('should create a GO_ONLINE action', () => {
@@ -33,6 +75,13 @@ describe('Actions', () => {
             type: 'GO_OFFLINE'
         };
         expect(actions.goOffline()).to.eql(expectedAction);
+    });
+
+    it('should create a HIDE_SAVE_MODAL action', () => {
+        const expectedAction = {
+            type: 'HIDE_SAVE_MODAL'
+        };
+        expect(actions.closeSaveModal()).to.eql(expectedAction);
     });
 
     it('should create a NEW_PROJECT action', () => {
@@ -51,13 +100,13 @@ describe('Actions', () => {
         expect(actions.saveProject(projName)).to.eql(expectedAction);
     });
 
-    it('should create a FILE_SELECTED action', () => {
-        const filename = "index.html"
+    it('should create a SET_PROJECT_ID action', () => {
+        const id = "f4dRt6Jl0Y"
         const expectedAction = {
-            type: 'FILE_SELECTED',
-            payload: filename
+            type: 'SET_PROJECT_ID',
+            payload: id
         };
-        expect(actions.selectFile(filename)).to.eql(expectedAction);
+        expect(actions.setProjectId(id)).to.eql(expectedAction);
     });
 
     it('should create a SHOW_DIFF_MODAL action', () => {
@@ -74,11 +123,32 @@ describe('Actions', () => {
         expect(actions.showOpenModal()).to.eql(expectedAction);
     });
 
+    it('should create a SHOW_OPEN_SERVER_PROJECTS_MODAL action', () => {
+        const expectedAction = {
+            type: 'SHOW_OPEN_SERVER_PROJECTS_MODAL'
+        };
+        expect(actions.showOpenServerProjModal()).to.eql(expectedAction);
+    });
+
     it('should create a SHOW_SAVE_MODAL action', () => {
         const expectedAction = {
             type: 'SHOW_SAVE_MODAL'
         };
         expect(actions.showSaveModal()).to.eql(expectedAction);
+    });
+
+    it('should create a START_STREAMING_EDITOR action', () => {
+        const expectedAction = {
+            type: 'START_STREAMING_EDITOR'
+        };
+        expect(actions.startStreamingEditor()).to.eql(expectedAction);
+    });
+
+    it('should create a STOP_STREAMING_EDITOR action', () => {
+        const expectedAction = {
+            type: 'STOP_STREAMING_EDITOR'
+        };
+        expect(actions.stopStreamingEditor()).to.eql(expectedAction);
     });
 
     it('should create a TOGGLE_ACTIVE_LINE action', () => {

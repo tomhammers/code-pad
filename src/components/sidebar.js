@@ -50,7 +50,8 @@ class LeftSidebar extends Component {
             if (this.props.activeFile === file.fileName) {
                 style.backgroundColor = "#152B39"
             } else {
-                style.backgroundColor = "#363636"
+                style.backgroundColor = "#363636",
+                closeButton.display = "none"
             }
             return (
                 <ListGroupItem

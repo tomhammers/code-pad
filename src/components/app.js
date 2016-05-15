@@ -306,12 +306,12 @@ class App extends Component {
 
   componentWillReceiveProps(nextProps) {
     // check project has been setup / saved before doing anything (checks object is empty)
+    if (this.props.projectName !== '') {
+      if (this.props.files.length !== nextProps.files.length) {
+        // update files (if true)
+        this.pdb.project.projectData.files = nextProps.files;
 
-    if (this.props.files.length !== nextProps.files.length) {
-      // update files (if true)
-      this.pdb.project.projectData.files = nextProps.files;
-
-      if (this.props.projectName !== '') {
+        //if (this.props.projectName !== '') {
         // emit to server, if in streaming mode
         if (this.props.editorStreaming) {
           this.emitCodeChange();

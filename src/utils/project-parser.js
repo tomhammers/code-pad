@@ -1,4 +1,7 @@
-import HTMLParser from 'htmlparser2';
+/**
+ *  This file is used when project code needs to be parsed
+ *  It is used to add libraries to the code, and to find links to css and js files
+ */
 import Libraries from '../libraries.json';
 
 export default class Parser {

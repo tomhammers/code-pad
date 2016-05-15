@@ -1,12 +1,19 @@
-import { expect } from 'chai';
-import reducer_active_file from '../../src/reducers/reducer_active_file';
-import reducer_active_line from '../../src/reducers/reducer_active_line';
-import reducer_available_editor_options from '../../src/reducers/reducer_available_editor_options';
-import reducer_cursor_position from '../../src/reducers/reducer_cursor_position';
-import reducer_diff_modal from '../../src/reducers/reducer_diff_modal';
-import reducer_editor_settings from '../../src/reducers/reducer_editor_settings';
-import reducer_files from '../../src/reducers/reducer_files';
-
+import { expect }                           from 'chai';
+import reducer_active_file                  from '../../src/reducers/reducer_active_file';
+import reducer_active_line                  from '../../src/reducers/reducer_active_line';
+import reducer_available_editor_options     from '../../src/reducers/reducer_available_editor_options';
+import reducer_cursor_position              from '../../src/reducers/reducer_cursor_position';
+import reducer_diff_modal                   from '../../src/reducers/reducer_diff_modal';
+import reducer_editor_settings              from '../../src/reducers/reducer_editor_settings';
+import reducer_editor_stream                from '../../src/reducers/reducer_editor_stream';
+import reducer_files                        from '../../src/reducers/reducer_files';
+import reducer_offline_mode                 from '../../src/reducers/reducer_offline_mode';
+import reducer_open_modal                   from '../../src/reducers/reducer_open_modal';
+import reducer_open_server_projects_modal   from '../../src/reducers/reducer_open_server_projects_modal';
+import reducer_project_id                   from '../../src/reducers/reducer_project_id';
+import reducer_project_name                 from '../../src/reducers/reducer_project_name';
+import reducer_save_modal                   from '../../src/reducers/reducer_save_modal';
+import reducer_show_gutter                  from '../../src/reducers/reducer_show_gutter';
 
 describe('Active File Reducer', () => {
     let state;
@@ -25,6 +32,13 @@ describe('Active File Reducer', () => {
         let result = reducer_active_file(undefined, action);
         expect(result).to.eql('script.js');
     });
+    it('should return a blank active file on DELETE_FILE action', () => {
+        let action = {
+            type: 'DELETE_FILE'
+        }
+        let result = reducer_active_file(undefined, action);
+        expect(result).to.eql('');
+    })
 });
 
 describe('Active Line Reducer', () => {
@@ -147,7 +161,30 @@ describe('Editor Settings Reducer', () => {
     })
 });
 
-describe('Files Settings Reducer', () => {
+describe('Editor Stream Reducer', () => {
+    let state;
+
+    beforeEach(() => {
+        state = false
+    });
+    it('should return initial state', () => {
+        expect(reducer_editor_stream(undefined, {})).to.eql(state);
+    });
+    it('should start the streaming editor', () => {
+        let action = {
+            type: 'START_STREAMING_EDITOR'
+        }
+        expect(reducer_editor_stream(undefined, action)).to.deep.eql(true);
+    });
+    it('should stop the streaming editor', () => {
+        let action = {
+            type: 'STOP_STREAMING_EDITOR'
+        }
+        expect(reducer_editor_stream(undefined, action)).to.deep.eql(false);
+    });
+});
+
+describe('Files Reducer', () => {
     let state;
 
     beforeEach(() => {
@@ -155,7 +192,7 @@ describe('Files Settings Reducer', () => {
             {
                 fileName: "index.html",
                 fileType: "html",
-                content: "<html>\n    <head>\n    </head>\n    <body>\n        <h2><center>Welcome to Code Pad</center></h2>\n    </body>\n</html>"
+                content: "<html>\n    <head>\n        <link rel=\"stylesheet\" href=\"style.css\">\n    </head>\n    <body>\n        <h1><center>Welcome to Code Pad</center></h1>\n        <script src=\"script.js\"></script>\n    </body>\n</html>"
             },
             {
                 fileName: "script.js",
@@ -172,11 +209,178 @@ describe('Files Settings Reducer', () => {
     it('should return initial state', () => {
         expect(reducer_files(undefined, {})).to.eql(state);
     });
+    it('should add a file to the files array', () => {
+        let files = JSON.parse(JSON.stringify(state));
+        let newFile = {
+            fileName: "main.js",
+            fileType: "javascript",
+            content: ""
+        };
+        state.push(newFile);
+        let action = {
+            type: 'ADD_FILE',
+            payload: ["main.js", "javascript"]
+        }
+        expect(reducer_files(undefined, action)).to.eql(state);
+    });
     it('should update code in files on CODE_CHANGED', () => {
         let action = {
             type: 'CODE_CHANGED',
             payload: 20
         }
         expect(reducer_files(undefined, action)).to.eql(state);
-    })
+    });
+    it('should delete a file in the files array', () => {
+        state.splice(1, 1);
+        let action = {
+            type: 'DELETE_FILE',
+            payload: 'script.js'
+        }
+        expect(reducer_files(undefined, action)).to.eql(state);
+    });
+    it('should update the files on UPDATE_CODE action', () => {
+        let action = {
+            type: 'UPDATE_CODE',
+            payload: [state, ""]
+        }
+        expect(reducer_files(undefined, action)).to.eql(state);
+    });
+    it('should reset files back to default on NEW_PROJECT action', () => {
+        let action = {
+            type: 'NEW_PROJECT'
+        }
+        expect(reducer_files(undefined, action)).to.eql(state);
+    });
+});
+
+describe('Offline Mode Reducer', () => {
+    let state;
+    beforeEach(() => {
+        state = true
+    });
+    it('should go online', () => {
+        let action = {
+            type: 'GO_ONLINE'
+        }
+        expect(reducer_offline_mode(undefined, action)).to.eql(false);
+    });
+    it('should go offline', () => {
+        let action = {
+            type: 'GO_OFFLINE'
+        }
+        expect(reducer_offline_mode(undefined, action)).to.eql(true);
+    });
+});
+
+describe('Show Open Modal Reducer', () => {
+    let state;
+    beforeEach(() => {
+        state = false
+    });
+    it('should show the open modal', () => {
+        let action = {
+            type: 'SHOW_OPEN_MODAL'
+        }
+        expect(reducer_open_modal(undefined, action)).to.eql(true);
+    });
+});
+
+describe('Show / Hide Open Server Projects Modal Reducer', () => {
+    let state;
+    beforeEach(() => {
+        state = false
+    });
+    it('should show the open server projects modal', () => {
+        let action = {
+            type: 'SHOW_OPEN_SERVER_PROJECTS_MODAL'
+        }
+        expect(reducer_open_server_projects_modal(undefined, action)).to.eql(true);
+    });
+    it('should close the open server projects modal', () => {
+        let action = {
+            type: 'CLOSE_OPEN_SERVER_PROJECTS_MODAL'
+        }
+        expect(reducer_open_server_projects_modal(undefined, action)).to.eql(false);
+    });
+});
+
+describe('Project ID Reducer', () => {
+    let state;
+    beforeEach(() => {
+        state = "fG567HnjO9"
+    });
+    it('should set a new project id', () => {
+        let action = {
+            type: 'SET_PROJECT_ID',
+            payload: "fG567HnjO9"
+        }
+        expect(reducer_project_id(undefined, action)).to.eql("fG567HnjO9");
+    });
+});
+
+describe('Project Name Reducer', () => {
+    let state;
+    beforeEach(() => {
+        state = ""
+    });
+    it('should set project name on SAVE_PROJECT action', () => {
+        let action = {
+            type: 'SAVE_PROJECT',
+            payload: "My Project"
+        }
+        expect(reducer_project_name(undefined, action)).to.eql("My Project");
+    });
+    it('should set project name when project is updated from external source', () => {
+        let action = {
+            type: 'UPDATE_CODE',
+            payload: [[], "My Project"]
+        }
+        expect(reducer_project_name(undefined, action)).to.eql("My Project");
+    });
+    it('should set a blank project name on NEW_PROJECT action', () => {
+        let action = {
+            type: 'NEW_PROJECT'
+        }
+        expect(reducer_project_name(undefined, action)).to.eql("");
+    });
+});
+
+describe('Project Save Modal Reducer', () => {
+    let state;
+    beforeEach(() => {
+        state = false
+    });
+    it('should show save modal on SHOW_SAVE_MODAL action', () => {
+        let action = {
+            type: 'SHOW_SAVE_MODAL'
+        }
+        expect(reducer_save_modal(undefined, action)).to.eql(true);
+    });
+    it('should hide save modal on SAVE_PROJECT action', () => {
+        let action = {
+            type: 'SAVE_PROJECT'
+        }
+        expect(reducer_save_modal(undefined, action)).to.eql(false);
+    });
+    it('should hide save modal on HIDE_SAVE_MODAL action', () => {
+        let action = {
+            type: 'HIDE_SAVE_MODAL'
+        }
+        expect(reducer_save_modal(undefined, action)).to.eql(false);
+    });
+});
+
+describe('Toggle Gutter Reducer', () => {
+    let state;
+    beforeEach(() => {
+        state = true
+    });
+    it('should toggle gutter on TOGGLE_GUTTER action', () => {
+        let action = {
+            type: 'TOGGLE_GUTTER',
+            payload: false
+        }
+        expect(reducer_show_gutter(undefined, action)).to.eql(false);
+    });
+
 });

@@ -71,7 +71,6 @@ Socket.prototype.handleConnections = function (socket) {
         // if project is open
         if (rooms[data.id].projectLocked === false) {
             cloudant.updateProject(data.project, data.id);
-            // upsertProject(data.id, data.project);
             // lock the project to the current socket
             rooms[data.id].projectLocked = true;
             rooms[data.id].socketEditing = socket.id;
@@ -89,9 +88,7 @@ Socket.prototype.handleConnections = function (socket) {
         }
         // if project is locked, socket attempting edit must match one with write access
         else if (rooms[data.id].projectLocked && rooms[data.id].socketEditing === socket.id) {
-            console.log("here")
             cloudant.updateProject(data.project, data.id);
-            // upsertProject(data.id, data.project);
             // send changes to all clients other then sender
             console.log(data.cursorPos);
             socket.broadcast.to(data.id).emit('projectChange', { code: data.project, cursorPos: data.cursorPos, activeFile: data.activeFile });

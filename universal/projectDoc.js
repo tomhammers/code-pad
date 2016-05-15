@@ -14,7 +14,7 @@ Project.prototype.setProjectDoc = function(id, projectName, files) {
         _id: id,
         projectName: projectName,
         files: files,
-        public: false,
+        public: true,
         users: [
             {
                 user: ''
