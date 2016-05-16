@@ -127,13 +127,12 @@ Socket.prototype.handleConnections = function (socket) {
     });
 
     socket.on('requestProjects', function (data) {
-        //getDocs(emitServerProjects);
         cloudant.getAllProjects(emitServerProjects);
         function emitServerProjects(projects) {
             socket.emit('serverProjects', { projects: projects });
         }
     });
-    // 
+
     socket.on('leave room', function (data) {
         console.log("Client leaving room: " + data.id)
         socket.leave(data.id);

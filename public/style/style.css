@@ -21,6 +21,9 @@ body {
     .hub {
         padding-left: 15px;
     }
+    .glyphicon-remove {
+        padding-right: 20px;
+    }
 }
 
 .navbar {

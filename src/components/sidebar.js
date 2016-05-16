@@ -12,23 +12,29 @@ class LeftSidebar extends Component {
         // if user clicked 'Ok'        
         if (result) {
             console.log("user clicked ok");
-            this.props.deleteFile(this.props.activeFile);         
-        } 
+            this.props.deleteFile(this.props.activeFile);
+        }
     }
-
+    /**
+     * Prompt for filename then validate the input
+     */
     handleAddFileButtonClick() {
         var filePrompt = prompt("Enter FileName");
-        console.log(filePrompt);
-        if (filePrompt.endsWith('.js')) {
-            this.props.addFile(filePrompt, 'javascript');
-        }
-        else if (filePrompt.endsWith('.css')) {
-            this.props.addFile(filePrompt, 'css');
+        if (filePrompt.length > 5 && filePrompt.length < 16) {
+            if (filePrompt.endsWith('.js')) {
+                this.props.addFile(filePrompt, 'javascript');
+            }
+            else if (filePrompt.endsWith('.css')) {
+                this.props.addFile(filePrompt, 'css');
+            } else {
+                alert("Sorry, only file extensions .js and .css are supported at this time, we are working on it!");
+            }
         } else {
-            alert("Sorry, only file extensions .js and .css are supported at this time, we are working on it!");
+            alert("Filenames can only be between 6 and 15 characters long");
         }
     }
-
+    
+    /** */
     renderFileList() {
         return this.props.files.map((file) => {
             let style = {
@@ -43,7 +49,7 @@ class LeftSidebar extends Component {
             let closeButton = {
                 float: 'right',
                 textAlign: 'right',
-                color: 'red'
+                color: 'red',
             }
             let fileName = {
             }
@@ -51,7 +57,7 @@ class LeftSidebar extends Component {
                 style.backgroundColor = "#152B39"
             } else {
                 style.backgroundColor = "#363636",
-                closeButton.display = "none"
+                    closeButton.display = "none"
             }
             return (
                 <ListGroupItem
@@ -76,13 +82,16 @@ class LeftSidebar extends Component {
             button: {
                 marginLeft: '5px',
                 color: 'black'
+            },
+            listgroup: {
+                marginBottom: '10px'
             }
         };
 
         return (
             <Col lg={1} style={style.outer}>
                 <div>
-                    <ListGroup>
+                    <ListGroup style={style.listgroup}>
                         {this.renderFileList() }
                     </ListGroup>
                     <Button

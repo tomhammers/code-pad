@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import { Row, Col, FormControl, Button, Panel, Glyphicon } from 'react-bootstrap';
 
-
-export default class ChatBox extends Component {
+class ChatBox extends Component {
 
     constructor(props) {
         super(props);
@@ -110,14 +110,13 @@ export default class ChatBox extends Component {
      * Incoming messages, setState will cause a re-render
      */
     handleNewMessage(data) {
+        console.log(data);
         this.setState({
             messages: this.state.messages.concat([data.msg])
         });
     }
 
     render() {
-        //const innerButton = <Button onClick={this.emitMessage} bsStyle="primary">Send</Button>;
-
         let style = {
             header: {
                 marginLeft: "5px"
@@ -158,6 +157,10 @@ export default class ChatBox extends Component {
             }
         };
 
+        if (!this.props.editorStreaming) {
+            style.outer.display = "none"
+        }
+
         return (
             <div style={style.outer}>
                 <Row style={style.chatbox}>
@@ -174,8 +177,6 @@ export default class ChatBox extends Component {
                                     onChange={this.whenInputChanged}
                                     onKeyPress={this.handleKeyPress}
                                     placeholder="Enter chat here"/>
-
-
                             </div>
                         </Panel>
 
@@ -195,3 +196,13 @@ export default class ChatBox extends Component {
         );
     }
 }
+
+// applications (redux) state to props, look in reducers/index;
+function mapStateToProps(state) {
+    return {
+        editorStreaming: state.editorStreaming,
+        id: state.projectId
+    };
+}
+
+export default connect(mapStateToProps)(ChatBox);

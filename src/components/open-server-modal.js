@@ -40,6 +40,7 @@ class OpenServerProjectsModal extends Component {
         }, 50);  
         // 'save' needs to be called in app.js, calling this will invoke it
         this.props.onServerLoad(); 
+        this.props.closeOpenServerProjectsModal();
     }
 
 
@@ -49,9 +50,7 @@ class OpenServerProjectsModal extends Component {
                 cursor: 'pointer'
             }
         };
-        
-        console.log(this.props.projects);
-        
+           
         return this.props.projects.map((project, i) => {
             return (
                 <li
@@ -66,10 +65,7 @@ class OpenServerProjectsModal extends Component {
         });
     }
 
-
     render() {
-
-
         return (
             <Modal show={this.props.showOpenServerProjectsModal} onHide={this.close}>
 
@@ -79,7 +75,7 @@ class OpenServerProjectsModal extends Component {
 
                 <Modal.Body>
                     <ul className="list-group">
-                        {this.setProjectItems() }
+                        {this.setProjectItems()}
                     </ul>
                 </Modal.Body>
 
@@ -89,7 +85,6 @@ class OpenServerProjectsModal extends Component {
             </Modal>
         );
     }
-
 }
 
 function mapStateToProps(state) {
@@ -98,7 +93,6 @@ function mapStateToProps(state) {
         showOpenServerProjectsModal: state.showOpenServerProjectsModal
     };
 }
-
 
 function mapDispatchToProps(dispatch) {
     return bindActionCreators({

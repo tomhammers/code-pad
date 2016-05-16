@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import { Col, Tabs, Tab, Glyphicon, Button } from 'react-bootstrap';
 import ChatBox from './chat-box';
 import QRCode from 'qrcode-react';
 import Libraries from '../libraries.json';
 import Settings from './settings';
 
-
-export default class Hub extends Component {
+class Hub extends Component {
   constructor(props) {
     super(props);
 
@@ -65,8 +65,16 @@ export default class Hub extends Component {
       },
       tab: {
         color: "#BABABB"
+      },
+      qrcodeHeader: {
+        fontSize: '12px',
+        color: 'white'
       }
     };
+    
+    if (!this.props.editorStreaming) {
+      style.qrcode.display = "none"
+    }
     return (
       <Col style={style.outer} lg={12}>
         <Tabs id={"2.3.4.5"} style={style.outer} defaultActiveKey={1}>
@@ -86,8 +94,8 @@ export default class Hub extends Component {
           </Tab>
 
           <Tab key={4} eventKey={4} title={<Glyphicon glyph="qrcode" />}>
-            <div style={style.qrcode}>
-              <p>Scan QR Code to collaborate on this project</p>
+            <div style={style.qrcode}>          
+              <p style={style.qrcodeHeader}>Scan QR Code to view this project</p>
               <QRCode
                 value={window.location.href}
                 size={192}
@@ -100,3 +108,12 @@ export default class Hub extends Component {
     );
   }
 }
+
+// applications (redux) state to props, look in reducers/index;
+function mapStateToProps(state) {
+  return {
+    editorStreaming: state.editorStreaming
+  };
+}
+
+export default connect(mapStateToProps)(Hub);

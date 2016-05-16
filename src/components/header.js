@@ -7,6 +7,10 @@ class Header extends Component {
     render() {
 
         let style = {
+            beta: {
+                color: "black",
+                fontSize: "10px"
+            },
             buttonToolbar: {
                 paddingTop: "10px"
             },
@@ -46,6 +50,7 @@ class Header extends Component {
                 <Navbar.Header>
                     <Navbar.Brand style={style.logo}>
                         <Glyphicon glyph="link" /> Code Pad
+                        <span style={style.beta}> BETA</span>
                     </Navbar.Brand>
                 </Navbar.Header>
 
@@ -60,9 +65,9 @@ class Header extends Component {
 
 function mapStateToProps(state) {
 
-  return {
-    offlineMode: state.offlineMode,
-  };
+    return {
+        offlineMode: state.offlineMode,
+    };
 }
 
 export default connect(mapStateToProps)(Header);

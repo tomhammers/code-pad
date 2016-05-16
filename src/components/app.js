@@ -1,10 +1,16 @@
+/**
+ * app.js ~ Ties all other components together
+ */
+
 import React, { Component }   from 'react';
 import { connect }            from 'react-redux';
 import { bindActionCreators } from 'redux';
+// import redux actions
 import { closeDiffModal, generateProjectId, updateCode, saveProject, selectFile, setProjectId, showDiffModal,
   showSaveModal, startStreamingEditor, stopStreamingEditor, goOnline, goOffline, updateCursor } from '../actions/index';
 import { Grid, Row, Col }     from 'react-bootstrap';
 import _                      from 'lodash';
+// import child components
 import Header                 from '../components/header';
 import Menu                   from '../components/menu';
 import SideBar                from '../components/sidebar';
@@ -37,11 +43,12 @@ class App extends Component {
     this.state = {
       loading: true,
       pageHeight: 0,
+      projects: [],
       projectsFromDB: [],
       serverCode: { files: [{ content: "" }] },
       showOpenModal: false
     };
-
+    
     this.compareProjects = this.compareProjects.bind(this);
     this.onDisconnect = this.onDisconnect.bind(this);
     this.insertLibrary = this.insertLibrary.bind(this);
@@ -141,6 +148,7 @@ class App extends Component {
     // put a copy in clients local DB for offline use
     this.pdb.project.projectData = data.project.projectData;
     this.pdb.upsertDoc();
+    this._addNotification("Saved");
   }
   /**
   * Whenever a user changes something in a pad
@@ -196,6 +204,7 @@ class App extends Component {
       this.projects.push(row.doc);
     }
     this.setState({ projectsFromDB: this.projects, showOpenModal: true });
+    this.projects = [];
   }
   /**
   * When user goes online, either checks for existing project or set a new one up
@@ -253,10 +262,6 @@ class App extends Component {
         this.emitCodeChange();
       }
     }
-  }
-
-  fetchServerProjects() {
-    console.log("called");
   }
 
   onConnect() {
@@ -323,8 +328,9 @@ class App extends Component {
 
   }
 
+
   render() {
-    let previewHeight = this.state.pageHeight / 100 * 60;
+    let previewHeight = this.state.pageHeight / 100 * 50;
     let style = {
       container: {
         paddingRight: 0,
@@ -344,7 +350,6 @@ class App extends Component {
 
     return (
       <Grid fluid style={style.container}>
-
         <Header
           style={style.header}
           />
@@ -362,7 +367,7 @@ class App extends Component {
         <Row>
           <SideBar />
           <Pad height={this.state.pageHeight} onChange={this.handlePadChange} />
-          <Col lg={5}>
+          <Col lg={4}>
             <Row>
               <Preview height={previewHeight} />
             </Row>
@@ -375,7 +380,7 @@ class App extends Component {
         <OpenModal
           onClose={ event => this.setState({ showOpenModal: false }) }
           show={this.state.showOpenModal}
-          projects={this.projects}
+          projects={this.state.projectsFromDB}
           selectProject={this.openProject}
           />
 

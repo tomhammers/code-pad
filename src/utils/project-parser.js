@@ -77,35 +77,48 @@ export default class Parser {
     }
 
     /**
-     * Any methods from here involve scanning project for linked files
+     * Any methods from here on out involve scanning project for linked files
+     */
+
+    /**
+     * Given the html, scan Dom for js and css links, passing to the callback the results
+     * @param html
+     * @param callback
      */
     getCSSandJSfromHTML(html, callback) {
         let self = this;
         self.newHTML = html;
-
+        // DOMParser is a web API, can use it to parse the given HTML
         let parser = new DOMParser();
         let doc = parser.parseFromString(html, "text/html");
 
         let jsFiles = doc.getElementsByTagName('script');
         let cssFiles = doc.getElementsByTagName('link');
-        let scriptFileNames = []; 
+        let scriptFileNames = [];
         let cssFileNames = [];
 
         for (let i = 0, l = jsFiles.length; i < l; i++) {
-            scriptFileNames.push(doc.getElementsByTagName('script')[i].attributes.src.value);
-            //self.removeFromDom('script', doc.getElementsByTagName('script')[i].attributes.src.value);
+            if (doc.getElementsByTagName('script')[i].attributes.src !== undefined) {
+                scriptFileNames.push(doc.getElementsByTagName('script')[i].attributes.src.value);
+                //self.removeFromDom('script', doc.getElementsByTagName('script')[i].attributes.src.value);
+            }
         }
 
         for (let i = 0, l = cssFiles.length; i < l; i++) {
-            cssFileNames.push(doc.getElementsByTagName('link')[i].attributes.href.value);
-            //self.removeFromDom('link', doc.getElementsByTagName('link')[i].attributes.href.value);
+            if (doc.getElementsByTagName('link')[i].attributes.href !== undefined) {
+                cssFileNames.push(doc.getElementsByTagName('link')[i].attributes.href.value);
+                //self.removeFromDom('link', doc.getElementsByTagName('link')[i].attributes.href.value);
+            }
         }
-        
+
         callback(scriptFileNames, cssFileNames);
     }
 
     /**
+     * TODO: not currently in use, does not work correctly yet
      * given a tagname and attribute, remove it from DOM
+     * @param tagName
+     * @param attribute
      */
     removeFromDom(tagName, attribute) {
         let self = this;
@@ -120,18 +133,16 @@ export default class Parser {
                 let tempString = self.newHTML.substr(openIndex, length);
 
                 // does this script tag contain the right attribute?
-                if (tempString.indexOf(attribute) !== -1) 
+                if (tempString.indexOf(attribute) !== -1)
                     self.newHTML = self.newHTML.substr(0, openIndex) + self.newHTML.substr(closeIndex);
-                    return;
-                } else {
-                    
-                    // try again but with new string (remove what has already been checked)
-                    removeCorrectTag(htmlString.substr(closeIndex));
-                }
-            }
-        
+                return;
+            } else {
 
-        
+                // try again but with new string (remove what has already been checked)
+                removeCorrectTag(htmlString.substr(closeIndex));
+            }
+        }
+
         if (tagName === 'script') {
             if (!attribute.includes('http')) {
                 removeCorrectTag(self.newHTML);
@@ -145,29 +156,6 @@ export default class Parser {
             );
         }
 
-
-        // if (tempString.indexOf(attribute) !== -1) {
-        //     if (!attribute.includes('http')) {
-        //         console.log("removing index " + openIndex + " to " + closeIndex);
-        //         self.newHTML = self.newHTML.substr(0, openIndex) + self.newHTML.substr(closeIndex);
-        //     }
-        // }
-        // attribute = "";
-        // tempString = "";
-
-
-        // if (tagName === 'link') {
-        //     console.log(tagName);
-        //     let openIndex = self.newHTML.indexOf('<link rel');
-        //     let closeIndex = self.newHTML.indexOf(attribute + '">') + 12;
-        //     let length = closeIndex - openIndex;
-        //     console.log(openIndex);
-        //     console.log(closeIndex);
-        //     console.log("Im removing " + attribute);
-        //     self.newHTML = self.newHTML.substr(0, openIndex) + self.newHTML.substr(closeIndex);
-        // }
-
-        //console.log(this.newHTML);
     }
 }
 

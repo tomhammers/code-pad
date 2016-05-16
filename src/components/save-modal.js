@@ -57,7 +57,6 @@ class SaveModal extends Component {
                         >
                         Save
                     </Button>
-
                 </Modal.Footer>
 
             </Modal>
@@ -76,7 +75,6 @@ function mapStateToProps(state) {
  * dispatch takes all actions and makes sure they are passed to all the reducers
  */
 function mapDispatchToProps(dispatch) {
-    // when selectBook is called, result should be passed to reducers
     return bindActionCreators({
         closeSaveModal: closeSaveModal,
         saveProject: saveProject

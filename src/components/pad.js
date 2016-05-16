@@ -152,7 +152,7 @@ class Pad extends Component {
         };
 
         return (
-            <Col lg={6} id="pad" style={style.padParent}>
+            <Col lg={7} id="pad" style={style.padParent}>
                 {this.setUpDom(this.props.files) }
             </Col>
         );

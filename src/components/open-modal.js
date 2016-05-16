@@ -9,15 +9,33 @@ export default class OpenModal extends Component {
         this.state = {
             projectItems: ''
         };
-        
+
         this.close = this.close.bind(this);
         this.whenClicked = this.whenClicked.bind(this);
+        this.setProjectNames = this.setProjectNames.bind(this);
     }
 
-    componentWillUnmount() {
+    setProjectNames() {
+        let style = {
+            listitems: {
+                cursor: 'pointer'
+            }
+        };
+        return this.props.projects.map((project, i) => {
+            return (
+                <li
+                    style={style.listitems}
+                    key={i}
+                    onClick={ () => this.whenClicked(project._id) }
+                    className="list-group-item highlight"
+                    >
+                    {project.projectName}
+                </li>
+            );
+        })
 
     }
-    
+
     close() {
         this.props.onClose();
     }
@@ -27,11 +45,6 @@ export default class OpenModal extends Component {
     }
 
     render() {
-        let style = {
-            listitems: {
-                cursor: 'pointer'
-            }
-        };
 
         return (
             <Modal show={this.props.show} onHide={this.close}>
@@ -42,19 +55,7 @@ export default class OpenModal extends Component {
 
                 <Modal.Body>
                     <ul className="list-group">
-                        {this.props.projects.map((project, i) => {
-                            return (
-                                <li
-                                    style={style.listitems}
-                                    key={i}
-                                    onClick={ () => this.whenClicked(project._id) }
-                                    className="list-group-item highlight"
-                                >
-                                    {project.projectName}
-                                </li>
-                            );
-                        })
-                        }
+                        {this.setProjectNames() }
                     </ul>
                 </Modal.Body>
 

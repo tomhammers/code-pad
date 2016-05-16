@@ -55,64 +55,30 @@ class Settings extends Component {
 
     render() {
         let style = {
-            cols: {
-                paddingLeft: "0",
-                paddingRight: "0"  
-            },
-            editorSettings: {
-                marginLeft: "5px",
-                marginTop: "5px",
-                fontSize: "12px"
-            },
-            labels: {
-            },
             outer: {
-                color: "black"
+                color: "black",
+                margin: '10px'
             }
         }
 
         return (
-            <Tab.Container id="left-tabs-example" defaultActiveKey="first">
-                <Row className="clearfix">
-                    <Col sm={4} style={style.cols}>
-                        <Nav bsStyle="pills" stacked>
-                            <NavItem eventKey="first">
-                                Editor Settings
+            <Tab.Container style={style.outer} id="left-tabs-example" defaultActiveKey="first">
+                <Panel>
+                    <FormGroup inline controlId="formControlsSelect">
+                        Font Size
+                        <FormControl defaultValue={14} onChange={this.updateFontSize.bind(this) } componentClass="select">
+                            {this.populateFontSizeOptions() }
+                        </FormControl>
 
+                    </FormGroup>
+                    <Checkbox checked={this.state.activeLineChecked} onChange={this.activeLine}>
+                        Highlight Active Line
+                    </Checkbox>
+                    <Checkbox checked={this.state.gutterChecked} onChange={this.gutter}>
+                        Show Gutter
+                    </Checkbox>
+                </Panel>
 
-                            </NavItem>
-                            <NavItem eventKey="second">
-                                Tab 2
-                            </NavItem>
-                        </Nav>
-                    </Col>
-                    <Col sm={8} style={style.cols}>
-                        <Tab.Content animation>
-                            <Tab.Pane eventKey="first">
-
-                                <Panel>
-
-                                    <FormGroup inline controlId="formControlsSelect">
-                                        Font Size
-                                        <FormControl defaultValue={14} onChange={this.updateFontSize.bind(this) } componentClass="select">
-                                            {this.populateFontSizeOptions() }
-                                        </FormControl>
-
-                                    </FormGroup>
-                                    <Checkbox checked={this.state.activeLineChecked} onChange={this.activeLine}>
-                                        Highlight Active Line
-                                    </Checkbox>
-                                    <Checkbox checked={this.state.gutterChecked} onChange={this.gutter}>
-                                        Show Gutter
-                                    </Checkbox>
-                                </Panel>
-                            </Tab.Pane>
-                            <Tab.Pane eventKey="second">
-                                Tab 2 content
-                            </Tab.Pane>
-                        </Tab.Content>
-                    </Col>
-                </Row>
             </Tab.Container>
         );
     }

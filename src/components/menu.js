@@ -109,7 +109,7 @@ class Menu extends Component {
             buttons: {
                 backgroundColor: "#e0e0e0",
                 border: "none",
-                fontSize: "12px"
+                fontSize: "14px"
             },
             outer: {
                 backgroundColor: "#e0e0e0",
@@ -120,15 +120,17 @@ class Menu extends Component {
             <div style={style.outer}>
                 <ButtonToolbar>
                     <DropdownButton style={style.buttons} bsStyle="default" bsSize="small" title="File">
-                        <MenuItem eventKey={1.1} onSelect={this.new}>New</MenuItem>
+                        <MenuItem eventKey={1.1} onSelect={this.new}>New Project</MenuItem>
+                        <MenuItem divider/>
                         <MenuItem eventKey={1.2} onSelect={this.open}>Open Local Project</MenuItem>
                         <MenuItem eventKey={1.3} onSelect={this.openServerProjects}>Open Server Project</MenuItem>
+                        <MenuItem divider/>
                         <MenuItem
                             eventKey={1.4}
                             onSelect={this.props.projectName === '' ? this.props.showSaveModal : null}>
-                            Save
+                            Save Project
                         </MenuItem>
-                        <MenuItem eventKey={1.5} onSelect={this.fork}>Fork</MenuItem>
+                        <MenuItem eventKey={1.5} onSelect={this.fork}>Fork Project</MenuItem>
                     </DropdownButton>
 
                     <DropdownButton style={style.buttons} bsStyle="default" bsSize="small" title="Share">
@@ -138,6 +140,7 @@ class Menu extends Component {
                         <MenuItem disabled={this.props.editorStreaming === false} eventKey={3.2} onSelect={this.goOffline}>
                             Stop Streaming Editor
                         </MenuItem>
+                        <MenuItem divider/>
                         <MenuItem eventKey={3.3} onSelect={this.startTogetherJS}>Toggle Real Time Collaboration</MenuItem>
                     </DropdownButton>
 
