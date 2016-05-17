@@ -20,7 +20,9 @@ import ShowOpenModal                from './reducer_open_modal';
 import ShowOpenServerProjectsModal  from './reducer_open_server_projects_modal';
 import ShowSaveModal                from './reducer_save_modal';
 
-
+/**
+ * these are available to react components if they 'connect' to Redux
+ */
 const rootReducer = combineReducers({
   activeFile: ActiveFile,
   activeLine: ActiveLine,

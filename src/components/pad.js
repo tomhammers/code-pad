@@ -23,6 +23,7 @@ class Pad extends Component {
 
     /**
     * Set up the right amount of dom nodes for each file to hold a pad (each node needs a unique name)
+    * This is updated on add and remove file
     */
     setUpDom(files) {
         let style = {
@@ -175,7 +176,6 @@ function mapStateToProps(state) {
  * dispatch takes all actions and makes sure they are passed to all the reducers
  */
 function mapDispatchToProps(dispatch) {
-    // when selectBook is called, result should be passed to reducers
     return bindActionCreators({ codeChange: codeChange, updateCursor: updateCursor }, dispatch)
 }
 // produces a container (is aware of state)

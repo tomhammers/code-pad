@@ -12,11 +12,15 @@ class Hub extends Component {
 
     this.libraries = Libraries.libraries;
   }
-
+  /**
+   * calls parent method, adds library to code
+   */
   handleLibraryButtonClick(index) {
     this.props.insertLibrary(index);
   }
-
+  /**
+   * renders library as per json file
+   */
   mapLibraries() {
     let style = {
       outer: {

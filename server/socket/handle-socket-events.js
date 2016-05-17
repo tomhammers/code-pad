@@ -25,7 +25,9 @@ Socket.prototype.handleConnections = function (socket) {
         socket.disconnect();
         console.log("Disconnected: " + connections.length + " sockets remaining");
     });
-
+    /**
+     * handle joinRoom event
+     */
     socket.on('joinRoom', function (data) {
         var clientsInRoom = [];
 
@@ -66,7 +68,9 @@ Socket.prototype.handleConnections = function (socket) {
         }
     });
 
-    // a client emitted a code change
+    /**
+     * a client emitted a code change
+     */
     socket.on('codeChange', function (data) {
         // if project is open
         if (rooms[data.id].projectLocked === false) {
@@ -108,7 +112,9 @@ Socket.prototype.handleConnections = function (socket) {
         }
     });
 
-    // when a user comes back online, send the servers latest project
+    /**
+     * when a user comes back online, send the servers latest project
+     */
     socket.on('requestLatestProject', function (data) {
         if (data.id in rooms) {
             socket.emit('latestProject', { project: rooms[data.id].project.projectData });
@@ -125,7 +131,10 @@ Socket.prototype.handleConnections = function (socket) {
             }
         }
     });
-
+    
+    /**
+     * File -> Open Server Project
+     */
     socket.on('requestProjects', function (data) {
         cloudant.getAllProjects(emitServerProjects);
         function emitServerProjects(projects) {

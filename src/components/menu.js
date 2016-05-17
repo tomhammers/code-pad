@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { newProject, showOpenServerProjModal, showSaveModal, showOpenModal } from '../actions/index';
-import { ButtonToolbar, Button, DropdownButton, SplitButton, MenuItem} from 'react-bootstrap';
+import { ButtonToolbar, Button, DropdownButton, SplitButton, MenuItem, Tooltip, OverlayTrigger} from 'react-bootstrap';
 
 import OpenServerModal from '../components/open-server-modal';
 
@@ -36,6 +36,12 @@ class Menu extends Component {
         });
     }
 
+    /**
+     * 
+     * Handle different menu events
+     * 
+     */
+
     new() {
         this.props.newProject();
         this.props.onNew();
@@ -66,7 +72,9 @@ class Menu extends Component {
     startTogetherJS() {
         TogetherJS();
     }
-
+    /**
+     * opens new browser tab and generates preview of users code
+     */
     openNewTab() {
         let NewTab = window.open();
         NewTab.document.open();
@@ -95,14 +103,12 @@ class Menu extends Component {
         }
 
         NewTab.document.close();
+
         this.htmlfiles = [];
         this.cssfiles = [];
         this.jsfiles = [];
     }
 
-    openDevTools() {
-        console.profile();
-    }
 
     render() {
         let style = {
@@ -122,34 +128,56 @@ class Menu extends Component {
                     <DropdownButton style={style.buttons} bsStyle="default" bsSize="small" title="File">
                         <MenuItem eventKey={1.1} onSelect={this.new}>New Project</MenuItem>
                         <MenuItem divider/>
-                        <MenuItem eventKey={1.2} onSelect={this.open}>Open Local Project</MenuItem>
-                        <MenuItem eventKey={1.3} onSelect={this.openServerProjects}>Open Server Project</MenuItem>
+                        <OverlayTrigger id="54335465765646" placement="right" overlay={<Tooltip id="48d498566">Retrieves projects locally from your browser's' database</Tooltip>}>
+                            <MenuItem eventKey={1.2} onSelect={this.open}>Open Local Project</MenuItem>
+                        </OverlayTrigger>
+                        <OverlayTrigger id="75497345957934567" placement="right" overlay={<Tooltip id="48d498566">Retrieves projects from the cloud</Tooltip>}>
+                            <MenuItem eventKey={1.3} onSelect={this.openServerProjects}>Open Server Project</MenuItem>
+                        </OverlayTrigger>
                         <MenuItem divider/>
                         <MenuItem
                             eventKey={1.4}
                             onSelect={this.props.projectName === '' ? this.props.showSaveModal : null}>
                             Save Project
                         </MenuItem>
-                        <MenuItem eventKey={1.5} onSelect={this.fork}>Fork Project</MenuItem>
+                        <OverlayTrigger id="75497345957934567" placement="right" overlay={<Tooltip id="48498566">Takes the current project and creates a brand new project</Tooltip>}>
+                            <MenuItem eventKey={1.5} onSelect={this.fork}>Fork Project</MenuItem>
+                        </OverlayTrigger>
                     </DropdownButton>
 
                     <DropdownButton style={style.buttons} bsStyle="default" bsSize="small" title="Share">
-                        <MenuItem disabled={this.props.editorStreaming !== false} eventKey={3.1} onSelect={this.goOnline}>
-                            Start Streaming Editor
-                        </MenuItem>
+                        <OverlayTrigger id="754973459e7934567" placement="right" overlay={<Tooltip id="48dwe2498566">Share project with others, all user actions on editor are kept in sync.(uses write lock timer) </Tooltip>}>
+                            <MenuItem disabled={this.props.editorStreaming !== false} eventKey={3.1} onSelect={this.goOnline}>
+                                Start Streaming Editor
+                            </MenuItem>
+                        </OverlayTrigger>
                         <MenuItem disabled={this.props.editorStreaming === false} eventKey={3.2} onSelect={this.goOffline}>
                             Stop Streaming Editor
                         </MenuItem>
                         <MenuItem divider/>
-                        <MenuItem eventKey={3.3} onSelect={this.startTogetherJS}>Toggle Real Time Collaboration</MenuItem>
+                        <OverlayTrigger id="754973e4597934567" placement="right" overlay={<Tooltip id="48dwe2498566">Multiple changes to project simultanously with TogetherJS </Tooltip>}>
+                            <MenuItem eventKey={3.3} onSelect={this.startTogetherJS}>Toggle Real Time Collaboration</MenuItem>
+                        </OverlayTrigger>
                     </DropdownButton>
 
                     <DropdownButton style={style.buttons} bsStyle="default" bsSize="small" title="View">
-                        <MenuItem eventKey={4.1} onSelect={this.openNewTab}>
-                            View in New Tab
+                        <OverlayTrigger id="754973459e7934567" placement="right" overlay={<Tooltip id="48dwe2498566">View Preview of the project in a new tab</Tooltip>}>
+                            <MenuItem eventKey={4.1} onSelect={this.openNewTab}>
+                                View in New Tab
+                            </MenuItem>
+                        </OverlayTrigger>
+                    </DropdownButton>
+
+                    <DropdownButton style={style.buttons} bsStyle="default" bsSize="small" title="Help">
+                        <MenuItem eventKey={5.1} href="https://github.com/tomhammers/code-pad">
+                            See Project Code on GitHub
+                        </MenuItem>
+                        <MenuItem eventKey={5.2} href="https://github.com/tomhammers/code-pad/issues">
+                            Report an Issue
                         </MenuItem>
 
                     </DropdownButton>
+
                 </ButtonToolbar>
                 <OpenServerModal projects={this.state.serverProjects} onServerLoad={this.props.onServerLoad}/>
 

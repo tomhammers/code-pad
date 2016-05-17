@@ -15,7 +15,9 @@ class Settings extends Component {
         this.activeLine = this.activeLine.bind(this);
         this.gutter = this.gutter.bind(this);
     }
-
+    /**
+     * handle uer changing settings, will set off action creators to update editor
+     */
     activeLine() {
         let checked = this.state.activeLineChecked === true ? false : true;
         this.setState({
@@ -35,7 +37,9 @@ class Settings extends Component {
     updateFontSize(event) {
         this.props.updateFontSize(event.target.value);
     }
-
+    /**
+     * TODO: not yet fully implemented, due to loading pad themes on pad component
+     */
     updateTheme(event) {
         this.props.availableEditorOptions.theme.map((option) => {
             if (event.target.value === option.name) {
@@ -51,7 +55,6 @@ class Settings extends Component {
             );
         });
     }
-
 
     render() {
         let style = {
@@ -95,7 +98,6 @@ function mapStateToProps(state) {
  * dispatch takes all actions and makes sure they are passed to all the reducers
  */
 function mapDispatchToProps(dispatch) {
-    // when selectBook is called, result should be passed to reducers
     return bindActionCreators({
         toggleActiveLine: toggleActiveLine,
         toggleGutter: toggleGutter,
@@ -105,25 +107,3 @@ function mapDispatchToProps(dispatch) {
 }
 // produces a container (is aware of state)
 export default connect(mapStateToProps, mapDispatchToProps)(Settings);
-
-
-
-                                //     <Col style={style.editorSettings} lg={4}>
-                                //         <Panel header="Editor Settings">
-
-                                //             <FormGroup inline controlId="formControlsSelect">
-                                //                 Font Size
-                                //                 <FormControl defaultValue={14} onChange={this.updateFontSize.bind(this) } componentClass="select">
-                                //                     {this.populateFontSizeOptions() }
-                                //                 </FormControl>
-
-                                //             </FormGroup>
-                                //             <Checkbox checked={this.state.activeLineChecked} onChange={this.activeLine}>
-                                //                 Highlight Active Line
-                                //             </Checkbox>
-                                //             <Checkbox checked={this.state.gutterChecked} onChange={this.gutter}>
-                                //                 Show Gutter
-                                //             </Checkbox>
-                                //         </Panel>
-                                //     </Col>
-                                // </Row>

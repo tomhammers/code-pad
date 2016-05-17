@@ -22,7 +22,9 @@ class DiffModal extends Component {
     close() {
         this.props.closeDiffModal();
     }
-
+    /**
+     * checks local files vs server files and displays differences to user
+     */
     setUpDiffs() {
         return this.props.files.map((file, i) => {
             if (this.props.serverCode[i] !== undefined) {
@@ -40,12 +42,16 @@ class DiffModal extends Component {
             }
         });
     }
-
+    /**
+     * user accepts changes from server
+     */
     acceptServerChanges() {
         this.props.updateCode(this.props.serverCode, this.props.projectName);
         this.props.startStreamingEditor();
     }
-
+    /**
+     * user will override servers copy of the project
+     */
     pushChangesToServer(){
         this.props.pushToServer();
     }
@@ -75,7 +81,7 @@ class DiffModal extends Component {
                         <MenuItem eventKey="3" onSelect={this.forkProject}>Fork Project</MenuItem>
                         <MenuItem eventKey="4" onSelect={this.close} >Stay Offline</MenuItem>
                     </DropdownButton>
-                    <p>Server Copy: </p>
+                    <p>How the server's project compares to your current project:</p>
                     {this.setUpDiffs()}
                 </Modal.Body>
 

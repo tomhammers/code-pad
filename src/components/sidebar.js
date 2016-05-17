@@ -34,7 +34,10 @@ class LeftSidebar extends Component {
         }
     }
     
-    /** */
+    /**
+     * get the filename of each file and render each one
+     * 
+    */
     renderFileList() {
         return this.props.files.map((file) => {
             let style = {

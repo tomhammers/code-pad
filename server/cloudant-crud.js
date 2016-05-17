@@ -12,6 +12,9 @@ Cloudant.prototype.findProject = function (id, callback) {
     });
 }
 
+/**
+ * READ
+ */
 Cloudant.prototype.getAllProjects = function (callback) {
     var projects = [];
     projectsdb.list({ include_docs: true }, function (err, body) {
@@ -19,6 +22,9 @@ Cloudant.prototype.getAllProjects = function (callback) {
     })
 }
 
+/**
+ * CREATE
+ */
 Cloudant.prototype.insertProject = function (project, id) {
     projectsdb.insert(project, id, function (err, body, header) {
         if (err) {
@@ -28,7 +34,7 @@ Cloudant.prototype.insertProject = function (project, id) {
     })
 }
 /**
- * Update existing project
+ * UPDATE existing project
  */
 Cloudant.prototype.updateProject = function (project, id) {
     projectsdb.get(id, function (err, doc) {

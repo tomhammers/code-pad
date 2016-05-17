@@ -48,7 +48,7 @@ class App extends Component {
       serverCode: { files: [{ content: "" }] },
       showOpenModal: false
     };
-    
+    // methods need to be aware of the correct context of 'this'
     this.compareProjects = this.compareProjects.bind(this);
     this.onDisconnect = this.onDisconnect.bind(this);
     this.insertLibrary = this.insertLibrary.bind(this);
@@ -148,7 +148,6 @@ class App extends Component {
     // put a copy in clients local DB for offline use
     this.pdb.project.projectData = data.project.projectData;
     this.pdb.upsertDoc();
-    this._addNotification("Saved");
   }
   /**
   * Whenever a user changes something in a pad
@@ -263,28 +262,31 @@ class App extends Component {
       }
     }
   }
-
+  /**
+   * automatically listens for connection events to socket.io server
+   */
   onConnect() {
-    console.log("connected");
     this.props.goOnline();
     if (this.props.projectId !== '') {
       this.joinRoom(this.props.projectId, null)
     }
     if (this.props.projectName !== '') {
       socket.emit('requestLatestProject', { id: this.props.projectId });
+      this.props.startStreamingEditor();
     }
   }
-
+  /**
+   * automatically listens for disconnection events to socket.io server
+   */
   onDisconnect() {
     this.props.goOffline();
-    console.log("disconnected!!!");
+    this.props.stopStreamingEditor();
   }
 
   /**
   * React cycle, before the DOM is rendered
   */
   componentWillMount() {
-
     // listen for server events and call the corrosponding method
     socket.on('connect', this.onConnect);
     socket.on('disconnect', this.onDisconnect);
@@ -325,10 +327,8 @@ class App extends Component {
         this.pdb.upsertDoc();
       }
     }
-
   }
-
-
+  
   render() {
     let previewHeight = this.state.pageHeight / 100 * 50;
     let style = {

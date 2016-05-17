@@ -1,3 +1,8 @@
+/**
+ * App.js ties all the components together
+ * This one actually renders and creates Redux Store
+ */
+
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
@@ -8,7 +13,6 @@ import App from './components/app';
 import reducers from './reducers';
 
 const createStoreWithMiddleware = applyMiddleware(ReduxPromise)(createStore);
-//let store = createStore(reducers)
 
 ReactDOM.render(
   <Provider store={createStoreWithMiddleware(reducers) }>

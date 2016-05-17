@@ -19,7 +19,9 @@ class Preview extends Component {
 
         this.getFiles = this.getFiles.bind(this);
     }
-
+    /**
+     * get a reference to the rendered sandbox
+     */
     componentDidMount() {
         this.sandbox = this.refs.iframe;
     }
@@ -28,7 +30,10 @@ class Preview extends Component {
         this.getFiles();
         this.populateSandbox();
     }
-
+    
+    /**
+     * get files ready before rendering to sandbox
+     */
     getFiles() {
         function handleResponse(jsFileNames, cssFileNames) {
             for (let i = 0, l = jsFileNames.length; i < l; i++) {
@@ -49,6 +54,7 @@ class Preview extends Component {
         }
 
         for (let i = 0, l = this.props.files.length; i < l; i++) {
+            // this is especially to get and linked files
             if (this.props.files[i].fileName === 'index.html') {
                 this.indexHTML = this.props.files[i].content;
                 this.parser = new Parser();
@@ -60,10 +66,14 @@ class Preview extends Component {
             }
         }
     }
-
+    /**
+     * renders all files to the referenced iframe
+     */
     populateSandbox() {
         let doc = this.sandbox.contentWindow.document;
+        
         doc.open();
+        
         for (let i = 0, l = this.htmlfiles.length; i < l; i++) {
             doc.write(this.htmlfiles[i])
         }
@@ -75,7 +85,8 @@ class Preview extends Component {
         }
 
         doc.close();
-
+        
+        // empty the arrays ready for next render
         this.htmlfiles = [];
         this.cssfiles = [];
         this.jsfiles = [];
@@ -112,9 +123,7 @@ function mapStateToProps(state) {
         files: state.files
     };
 }
-
 function mapDispatchToProps(dispatch) {
-    // when selectBook is called, result should be passed to reducers
     return bindActionCreators({}, dispatch)
 }
 

@@ -23,13 +23,21 @@ class SaveModal extends Component {
     close() {
         this.props.closeSaveModal();
     }
-
+    /**
+     * save the project when save button is clicked
+     */
     handleClick() {
-        this.props.saveProject(this.state.saveInput);
-        this.props.save();
-        this.setState({ saveInput: '' });
+        if (this.state.saveInput.length > 3 && this.state.saveInput.length < 20) {
+            this.props.saveProject(this.state.saveInput);
+            this.props.save();
+            this.setState({ saveInput: '' });
+        } else {
+            alert("Project Name should be between 3 and 20 characters long");
+        }
     }
-
+    /**
+     * keep track of value in save input
+     */
     whenChanged(event) {
         this.setState({ saveInput: event.target.value });
     }
@@ -82,5 +90,4 @@ function mapDispatchToProps(dispatch) {
         dispatch)
 }
 // produces a container (is aware of state)
-// promote booklist to container - needs to know about dispatch method
 export default connect(mapStateToProps, mapDispatchToProps)(SaveModal);

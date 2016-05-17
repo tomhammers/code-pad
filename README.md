@@ -1,4 +1,4 @@
-## Offline first collaborative code editor build using React, Redux, Socket.io and NodeJS
+## Offline first collaborative code editor built using React, Redux, Socket.io and NodeJS
 
 [Live Demo] (http://www.code-pad.io/)
 
@@ -8,6 +8,7 @@
 git clone https://github.com/tomhammers/code-pad.git
 cd code-pad
 npm install
+npm start
 ```
 
 Then navigate to localhost:3000 in your favourite browser

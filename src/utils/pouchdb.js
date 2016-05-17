@@ -16,19 +16,24 @@ export default class Pouch {
     createDB(dbName) {
         this.db = new PouchDB(dbName);
     }
-
+    /**
+     * uses same module as backend to set up project document
+     */
     setupProjectDoc(id, projectName, files) {
-        console.log(projectName);
         this.projectData = this.project.setProjectDoc(id, projectName, files);
         return this.projectData;
     }
-
+    /**
+     * handy method that either creates new doc or updates existing one
+     */
     upsertDoc() {
         this.db.upsert(this.project.projectData._id, (doc) => {
             return this.project.projectData;
         });
     }
-
+    /**
+     * file-> open // get latest docs from local db
+     */
     getDocs(callback) {
         this.db.allDocs({
             include_docs: true
@@ -39,7 +44,9 @@ export default class Pouch {
             console.log(error);
         });
     }
-
+    /**
+     * user has chosen a project to open
+     */
     findSingleDoc(id, callback) {
         this.db.get(id).then(function (doc) {
             callback(doc);
@@ -66,4 +73,3 @@ export default class Pouch {
 
 PouchDB.dbContents = {};
 PouchDB.projectData = {};
-// new Date().toISOString()

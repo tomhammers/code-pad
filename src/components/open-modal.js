@@ -14,7 +14,9 @@ export default class OpenModal extends Component {
         this.whenClicked = this.whenClicked.bind(this);
         this.setProjectNames = this.setProjectNames.bind(this);
     }
-
+    /**
+     * render project names in the modal
+     */
     setProjectNames() {
         let style = {
             listitems: {
@@ -39,7 +41,11 @@ export default class OpenModal extends Component {
     close() {
         this.props.onClose();
     }
-
+    
+    /**
+     * open the selected project, this calls a method in the parent component
+     * @param projectID
+     */
     whenClicked(projectID) {
         this.props.selectProject(projectID);
     }
