@@ -14,6 +14,7 @@ import Files                        from './reducer_files';
 import OfflineMode                  from './reducer_offline_mode';
 import ProjectId                    from './reducer_project_id';
 import ProjectName                  from './reducer_project_name';
+import RunButton                    from './reducer_run_button';
 import ShowDiffModal                from './reducer_diff_modal';
 import ShowGutter                   from './reducer_show_gutter';
 import ShowOpenModal                from './reducer_open_modal';
@@ -34,6 +35,7 @@ const rootReducer = combineReducers({
   offlineMode: OfflineMode,
   projectId: ProjectId,
   projectName: ProjectName,
+  runButton: RunButton,
   showDiffModal:  ShowDiffModal,
   showOpenModal: ShowOpenModal,
   showOpenServerProjectsModal: ShowOpenServerProjectsModal,

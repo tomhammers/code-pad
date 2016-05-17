@@ -45,6 +45,7 @@ class App extends Component {
       pageHeight: 0,
       projects: [],
       projectsFromDB: [],
+      runButtonClick: false,
       serverCode: { files: [{ content: "" }] },
       showOpenModal: false
     };
@@ -60,6 +61,7 @@ class App extends Component {
     this.openProject = this.openProject.bind(this);
     this.projectChange = this.projectChange.bind(this);
     this.pushToServer = this.pushToServer.bind(this);
+    this.runButtonPressed = this.runButtonPressed.bind(this);
     this.saveProject = this.saveProject.bind(this);
     this.setupProject = this.setupProject.bind(this);
     this.startStreamingEditor = this.startStreamingEditor.bind(this);
@@ -282,6 +284,13 @@ class App extends Component {
     this.props.goOffline();
     this.props.stopStreamingEditor();
   }
+  
+  runButtonPressed() {
+    this.setState({ runButtonClick: true });
+    setTimeout(() => {
+      this.setState({ runButtonClick: false });
+    }, 200)
+  }
 
   /**
   * React cycle, before the DOM is rendered
@@ -360,6 +369,7 @@ class App extends Component {
           onOpenServerProjects={this.fetchServerProjects}
           onServerLoad={this.saveProject}
           fork={this.forkProject}
+          runButton={ this.runButtonPressed }
           stopStramingEditor={this.stopStramingEditor}
           startStreamingEditor={this.startStreamingEditor}
           socket={socket}
@@ -369,7 +379,7 @@ class App extends Component {
           <Pad height={this.state.pageHeight} onChange={this.handlePadChange} />
           <Col lg={4}>
             <Row>
-              <Preview height={previewHeight} />
+              <Preview height={previewHeight} runButtonClick={this.state.runButtonClick} />
             </Row>
             <Row style={style.hub} className="hub">
               <Hub socket={socket} insertLibrary={this.insertLibrary}/>

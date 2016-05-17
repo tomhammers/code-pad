@@ -27,10 +27,12 @@ class Preview extends Component {
     }
 
     componentDidUpdate() {
-        this.getFiles();
-        this.populateSandbox();
+        if (this.props.autoPreview || this.props.runButtonClick) {
+            this.getFiles();
+            this.populateSandbox();
+        }
     }
-    
+
     /**
      * get files ready before rendering to sandbox
      */
@@ -70,10 +72,11 @@ class Preview extends Component {
      * renders all files to the referenced iframe
      */
     populateSandbox() {
+
         let doc = this.sandbox.contentWindow.document;
-        
+
         doc.open();
-        
+
         for (let i = 0, l = this.htmlfiles.length; i < l; i++) {
             doc.write(this.htmlfiles[i])
         }
@@ -85,7 +88,7 @@ class Preview extends Component {
         }
 
         doc.close();
-        
+
         // empty the arrays ready for next render
         this.htmlfiles = [];
         this.cssfiles = [];
@@ -120,6 +123,7 @@ class Preview extends Component {
 // applications state to props, look in reducer/index; files will be found there
 function mapStateToProps(state) {
     return {
+        autoPreview: !state.runButton,
         files: state.files
     };
 }

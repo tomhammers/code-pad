@@ -1,7 +1,7 @@
 
 let settings = {
     theme: 'ace/theme/tomorrow_night_eighties',
-    fontSize: 14
+    fontSize: 15
 }
 
 

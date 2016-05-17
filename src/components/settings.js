@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { toggleActiveLine, toggleGutter, updateFontSize, updateTheme } from '../actions/index';
+import { toggleActiveLine, toggleGutter, toggleRunButton, updateFontSize, updateTheme } from '../actions/index';
 import { Checkbox, FormControl, FormGroup, ControlLabel, DropdownButton, MenuItem, Panel, Col, Row, Tabs, Tab, Nav, NavItem } from 'react-bootstrap';
 
 class Settings extends Component {
@@ -10,10 +10,12 @@ class Settings extends Component {
 
         this.state = {
             activeLineChecked: true,
+            autoPreviewChecked: false,
             gutterChecked: true
         }
         this.activeLine = this.activeLine.bind(this);
         this.gutter = this.gutter.bind(this);
+        this.runButton = this.runButton.bind(this);
     }
     /**
      * handle uer changing settings, will set off action creators to update editor
@@ -32,6 +34,15 @@ class Settings extends Component {
             gutterChecked: checked
         });
         this.props.toggleGutter(checked);
+    }
+
+    runButton() {
+        let checked = this.state.autoPreviewChecked === true ? false : true;
+        this.setState({
+            autoPreviewChecked: checked
+        });
+        this.props.toggleRunButton(checked);
+       
     }
 
     updateFontSize(event) {
@@ -68,7 +79,7 @@ class Settings extends Component {
             <Tab.Container style={style.outer} id="left-tabs-example" defaultActiveKey="first">
                 <Panel>
                     <FormGroup inline controlId="formControlsSelect">
-                        Font Size
+                        Editor Font Size
                         <FormControl defaultValue={14} onChange={this.updateFontSize.bind(this) } componentClass="select">
                             {this.populateFontSizeOptions() }
                         </FormControl>
@@ -79,6 +90,9 @@ class Settings extends Component {
                     </Checkbox>
                     <Checkbox checked={this.state.gutterChecked} onChange={this.gutter}>
                         Show Gutter
+                    </Checkbox>
+                    <Checkbox checked={this.state.autoPreviewChecked} onChange={this.runButton}>
+                        Run Button (Turn off auto preview)
                     </Checkbox>
                 </Panel>
 
@@ -101,6 +115,7 @@ function mapDispatchToProps(dispatch) {
     return bindActionCreators({
         toggleActiveLine: toggleActiveLine,
         toggleGutter: toggleGutter,
+        toggleRunButton: toggleRunButton,
         updateFontSize: updateFontSize,
         updateTheme: updateTheme
     }, dispatch)

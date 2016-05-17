@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { newProject, showOpenServerProjModal, showSaveModal, showOpenModal } from '../actions/index';
-import { ButtonToolbar, Button, DropdownButton, SplitButton, MenuItem, Tooltip, OverlayTrigger} from 'react-bootstrap';
+import { ButtonToolbar, Button, DropdownButton, SplitButton, MenuItem, Tooltip, OverlayTrigger, Glyphicon } from 'react-bootstrap';
 
 import OpenServerModal from '../components/open-server-modal';
 
@@ -30,10 +30,12 @@ class Menu extends Component {
 
     componentWillMount() {
         this.props.socket.on('serverProjects', (data) => {
-            console.log(data);
             this.setState({ serverProjects: data.projects });
-            //this.props.showOpenServerProjModal();
         });
+    }
+    
+    handleRunButtonClick() {
+        this.props.runButton();
     }
 
     /**
@@ -120,8 +122,16 @@ class Menu extends Component {
             outer: {
                 backgroundColor: "#e0e0e0",
                 color: "black"
+            },
+            runButton: {
+
             }
         }
+
+        if (!this.props.showRunButton) {
+            style.runButton.display = "none"
+        }
+
         return (
             <div style={style.outer}>
                 <ButtonToolbar>
@@ -177,8 +187,11 @@ class Menu extends Component {
                         </MenuItem>
 
                     </DropdownButton>
+                    <Button style={style.runButton} bsStyle="primary" onClick={this.handleRunButtonClick.bind(this)}><Glyphicon glyph="play" /> Run</Button>
 
                 </ButtonToolbar>
+
+
                 <OpenServerModal projects={this.state.serverProjects} onServerLoad={this.props.onServerLoad}/>
 
             </div>
@@ -191,6 +204,7 @@ function mapStateToProps(state) {
         editorStreaming: state.editorStreaming,
         files: state.files,
         projectName: state.projectName,
+        showRunButton: state.runButton,
         showOpenServerProjectsModal: state.showOpenServerProjectsModal
     };
 }

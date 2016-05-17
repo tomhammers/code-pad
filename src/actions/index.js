@@ -132,6 +132,13 @@ export function toggleGutter(active) {
     };
 }
 
+export function toggleRunButton(active) {
+    return {
+        type: 'TOGGLE_RUN_BUTTON',
+        payload: active  
+    };
+}
+
 // user opens app from unique URL
 export function updateCode(code, projectName) {
     return {

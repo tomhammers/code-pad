@@ -110,7 +110,7 @@ class ChatBox extends Component {
      * Incoming messages, setState will cause a re-render
      */
     handleNewMessage(data) {
-        console.log(data);
+        console.log(this.refs.chat);
         this.setState({
             messages: this.state.messages.concat([data.msg])
         });
@@ -133,7 +133,7 @@ class ChatBox extends Component {
             chatMessages: {
                 overflowY: "auto",
                 height: "100%",
-                marginBottom: "5px",
+                paddingBottom: "25px",
                 backgroundColor: "#f4f4f4"
             },
             columns: {
@@ -166,7 +166,7 @@ class ChatBox extends Component {
                 <Row style={style.chatbox}>
                     <Col lg={8} style={style.columns}>
 
-                        <Panel style={style.chatMessages}>
+                        <Panel style={style.chatMessages} ref="chat">
                             <div id="chatMessages">
                                 {this.printMessages() }
 
