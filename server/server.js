@@ -1,4 +1,5 @@
 "use strict";
+console.log(process.env)
 var express = require('express');
 var app = express();
 var router = express.Router();
